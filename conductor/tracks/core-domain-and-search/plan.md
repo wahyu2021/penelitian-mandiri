@@ -45,28 +45,28 @@ Metodologi: Bertahap (Staged Execution) — Setiap tahap wajib selesai dan **sem
 ## Tahap 2: Baseline Pencarian LIKE & Empat Algoritma Fuzzy Matching
 
 ### 2.1 Pembanding Pencarian LIKE SIMANIS (`core/search/like_baseline.py`)
-- [ ] Implementasikan kelas `LikeBaselineSearch` yang meniru persis filter DataTables SIMANIS:
+- [x] Implementasikan kelas `LikeBaselineSearch` yang meniru persis filter DataTables SIMANIS:
   - Tokenisasi kueri per spasi.
   - Setiap kata harus muncul sebagai substring (case-insensitive) pada gabungan kolom tampilan.
   - Urutan hasil berdasarkan `id_arsip ASC`.
-- [ ] Tulis unit test `tests/test_like_baseline.py`.
+- [x] Tulis unit test `tests/test_like_baseline.py`.
 
 ### 2.2 Algoritma Pencocokan Fuzzy (`core/search/matchers/`)
-- [ ] Implementasikan antarmuka abstrak `BaseMatcher` di `core/search/matchers/base.py`.
-- [ ] Implementasikan `LevenshteinMatcher` menggunakan RapidFuzz.
-- [ ] Implementasikan `JaroWinklerMatcher` menggunakan RapidFuzz.
-- [ ] Implementasikan `TokenSetMatcher` menggunakan RapidFuzz.
-- [ ] Implementasikan `DiceNgramMatcher` (Dice Character N-Gram kustom dengan padding) dalam Python murni.
-- [ ] Tulis unit test `tests/test_matchers.py` memverifikasi skor setiap matcher terhadap pasangan string teruji.
+- [x] Implementasikan antarmuka abstrak `BaseMatcher` di `core/search/matchers/base.py`.
+- [x] Implementasikan `LevenshteinMatcher` menggunakan RapidFuzz.
+- [x] Implementasikan `JaroWinklerMatcher` menggunakan RapidFuzz.
+- [x] Implementasikan `TokenSetMatcher` menggunakan RapidFuzz.
+- [x] Implementasikan `DiceNgramMatcher` (Dice Character N-Gram kustom dengan padding) dalam Python murni.
+- [x] Tulis unit test `tests/test_matchers.py` memverifikasi skor setiap matcher terhadap pasangan string teruji.
 
 ### 2.3 Indeks Memori & Pembobotan Field (`core/search/index.py` & `core/search/ranker.py`)
-- [ ] Implementasikan `SearchIndex` untuk menampung korpus dokumen, kosakata, dan representasi token per field.
-- [ ] Implementasikan `FieldRanker` untuk menggabungkan skor kemiripan (*ringkasan, SPM, pihak*) dengan bobot terkonfigurasi.
-- [ ] Tulis unit test `tests/test_search_index.py` dan `tests/test_ranker.py`.
+- [x] Implementasikan `SearchIndex` untuk menampung korpus dokumen, kosakata, dan representasi token per field.
+- [x] Implementasikan `FieldRanker` untuk menggabungkan skor kemiripan (*ringkasan, SPM, pihak*) dengan bobot terkonfigurasi.
+- [x] Tulis unit test `tests/test_search_index.py` dan `tests/test_ranker.py`.
 
 ### 2.4 Gerbang Verifikasi Tahap 2
-- [ ] Jalankan pencarian uji coba terhadap kelima metode untuk kueri umum dan kueri bertipe.
-- [ ] Jalankan `pytest tests/` dan pastikan **semua uji lulus**.
+- [x] Jalankan pencarian uji coba terhadap kelima metode untuk kueri umum dan kueri bertipe.
+- [x] Jalankan `pytest tests/` dan pastikan **semua uji lulus**.
 
 ---
 
