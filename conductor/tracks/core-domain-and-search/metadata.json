@@ -1,0 +1,24 @@
+{
+  "track_id": "core-domain-and-search",
+  "title": "Core Domain Logic & Multi-Method Search",
+  "description": "Fondasi logika domain Python murni: parser SQL dump aman, ekstraksi metadata terstruktur, algoritma pencocokan fuzzy multi-metode (Levenshtein, Jaro-Winkler, Token Set, Dice N-gram) dan baseline LIKE SIMANIS, serta metrik temu kembali ilmiah.",
+  "status": "in_progress",
+  "created_at": "2026-10-11T23:53:00+07:00",
+  "phases": [
+    {
+      "id": "phase-1",
+      "name": "Parser Dump, Pembersihan Data, Normalisasi & Ekstraksi Metadata",
+      "status": "planned"
+    },
+    {
+      "id": "phase-2",
+      "name": "Baseline Pencarian LIKE & Empat Algoritma Fuzzy Matching",
+      "status": "planned"
+    },
+    {
+      "id": "phase-3",
+      "name": "Metrik Evaluasi Ilmiah & Rekapitulasi Komputasi",
+      "status": "planned"
+    }
+  ]
+}

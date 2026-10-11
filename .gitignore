@@ -1,0 +1,49 @@
+# ===== Data mentah: dump SQL produksi SIMANIS =====
+*.sql
+data/raw/
+
+# ===== Basis data SQLite =====
+instance/
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+*.sqlite-journal
+*-wal
+*-shm
+
+# ===== CSV dan hasil olahan =====
+# Semua CSV diabaikan (hasil ekstraksi, evaluasi, ekspor laporan).
+# Set uji dilacak sebagai JSON di data/testset/, bukan CSV.
+*.csv
+output/
+
+# ===== Rahasia & konfigurasi lokal =====
+.env
+.env.*
+!.env.example
+
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# ===== Log =====
+*.log
+logs/
+
+# ===== Editor & OS =====
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
+.DS_Store
