@@ -1,7 +1,7 @@
 # Track Index: Core Domain Logic & Multi-Method Search
 
 Track ID: `core-domain-and-search`  
-Status: `planned`  
+Status: `completed`  
 Tanggal Pembuatan: 11 Oktober 2026
 
 ## Ringkasan Eksekutif
@@ -13,6 +13,6 @@ Track ini mengimplementasikan lapisan logika domain independen (`core/`) untuk s
 - [Metadata Track (metadata.json)](metadata.json)
 
 ## Status Fase Pelaksanaan
-- [ ] **Fase 1: Parser Dump, Pembersihan Data, Normalisasi & Ekstraksi Metadata** (Status: *planned*)
-- [ ] **Fase 2: Baseline Pencarian LIKE & Empat Algoritma Fuzzy Matching** (Status: *planned*)
-- [ ] **Fase 3: Metrik Evaluasi Ilmiah & Rekapitulasi Komputasi** (Status: *planned*)
+- [x] **Fase 1: Parser Dump, Pembersihan Data, Normalisasi & Ekstraksi Metadata** (Status: *completed*)
+- [x] **Fase 2: Baseline Pencarian LIKE & Empat Algoritma Fuzzy Matching** (Status: *completed*)
+- [x] **Fase 3: Metrik Evaluasi Ilmiah & Rekapitulasi Komputasi** (Status: *completed*)

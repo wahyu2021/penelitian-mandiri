@@ -73,22 +73,22 @@ Metodologi: Bertahap (Staged Execution) — Setiap tahap wajib selesai dan **sem
 ## Tahap 3: Metrik Evaluasi Ilmiah & Rekapitulasi Komputasi
 
 ### 3.1 Modul Metrik Temu Kembali (`core/evaluation/metrics.py`)
-- [ ] Implementasikan fungsi `precision_at_k(retrieved_ids, relevant_ids, k=5)`.
-- [ ] Implementasikan fungsi `recall_at_k(retrieved_ids, relevant_ids, k=10)`.
-- [ ] Implementasikan fungsi `reciprocal_rank(retrieved_ids, relevant_ids, max_k=10)`.
-- [ ] Implementasikan fungsi `hit_rate_at_k(retrieved_ids, relevant_ids, k)`.
-- [ ] Implementasikan fungsi `macro_average_metrics(query_results)`.
-- [ ] Implementasikan perhitungan jumlah kueri nol hasil (*zero-result queries*).
+- [x] Implementasikan fungsi `precision_at_k(retrieved_ids, relevant_ids, k=5)`.
+- [x] Implementasikan fungsi `recall_at_k(retrieved_ids, relevant_ids, k=10)`.
+- [x] Implementasikan fungsi `reciprocal_rank(retrieved_ids, relevant_ids, max_k=10)`.
+- [x] Implementasikan fungsi `hit_rate_at_k(retrieved_ids, relevant_ids, k)`.
+- [x] Implementasikan fungsi `macro_average_metrics(query_results)`.
+- [x] Implementasikan perhitungan jumlah kueri nol hasil (*zero-result queries*).
 
 ### 3.2 Modul Agreement Validation (`core/evaluation/agreement.py`)
-- [ ] Implementasikan fungsi penghitungan persentase kesepakatan (*percentage agreement*) antara peneliti dan arsiparis pada sampel 20–30%.
+- [x] Implementasikan fungsi penghitungan persentase kesepakatan (*percentage agreement*) antara peneliti dan arsiparis pada sampel 20–30%.
 
 ### 3.3 Verifikasi Uji Unit Metrik
-- [ ] Tulis unit test `tests/test_metrics.py` memverifikasi P@5, R@10, MRR@10, Hit Rate, dan zero-result terhadap kumpulan contoh hitung tangan (*hand-calculated test fixtures*).
-- [ ] Tulis unit test `tests/test_agreement.py` memverifikasi kalkulasi percentage agreement.
+- [x] Tulis unit test `tests/test_metrics.py` memverifikasi P@5, R@10, MRR@10, Hit Rate, dan zero-result terhadap kumpulan contoh hitung tangan (*hand-calculated test fixtures*).
+- [x] Tulis unit test `tests/test_agreement.py` memverifikasi kalkulasi percentage agreement.
 
 ### 3.4 Gerbang Verifikasi Tahap 3 & Penyelesaian Track
-- [ ] Jalankan suite uji lengkap: `pytest tests/ -v`.
-- [ ] Pastikan **semua uji lulus** tanpa kegagalan.
-- [ ] Buat dokumentasi ringkasan penyelesaian track di `docs/core_domain_summary.md`.
-- [ ] Commit hasil implementasi secara atomik ke Git dengan pesan konvensional.
+- [x] Jalankan suite uji lengkap: `pytest tests/ -v`.
+- [x] Pastikan **semua uji lulus** tanpa kegagalan.
+- [x] Buat dokumentasi ringkasan penyelesaian track di `docs/core_domain_summary.md`.
+- [x] Commit hasil implementasi secara atomik ke Git dengan pesan konvensional.

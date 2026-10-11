@@ -29,4 +29,4 @@
 
 | ID | Title | Status | Description |
 | :--- | :--- | :--- | :--- |
-| [core-domain-and-search](tracks/core-domain-and-search/) | Core Domain Logic & Multi-Method Search | In Progress | Fondasi domain logika Python murni: parser SQL dump aman, ekstraksi metadata terstruktur, algoritma pencocokan fuzzy multi-metode dan baseline LIKE SIMANIS, serta metrik temu kembali ilmiah. |
+| [core-domain-and-search](tracks/core-domain-and-search/) | Core Domain Logic & Multi-Method Search | Completed | Fondasi domain logika Python murni: parser SQL dump aman, ekstraksi metadata terstruktur, algoritma pencocokan fuzzy multi-metode dan baseline LIKE SIMANIS, serta metrik temu kembali ilmiah. |
