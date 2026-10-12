@@ -12,3 +12,4 @@ waitress==3.0.2
 Werkzeug==3.1.9
 WTForms==3.2.2
 matplotlib==3.11.2
+nbstripout==0.9.1

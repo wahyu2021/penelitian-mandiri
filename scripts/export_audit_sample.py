@@ -151,13 +151,26 @@ def generate_stratified_sample(
     )
     extracted_sha256 = hashlib.sha256(extracted_canonical.encode("utf-8")).hexdigest()
 
+    reference_records = {
+        str(rec["archive_id"]): {
+            "sample_id": rec["sample_id"],
+            "summary_raw": rec["summary_raw"],
+            "extracted_spm": rec["extracted_spm"],
+            "extracted_sp2d": rec["extracted_sp2d"],
+            "extracted_date": rec["extracted_date"],
+            "extracted_amount": rec["extracted_amount"],
+            "extracted_party": rec["extracted_party"],
+        }
+        for rec in records
+    }
+
     metadata = {
         "extractor_version": EXTRACTOR_VERSION,
         "seed": seed,
         "total_population": total_pop,
         "sample_size": sample_size,
-        "extracted_data_sha256": extracted_sha256,
         "sample_archive_ids": [rec["archive_id"] for rec in records],
+        "reference_records": reference_records,
         "strata_detail": strata_report,
     }
     return records, metadata
@@ -232,7 +245,20 @@ def main() -> None:
                 row[fld] = ""
             writer.writerow(row)
 
-    # 3. Simpan manifest metadata strata dan hash verifikasi
+    meta["agreement_reference_records"] = {
+        str(rec["archive_id"]): {
+            "sample_id": idx,
+            "summary_raw": rec["summary_raw"],
+            "extracted_spm": rec["extracted_spm"],
+            "extracted_sp2d": rec["extracted_sp2d"],
+            "extracted_date": rec["extracted_date"],
+            "extracted_amount": rec["extracted_amount"],
+            "extracted_party": rec["extracted_party"],
+        }
+        for idx, rec in enumerate(agreement_records, start=1)
+    }
+
+    # 3. Simpan manifest metadata strata dan verifikasi baris
     meta_json_path = out_dir / "audit_strata_summary.json"
     meta_json_path.write_text(json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8")
 

@@ -16,53 +16,64 @@ from core.testset.splitting import compute_content_sha256, split_queries_stratif
 
 DEFAULT_POOL_CSV = Path("output/relevance_pool.csv")
 DEFAULT_PILOT_CSV = Path("output/relevance_pool_pilot_5.csv")
+DEFAULT_ADDITIONAL_POOL_CSV = Path("output/relevance_additional_pool.csv")
 DEFAULT_OUTPUT_JSON = Path("data/testset/testset_v1.json")
 DEFAULT_CANDIDATE_META = Path("output/.candidate_queries.json")
 TESTSET_VERSION = "v1.0.0"
 SPLIT_SEED = 42
 
 
-def validate_pilot_consistency(
+def sync_and_validate_pilot(
     pool_rows: List[Dict[str, str]],
     pilot_csv_path: Optional[Path] = None,
-) -> int:
-    """Validasi bahwa penilaian di berkas pilot tidak bertentangan dengan berkas utama.
+) -> Tuple[int, int]:
+    """Validasi konsistensi dan gabungkan penilaian dari pilot ke berkas utama jika belum terisi.
 
     Returns:
-        Jumlah baris pilot yang dinilai konsisten.
+        Tuple (jumlah_baris_diperiksa, jumlah_baris_disinkronkan).
     """
     if not pilot_csv_path or not pilot_csv_path.is_file():
-        return 0
+        return 0, 0
 
     with open(pilot_csv_path, "r", encoding="utf-8-sig") as f:
         pilot_rows = list(csv.DictReader(f))
 
-    # Petakan penilaian utama: (query_id, archive_id) -> is_relevant
-    main_judgments = {}
-    for r in pool_rows:
-        rel = r.get("is_relevant", "").strip()
-        if rel != "":
-            is_rel = 1 if rel in {"1", "true", "ya", "relevan"} else 0
-            main_judgments[(r["query_id"], int(r["archive_id"]))] = is_rel
+    # Petakan baris utama: (query_id, archive_id) -> indeks baris di pool_rows
+    main_row_map = {
+        (r["query_id"], int(r["archive_id"])): r
+        for r in pool_rows
+    }
 
     checked = 0
+    synced = 0
     for pr in pilot_rows:
         p_rel = pr.get("is_relevant", "").strip()
         if p_rel != "":
             p_val = 1 if p_rel in {"1", "true", "ya", "relevan"} else 0
             key = (pr["query_id"], int(pr["archive_id"]))
-            if key in main_judgments:
-                m_val = main_judgments[key]
-                if p_val != m_val:
-                    raise ValueError(
-                        f"Ketidakkonsistenan penilaian terdeteksi:\n"
-                        f"Kueri {key[0]}, Arsip ID {key[1]} dinilai '{p_val}' pada pilot "
-                        f"tetapi '{m_val}' pada berkas utama pool.\n"
-                        f"Mohon selaraskan penilaian kedua berkas."
-                    )
-            checked += 1
+            if key in main_row_map:
+                main_row = main_row_map[key]
+                m_rel = main_row.get("is_relevant", "").strip()
+                if m_rel == "":
+                    # Gabungkan otomatis nilai dari pilot ke berkas utama
+                    main_row["is_relevant"] = str(p_val)
+                    if not main_row.get("ragu", "").strip() and pr.get("ragu", "").strip():
+                        main_row["ragu"] = pr["ragu"].strip()
+                    if not main_row.get("auditor_notes", "").strip():
+                        main_row["auditor_notes"] = pr.get("auditor_notes", "").strip()
+                    synced += 1
+                else:
+                    m_val = 1 if m_rel in {"1", "true", "ya", "relevan"} else 0
+                    if p_val != m_val:
+                        raise ValueError(
+                            f"Ketidakkonsistenan penilaian terdeteksi:\n"
+                            f"Kueri {key[0]}, Arsip ID {key[1]} dinilai '{p_val}' pada pilot "
+                            f"tetapi '{m_val}' pada berkas utama pool.\n"
+                            f"Mohon selaraskan penilaian kedua berkas."
+                        )
+                checked += 1
 
-    return checked
+    return checked, synced
 
 
 def build_testset_from_pool(
@@ -70,6 +81,7 @@ def build_testset_from_pool(
     output_json_path: Path,
     pilot_csv_path: Optional[Path] = None,
     candidate_meta_path: Optional[Path] = None,
+    additional_pool_csv_path: Optional[Path] = None,
     tuning_ratio: float = 0.30,
     seed: int = SPLIT_SEED,
 ) -> Dict[str, object]:
@@ -83,8 +95,8 @@ def build_testset_from_pool(
     if not rows:
         raise ValueError("Berkas pool CSV kosong.")
 
-    # Validasi konsistensi dengan berkas pilot
-    validate_pilot_consistency(rows, pilot_csv_path)
+    # Validasi dan sinkronkan penilaian dari berkas pilot (jika pilot diisi)
+    _, synced_count = sync_and_validate_pilot(rows, pilot_csv_path)
 
     # Muat metadata kueri internal jika ada (untuk origin_archive_id dan spm)
     candidate_meta_map: Dict[str, Dict[str, object]] = {}
@@ -131,6 +143,34 @@ def build_testset_from_pool(
             "is_relevant": is_rel,
             "ragu": is_ragu,
         })
+
+    # Tambahkan penilaian tambahan dokumen unjudged pasca-tuning jika ada
+    additional_count = 0
+    if additional_pool_csv_path and additional_pool_csv_path.is_file():
+        with open(additional_pool_csv_path, "r", encoding="utf-8-sig") as f:
+            add_rows = list(csv.DictReader(f))
+        for ar in add_rows:
+            q_id = ar.get("query_id")
+            if not q_id or q_id not in query_map:
+                continue
+            rel_raw = ar.get("is_relevant", "").strip()
+            if rel_raw == "":
+                continue
+            is_rel = 1 if rel_raw in {"1", "true", "ya", "relevan"} else 0
+            ragu_raw = ar.get("ragu", "").strip()
+            is_ragu = 1 if ragu_raw in {"1", "ya", "true"} else 0
+            aid = int(ar["archive_id"])
+
+            existing_aids = {j["archive_id"] for j in judgments_by_query[q_id]}
+            if aid not in existing_aids:
+                judgments_by_query[q_id].append({
+                    "archive_id": aid,
+                    "is_relevant": is_rel,
+                    "ragu": is_ragu,
+                })
+                additional_count += 1
+                if is_ragu:
+                    total_ragu += 1
 
     queries_list = list(query_map.values())
 
@@ -181,6 +221,8 @@ def build_testset_from_pool(
         "n_test": len(test_q),
         "unjudged_rows": unjudged_count,
         "total_ragu": total_ragu,
+        "synced_from_pilot": synced_count,
+        "additional_judged_count": additional_count,
     }
 
 
@@ -196,7 +238,12 @@ def main() -> None:
     parser.add_argument(
         "--pilot-csv",
         default=str(DEFAULT_PILOT_CSV),
-        help="Path berkas CSV penilaian pilot untuk cek konsistensi.",
+        help="Path berkas CSV penilaian pilot untuk cek konsistensi / sinkronisasi.",
+    )
+    parser.add_argument(
+        "--additional-pool",
+        default=str(DEFAULT_ADDITIONAL_POOL_CSV),
+        help="Path berkas CSV penilaian tambahan pasca-tuning.",
     )
     parser.add_argument(
         "--output-json",
@@ -224,6 +271,9 @@ def main() -> None:
 
     pilot_path = Path(args.pilot_csv) if Path(args.pilot_csv).is_file() else None
     meta_path = Path(args.candidate_meta) if Path(args.candidate_meta).is_file() else None
+    add_path = (
+        Path(args.additional_pool) if Path(args.additional_pool).is_file() else None
+    )
 
     try:
         res = build_testset_from_pool(
@@ -231,6 +281,7 @@ def main() -> None:
             output_json_path=Path(args.output_json),
             pilot_csv_path=pilot_path,
             candidate_meta_path=meta_path,
+            additional_pool_csv_path=add_path,
             tuning_ratio=args.tuning_ratio,
             seed=args.seed,
         )
@@ -245,6 +296,10 @@ def main() -> None:
     print(f"    - Kueri Tuning     : {res['n_tuning']} (~30%)")
     print(f"    - Kueri Test       : {res['n_test']} (~70%)")
     print(f"    - Baris Ragu       : {res['total_ragu']}")
+    if res.get("synced_from_pilot", 0) > 0:
+        print(f"    - Dari Pilot       : {res['synced_from_pilot']} baris tersinkron otomatis")
+    if res.get("additional_judged_count", 0) > 0:
+        print(f"    - Tambahan Pasca-Tune: {res['additional_judged_count']} baris terintegrasi")
     if res['unjudged_rows'] > 0:
         print(
             f"    - [Catatan] Terdapat {res['unjudged_rows']} baris belum dinilai "
@@ -255,3 +310,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
