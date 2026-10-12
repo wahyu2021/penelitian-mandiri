@@ -29,9 +29,9 @@
 
 | ID | Title | Status | Description |
 | :--- | :--- | :--- | :--- |
-| [testset-and-evaluation](tracks/testset-and-evaluation/) | Testset & Scientific Evaluation | In Progress | Impor ke SQLite dengan pemeriksaan angka acuan, audit ekstraksi 100 sampel berstrata, pedoman penilaian relevansi tertulis, blind pooling Top-10, split ~30/70 anti-leak, penyetelan bobot tuning (MRR@10 utama), dan evaluasi akhir CLI (working tree bersih). |
+| [testset-and-evaluation](tracks/testset-and-evaluation/) | Testset & Scientific Evaluation | Complete | Impor ke SQLite dengan pemeriksaan angka acuan, audit ekstraksi 100 sampel berstrata, pedoman penilaian relevansi tertulis, blind pooling Top-10, split ~30/70 anti-leak, penyetelan bobot tuning (MRR@10 utama), dan evaluasi akhir CLI (working tree bersih). |
 
 ---
 
-- [~] **Track: testset-and-evaluation**
+- [x] **Track: testset-and-evaluation**
 *Link: [./tracks/testset-and-evaluation/](./tracks/testset-and-evaluation/)*
