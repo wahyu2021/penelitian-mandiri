@@ -128,3 +128,62 @@ def test_build_testset_from_pool(tmp_path: Path):
     import json
     saved = json.loads(json_file.read_text(encoding="utf-8"))
     assert set(q["split"] for q in saved["queries"]) == {"tuning", "test"}
+
+
+def test_build_testset_pilot_consistency_and_ragu(tmp_path: Path):
+    from scripts.evaluate_relevance_agreement import evaluate_relevance_agreement
+
+    main_csv = tmp_path / "pool.csv"
+    pilot_csv = tmp_path / "pilot.csv"
+    json_file = tmp_path / "testset.json"
+
+    header = (
+        "query_id,query_text,query_type,source,noise_type,pool_order,"
+        "archive_id,summary_raw,spm_number,party_name,is_relevant,ragu,auditor_notes\n"
+    )
+    row1_main = (
+        "Q001,gedung,topik,sintetis,tanpa_gangguan,1,10,"
+        "Renovasi gedung,123/LS,CV Contoh,1,0,\n"
+    )
+    row2_main = (
+        "Q001,gedung,topik,sintetis,tanpa_gangguan,2,11,"
+        "Pengecatan kantor,456/GU,CV Maju,0,1,\n"
+    )
+    main_csv.write_text(header + row1_main + row2_main, encoding="utf-8-sig")
+
+    # 1. Pilot konsisten
+    row1_pilot = (
+        "Q001,gedung,topik,sintetis,tanpa_gangguan,1,10,"
+        "Renovasi gedung,123/LS,CV Contoh,1,0,\n"
+    )
+    pilot_csv.write_text(header + row1_pilot, encoding="utf-8-sig")
+
+    res = build_testset_from_pool(
+        main_csv, json_file, pilot_csv_path=pilot_csv, tuning_ratio=0.5
+    )
+    assert res["total_ragu"] == 1
+
+    # 2. Pilot tidak konsisten (Q001, archive 10 diubah jadi 0 di pilot)
+    bad_pilot = (
+        "Q001,gedung,topik,sintetis,tanpa_gangguan,1,10,"
+        "Renovasi gedung,123/LS,CV Contoh,0,0,\n"
+    )
+    pilot_csv.write_text(header + bad_pilot, encoding="utf-8-sig")
+
+    with pytest.raises(ValueError, match="Ketidakkonsistenan penilaian terdeteksi"):
+        build_testset_from_pool(main_csv, json_file, pilot_csv_path=pilot_csv)
+
+    # 3. Uji evaluasi kesepakatan arsiparis
+    verif_csv = tmp_path / "verif.csv"
+    verif_header = (
+        "sample_id,query_id,query_text,query_type,source,noise_type,"
+        "archive_id,summary_raw,spm_number,party_name,is_relevant,ragu,archivist_notes\n"
+    )
+    verif_row = (
+        "1,Q001,gedung,topik,sintetis,tanpa_gangguan,10,"
+        "Renovasi gedung,123/LS,CV Contoh,1,0,\n"
+    )
+    verif_csv.write_text(verif_header + verif_row, encoding="utf-8-sig")
+
+    rep = evaluate_relevance_agreement(main_csv, verif_csv)
+    assert rep["overall_percentage_agreement"] == 1.0

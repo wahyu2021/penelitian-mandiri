@@ -1,6 +1,7 @@
 """Ekspor 100 sampel berstrata acak (seed 42) untuk audit manual ekstraksi metadata."""
 import argparse
 import csv
+import hashlib
 import json
 import random
 import sqlite3
@@ -9,12 +10,26 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Dict, List, Tuple
 
+ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
 from services.db import DEFAULT_DB_PATH
 
 AUDIT_SAMPLE_SIZE = 100
 AGREEMENT_SAMPLE_SIZE = 20
 SAMPLE_SEED = 42
 EXTRACTOR_VERSION = "v1.0.0"
+
+AUDIT_FIELDNAMES = [
+    "sample_id", "archive_id", "archive_status", "summary_raw",
+    "extracted_spm", "verdict_spm",
+    "extracted_sp2d", "verdict_sp2d",
+    "extracted_date", "verdict_date",
+    "extracted_amount", "verdict_amount",
+    "extracted_party", "verdict_party",
+    "auditor_notes",
+]
 
 
 def generate_stratified_sample(
@@ -58,47 +73,50 @@ def generate_stratified_sample(
         raise ValueError("Basis data kosong. Silakan impor data terlebih dahulu.")
 
     # Kelompokkan ke strata
-    strata_map: Dict[str, List[sqlite3.Row]] = defaultdict(list)
+    strata: Dict[Tuple[int, int, str], List[sqlite3.Row]] = defaultdict(list)
     for r in rows:
-        label_str = "SPM_LABEL_YA" if r["has_spm_label"] else "SPM_LABEL_TIDAK"
-        status_str = "IN_AKTIF" if r["archive_status"] == 1 else "STATIS"
-        spm_type = str(r["spm_type_code"]).upper() if r["spm_type_code"] else "NONE"
-        if spm_type not in {"LS", "UP", "GU", "TU", "BT", "BS", "PK", "NONE"}:
-            spm_type = "LAINNYA"
-        stratum_key = f"{label_str}|{status_str}|{spm_type}"
-        strata_map[stratum_key].append(r)
+        key = (
+            int(r["has_spm_label"]),
+            int(r["archive_status"]),
+            str(r["spm_type_code"] or "NONE"),
+        )
+        strata[key].append(r)
 
+    # Hitung kuota sampel proporsional per stratum
     rng = random.Random(seed)
     sampled_rows: List[sqlite3.Row] = []
-    strata_report: Dict[str, Dict[str, int]] = {}
+    strata_report: List[Dict[str, object]] = []
 
-    # Alokasi proporsional dengan pembulatan
-    allocated_quotas: Dict[str, int] = {}
-    remainders: List[Tuple[float, str]] = []
-    for s_key, s_items in strata_map.items():
-        quota_float = (len(s_items) / total_pop) * sample_size
-        quota_int = int(quota_float)
-        allocated_quotas[s_key] = quota_int
-        remainders.append((quota_float - quota_int, s_key))
+    remaining_needed = sample_size
+    sorted_strata_keys = sorted(strata.keys(), key=lambda k: len(strata[k]), reverse=True)
 
-    # Tambahkan sisa kuota ke nilai pecahan terbesar
-    missing = sample_size - sum(allocated_quotas.values())
-    remainders.sort(reverse=True, key=lambda x: x[0])
-    for i in range(missing):
-        allocated_quotas[remainders[i][1]] += 1
+    for key in sorted_strata_keys:
+        group = strata[key]
+        n_group = len(group)
+        quota = int(round((n_group / total_pop) * sample_size))
+        if quota == 0 and n_group > 0 and remaining_needed > 0:
+            quota = 1
+        quota = min(quota, n_group, remaining_needed)
+        remaining_needed -= quota
 
-    # Ambil sampel acak per strata
-    for s_key, s_items in strata_map.items():
-        k = allocated_quotas[s_key]
-        shuffled = list(s_items)
-        rng.shuffle(shuffled)
-        sampled_rows.extend(shuffled[:k])
-        strata_report[s_key] = {
-            "populasi": len(s_items),
-            "kuota_sampel": k,
-        }
+        picked = rng.sample(group, quota)
+        sampled_rows.extend(picked)
+        strata_report.append({
+            "has_spm_label": key[0],
+            "archive_status": key[1],
+            "spm_type_code": key[2],
+            "population_count": n_group,
+            "sample_quota": quota,
+        })
 
-    # Acak urutan seluruh sampel akhir dengan seed
+    # Jika masih ada sisa karena pembulatan, ambil dari sisa populasi
+    if len(sampled_rows) < sample_size:
+        picked_ids = {r["archive_id"] for r in sampled_rows}
+        unpicked = [r for r in rows if r["archive_id"] not in picked_ids]
+        needed = sample_size - len(sampled_rows)
+        sampled_rows.extend(rng.sample(unpicked, needed))
+
+    # Acak urutan sampel akhir agar nomor urut tidak mengelompokkan strata
     rng.shuffle(sampled_rows)
 
     records: List[Dict[str, object]] = []
@@ -107,19 +125,39 @@ def generate_stratified_sample(
             "sample_id": idx,
             "archive_id": r["archive_id"],
             "archive_status": r["archive_status"],
-            "summary_raw": r["summary_raw"],
+            "summary_raw": r["summary_raw"] or "",
             "extracted_spm": r["spm_number"] or "",
             "extracted_sp2d": r["sp2d_number"] or "",
             "extracted_date": r["document_date"] or "",
-            "extracted_amount": r["amount_rp"] or "",
+            "extracted_amount": str(r["amount_rp"]) if r["amount_rp"] is not None else "",
             "extracted_party": r["party_name"] or "",
         })
+
+    # Hitung hash data ekstraksi untuk verifikasi anti-tamper
+    extracted_canonical = json.dumps(
+        [
+            {
+                "archive_id": rec["archive_id"],
+                "summary_raw": rec["summary_raw"],
+                "spm": rec["extracted_spm"],
+                "sp2d": rec["extracted_sp2d"],
+                "date": rec["extracted_date"],
+                "amount": rec["extracted_amount"],
+                "party": rec["extracted_party"],
+            }
+            for rec in records
+        ],
+        sort_keys=True,
+    )
+    extracted_sha256 = hashlib.sha256(extracted_canonical.encode("utf-8")).hexdigest()
 
     metadata = {
         "extractor_version": EXTRACTOR_VERSION,
         "seed": seed,
         "total_population": total_pop,
         "sample_size": sample_size,
+        "extracted_data_sha256": extracted_sha256,
+        "sample_archive_ids": [rec["archive_id"] for rec in records],
         "strata_detail": strata_report,
     }
     return records, metadata
@@ -160,30 +198,24 @@ def main() -> None:
         print(f"[GALAT] Gagal membuat sampel audit: {exc}", file=sys.stderr)
         sys.exit(1)
 
-    # 1. Simpan berkas audit utama 100 baris
+    # 1. Simpan berkas audit utama 100 baris (verdict kosong, tanpa missed)
     audit_csv_path = out_dir / "audit_extraction_sample.csv"
-    fieldnames = [
-        "sample_id", "archive_id", "archive_status", "summary_raw",
-        "extracted_spm", "verdict_spm", "missed_spm",
-        "extracted_sp2d", "verdict_sp2d", "missed_sp2d",
-        "extracted_date", "verdict_date", "missed_date",
-        "extracted_amount", "verdict_amount", "missed_amount",
-        "extracted_party", "verdict_party", "missed_party",
-        "auditor_notes",
+    verdict_fields = [
+        "verdict_spm", "verdict_sp2d", "verdict_date",
+        "verdict_amount", "verdict_party", "auditor_notes",
     ]
 
     with open(audit_csv_path, "w", encoding="utf-8-sig", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer = csv.DictWriter(f, fieldnames=AUDIT_FIELDNAMES)
         writer.writeheader()
         for rec in sample_records:
             row = dict(rec)
-            for fld in ["verdict_spm", "missed_spm", "verdict_sp2d", "missed_sp2d",
-                        "verdict_date", "missed_date", "verdict_amount", "missed_amount",
-                        "verdict_party", "missed_party", "auditor_notes"]:
+            for fld in verdict_fields:
                 row[fld] = ""
             writer.writerow(row)
 
-    # 2. Simpan sampel 20 baris ganda untuk uji kesepakatan (percentage agreement)
+    # 2. Simpan sampel 20 baris ganda untuk uji kesepakatan penilai kedua
+    # Penilai kedua menilai tanpa melihat jawaban penilai pertama
     agreement_csv_path = out_dir / "audit_agreement_sample.csv"
     rng = random.Random(args.seed + 999)
     agreement_pool = list(sample_records)
@@ -191,34 +223,33 @@ def main() -> None:
     agreement_records = agreement_pool[:AGREEMENT_SAMPLE_SIZE]
 
     with open(agreement_csv_path, "w", encoding="utf-8-sig", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer = csv.DictWriter(f, fieldnames=AUDIT_FIELDNAMES)
         writer.writeheader()
         for idx, rec in enumerate(agreement_records, start=1):
             row = dict(rec)
             row["sample_id"] = idx
-            for fld in ["verdict_spm", "missed_spm", "verdict_sp2d", "missed_sp2d",
-                        "verdict_date", "missed_date", "verdict_amount", "missed_amount",
-                        "verdict_party", "missed_party", "auditor_notes"]:
+            for fld in verdict_fields:
                 row[fld] = ""
             writer.writerow(row)
 
-    # 3. Simpan ringkasan strata
+    # 3. Simpan manifest metadata strata dan hash verifikasi
     meta_json_path = out_dir / "audit_strata_summary.json"
     meta_json_path.write_text(json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8")
 
     print("[+] Penarikan sampel audit ekstraksi berhasil!")
-    print(f"    - Ekstraktor Versi : {meta['extractor_version']}")
-    print(f"    - Random Seed      : {meta['seed']}")
-    print(f"    - Total Populasi   : {meta['total_population']} arsip")
-    print(f"    - Sampel Utama     : {len(sample_records)} baris -> {audit_csv_path}")
+    print(f"    - Ekstraktor Versi  : {meta['extractor_version']}")
+    print(f"    - Random Seed       : {meta['seed']}")
+    print(f"    - Total Populasi    : {meta['total_population']} arsip")
+    print(f"    - Sampel Utama      : {len(sample_records)} baris -> {audit_csv_path}")
     print(f"    - Sampel Kesepakatan: {len(agreement_records)} baris -> {agreement_csv_path}")
-    print(f"    - Metadata Strata  : {meta_json_path}")
-    print("\n[Instruksi Manual]")
-    print("Isi kolom verdict_* dengan salah satu nilai:")
-    print("  'benar'             : Ekstraksi tepat.")
-    print("  'salah'             : Ekstraksi salah/keliru.")
-    print("  'tidak_ada_di_teks' : Teks memang tidak memuat field ini.")
-    print("Jika ada nilai di teks tetapi tidak terekstrak, isi kolom missed_*.\n")
+    print(f"    - Metadata & Hash   : {meta_json_path}")
+    print("\n[Petunjuk Pengisian]")
+    print("Isi setiap kolom verdict_* dengan salah satu dari 4 kata baku:")
+    print("  'benar'             : Ekstraksi tepat sesuai teks.")
+    print("  'salah'             : Ekstraksi ada tetapi keliru/terpotong/berlebih.")
+    print("  'terlewat'          : Teks memuat data tetapi ekstraksi kosong.")
+    print("  'tidak_ada_di_teks' : Teks tidak memuat data dan ekstraksi kosong.")
+    print("Peringatan: Seluruh sel wajib diisi. Sel kosong akan ditolak oleh skrip evaluasi.\n")
 
 
 if __name__ == "__main__":

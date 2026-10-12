@@ -1,8 +1,9 @@
-"""Kalkulasi akurasi audit ekstraksi, interval Wilson, dan persentase kesepakatan."""
+"""Kalkulasi akurasi audit ekstraksi, interval Wilson 95%, dan persentase kesepakatan."""
 import math
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Tuple, Union
 
 Z_95 = 1.959963984540054  # z-score untuk interval kepercayaan 95%
+VALID_VERDICTS = frozenset({"benar", "salah", "tidak_ada_di_teks", "terlewat"})
 
 
 def wilson_score_interval(
@@ -49,71 +50,81 @@ def wilson_score_interval(
 
 def calculate_field_audit_metrics(
     verdicts: List[str],
-    missed_flags: Optional[List[bool]] = None,
 ) -> Dict[str, Union[int, float, Tuple[float, float, float]]]:
-    """Hitung metrik akurasi satu field dari daftar penilaian audit.
+    """Hitung metrik ketepatan dan keterambilan satu field dari daftar penilaian audit.
 
     Nilai verdict yang sah:
-    - 'benar': Ekstraksi ada dan tepat.
-    - 'salah': Ekstraksi ada tetapi keliru.
-    - 'tidak_ada_di_teks': Ekstraksi kosong dan teks memang tidak memuat field ini.
+    - 'benar': Ekstraksi ada dan tepat sesuai teks.
+    - 'salah': Ekstraksi ada tetapi keliru/terpotong/berlebih/ekstraksi palsu.
+    - 'terlewat': Teks memuat data tetapi ekstraksi kosong (false negative).
+    - 'tidak_ada_di_teks': Teks tidak memuat data dan ekstraksi kosong (true negative).
 
     Args:
-        verdicts: Daftar status penilaian per baris audit.
-        missed_flags: Daftar boolean apakah ada nilai di teks yang terlewat diekstrak.
+        verdicts: Daftar status penilaian per baris audit (tidak boleh ada sel kosong).
 
     Returns:
-        Kamus berisi jumlah benar, salah, tidak ada, missed, serta akurasi dan interval Wilson.
+        Kamus berisi jumlah per verdict, ketepatan (precision), keterambilan (recall),
+        beserta 95% interval kepercayaan Wilson score masing-masing.
+
+    Raises:
+        ValueError: Terdapat sel kosong atau nilai di luar 4 pilihan sah.
     """
     n_total = len(verdicts)
     if n_total == 0:
         raise ValueError("Daftar penilaian audit tidak boleh kosong.")
 
-    if missed_flags is None:
-        missed_flags = [False] * n_total
-
     n_benar = 0
     n_salah = 0
     n_tidak_ada = 0
-    n_missed = 0
+    n_terlewat = 0
 
-    for v, missed in zip(verdicts, missed_flags):
-        v_clean = (v or "").strip().lower()
-        if missed:
-            n_missed += 1
+    for idx, v in enumerate(verdicts, start=1):
+        if v is None:
+            raise ValueError(f"Baris ke-{idx} kosong (belum dinilai). Seluruh baris wajib dinilai.")
+        v_clean = v.strip().lower()
+        if not v_clean:
+            raise ValueError(f"Baris ke-{idx} kosong (belum dinilai). Seluruh baris wajib dinilai.")
 
         if v_clean == "benar":
             n_benar += 1
         elif v_clean == "salah":
             n_salah += 1
-        elif v_clean in {"tidak_ada_di_teks", "tidak_ada", "none"}:
+        elif v_clean == "tidak_ada_di_teks":
             n_tidak_ada += 1
+        elif v_clean == "terlewat":
+            n_terlewat += 1
         else:
-            raise ValueError(f"Verdict audit tidak dikenal: {v!r}")
+            raise ValueError(
+                f"Baris ke-{idx} memiliki nilai tidak sah: {v!r}. "
+                f"Pilihan nilai sah: {sorted(VALID_VERDICTS)}"
+            )
 
-    # 1. Akurasi ekstraksi positif (precision): Benar / (Benar + Salah)
+    # 1. Ketepatan (Precision): Benar / (Benar + Salah)
     n_ekstrak = n_benar + n_salah
     if n_ekstrak > 0:
-        p_pos, low_pos, up_pos = wilson_score_interval(n_benar, n_ekstrak)
+        p_ket, low_ket, up_ket = wilson_score_interval(n_benar, n_ekstrak)
     else:
-        p_pos, low_pos, up_pos = 0.0, 0.0, 0.0
+        p_ket, low_ket, up_ket = 0.0, 0.0, 0.0
 
-    # 2. Akurasi keputusan menyeluruh: (Benar + Tidak Ada Valid) / (Total + Missed)
-    # Jika ada missed (false negative), baris tersebut dianggap salah keputusan
-    n_sukses_total = n_benar + (n_tidak_ada if n_missed == 0 else max(0, n_tidak_ada - n_missed))
-    p_all, low_all, up_all = wilson_score_interval(n_sukses_total, n_total)
+    # 2. Keterambilan (Recall): Benar / (Benar + Terlewat)
+    n_ada_di_teks = n_benar + n_terlewat
+    if n_ada_di_teks > 0:
+        p_ret, low_ret, up_ret = wilson_score_interval(n_benar, n_ada_di_teks)
+    else:
+        p_ret, low_ret, up_ret = 0.0, 0.0, 0.0
 
     return {
         "total_evaluated": n_total,
         "n_benar": n_benar,
         "n_salah": n_salah,
         "n_tidak_ada_di_teks": n_tidak_ada,
-        "n_missed": n_missed,
+        "n_terlewat": n_terlewat,
         "n_extracted": n_ekstrak,
-        "accuracy_extracted": p_pos,
-        "wilson_ci_extracted": (low_pos, up_pos),
-        "accuracy_overall": p_all,
-        "wilson_ci_overall": (low_all, up_all),
+        "n_in_text": n_ada_di_teks,
+        "ketepatan": p_ket,
+        "wilson_ci_ketepatan": (low_ket, up_ket),
+        "keterambilan": p_ret,
+        "wilson_ci_keterambilan": (low_ret, up_ret),
     }
 
 
@@ -121,7 +132,7 @@ def calculate_percentage_agreement(
     ratings_a: List[str],
     ratings_b: List[str],
 ) -> float:
-    """Hitung persentase kesepakatan (percentage agreement) antar dua penilaian.
+    """Hitung persentase kesepakatan (percentage agreement) antar dua penilai.
 
     Args:
         ratings_a: Daftar rating dari penilai A / sesi 1.
