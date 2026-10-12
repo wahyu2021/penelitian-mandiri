@@ -32,6 +32,11 @@
 - **Uji Signifikansi Statistik (Opsional):** **SciPy 1.18.1**
   - Digunakan secara selektif untuk uji Wilcoxon *signed-rank test* berpasangan antara metode terbaik vs baseline LIKE setelah seluruh metrik utama selesai dihitung.
 
+- **Visualisasi Laporan Ilmiah & Ekspor Grafik:** **Matplotlib 3.11.2**
+  - Digunakan pada skrip ekspor untuk menghasilkan figur cetak publikasi 300 DPI (`output/figures/`).
+- **Analisis & Eksplorasi Interaktif:** **Jupyter Notebook & nbstripout 0.9.1**
+  - Notebook interaktif di `notebooks/analisis_evaluasi.ipynb` hanya membaca artefak `output/` tanpa komputasi ulang. Filter `nbstripout` memastikan sel keluaran bersih sebelum komit ke repositori.
+
 ## 4. Antarmuka Pengguna & Frontend (Tanpa CDN)
 - **CSS Framework:** **Bootstrap 5.3.3** (file lokal di `static/vendor/bootstrap/`, Lisensi MIT).
 - **Template Engine:** **Jinja2 3.1.6** dengan template inheritance (`base.html`, komponen reusable, dan *partials*).
@@ -53,6 +58,8 @@ Flask==3.1.3
 Flask-Login==0.6.3
 Flask-SQLAlchemy==3.1.1
 Flask-WTF==1.3.0
+matplotlib==3.11.2
+nbstripout==0.9.1
 pandas==3.0.6
 pytest==9.1.1
 python-dotenv==1.2.4

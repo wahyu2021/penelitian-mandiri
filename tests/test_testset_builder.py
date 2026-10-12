@@ -187,3 +187,55 @@ def test_build_testset_pilot_consistency_and_ragu(tmp_path: Path):
 
     rep = evaluate_relevance_agreement(main_csv, verif_csv)
     assert rep["overall_percentage_agreement"] == 1.0
+
+
+def test_sync_pilot_and_additional_pool_integration(tmp_path: Path):
+    """Uji sinkronisasi otomatis dari pilot jika belum terisi dan integrasi additional pool."""
+    import json
+
+    main_csv = tmp_path / "pool_main.csv"
+    pilot_csv = tmp_path / "pool_pilot.csv"
+    add_csv = tmp_path / "pool_add.csv"
+    json_file = tmp_path / "testset_synced.json"
+
+    header = (
+        "query_id,query_text,query_type,source,noise_type,pool_order,"
+        "archive_id,summary_raw,spm_number,party_name,is_relevant,ragu,auditor_notes\n"
+    )
+    # Di berkas utama, is_relevant sengaja kosong (belum sempat dinilai)
+    row_main = (
+        "Q001,gedung,topik,sintetis,tanpa_gangguan,1,10,"
+        "Renovasi gedung,123/LS,CV Contoh,,,catatan\n"
+    )
+    main_csv.write_text(header + row_main, encoding="utf-8-sig")
+
+    # Di berkas pilot, sudah dinilai relevan (1)
+    row_pilot = (
+        "Q001,gedung,topik,sintetis,tanpa_gangguan,1,10,"
+        "Renovasi gedung,123/LS,CV Contoh,1,0,pilot_note\n"
+    )
+    pilot_csv.write_text(header + row_pilot, encoding="utf-8-sig")
+
+    # Di berkas additional pool, arsip baru (99) dinilai
+    row_add = (
+        "Q001,gedung,topik,sintetis,tanpa_gangguan,1,99,"
+        "Pembangunan aula,789/LS,CV Berkah,1,1,additional_doc\n"
+    )
+    add_csv.write_text(header + row_add, encoding="utf-8-sig")
+
+    res = build_testset_from_pool(
+        pool_csv_path=main_csv,
+        output_json_path=json_file,
+        pilot_csv_path=pilot_csv,
+        additional_pool_csv_path=add_csv,
+    )
+
+    assert res["synced_from_pilot"] == 1
+    assert res["additional_judged_count"] == 1
+
+    saved = json.loads(json_file.read_text(encoding="utf-8"))
+    q1 = saved["queries"][0]
+    aid_map = {j["archive_id"]: j["is_relevant"] for j in q1["judgments"]}
+    assert aid_map[10] == 1  # Tersinkron dari pilot
+    assert aid_map[99] == 1  # Terintegrasi dari additional pool
+

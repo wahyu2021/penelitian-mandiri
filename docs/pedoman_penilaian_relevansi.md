@@ -53,13 +53,14 @@ Penilaian wajib mengikuti kriteria ketat berikut sesuai jenis kueri:
 
 ## 3. Penanganan Berkas Penilaian & Sampel Pilot
 
-1. **Berkas Penilaian Utama:**
-   - Seluruh penilaian dilakukan pada berkas utama: [`output/relevance_pool.csv`](file:///D:/Coding/PM/output/relevance_pool.csv).
-2. **Berkas Pilot (5 Kueri Pertama):**
-   - Berkas [`output/relevance_pool_pilot_5.csv`](file:///D:/Coding/PM/output/relevance_pool_pilot_5.csv) adalah potongan 5 kueri pertama dari berkas utama yang digunakan untuk mengukur waktu penilaian per baris dan kalibrasi awal.
-   - **Konsistensi Penilaian:** Skrip pembangun set uji akan menolak proses jika terdapat ketidakkonsistenan penilaian antara berkas pilot dan berkas utama.
+1. **Hanya Mengisi Satu Berkas Utama:**
+   - Peneliti **hanya perlu mengisi berkas utama**: [`output/relevance_pool.csv`](file:///D:/Coding/PM/output/relevance_pool.csv).
+   - Tidak perlu mengisi dua berkas terpisah secara manual untuk menghindari pekerjaan ganda.
+2. **Pengukuran Waktu Pilot (Q001–Q005):**
+   - Untuk mengukur estimasi waktu kerja per baris, peneliti cukup mencatat waktu mulai dan waktu selesai saat menilai kueri `Q001` hingga `Q005` langsung di berkas utama.
+   - *Opsi Sinkronisasi Otomatis:* Jika peneliti telanjur mengisi potongan berkas pilot ([`output/relevance_pool_pilot_5.csv`](file:///D:/Coding/PM/output/relevance_pool_pilot_5.csv)), skrip `build_testset.py` secara otomatis menyinkronkan dan menggabungkan nilai tersebut ke berkas utama untuk baris-baris yang bersangkutan.
 3. **Kolom Penanda Keraguan (`ragu`):**
-   - Jika penilai merasa deskripsi ringkasan terlalu minim atau ambigu, isi `ragu` dengan `1`.
+   - Jika penilai merasa deskripsi ringkasan terlalu minim atau ambigu, isi `ragu` dengan `1` (kosongkan jika yakin).
    - Jumlah baris ragu dilaporkan secara transparan pada ringkasan set uji dan laporan akhir.
 
 ---
@@ -67,10 +68,28 @@ Penilaian wajib mengikuti kriteria ketat berikut sesuai jenis kueri:
 ## 4. Verifikasi Independen oleh Arsiparis
 
 1. **Sampel Verifikasi Berstrata (100–150 Baris):**
-   - Sebanyak 100 hingga 150 baris ditarik secara acak berstrata dari seluruh jenis kueri (`nomor_spm`, `topik`, `pihak`, `campuran`) ke dalam berkas [`output/relevance_verification_sample.csv`](file:///D:/Coding/PM/output/relevance_verification_sample.csv).
+   - Sebanyak 120 baris ditarik secara acak berstrata dari seluruh jenis kueri (`nomor_spm`, `topik`, `pihak`, `campuran`) ke dalam berkas [`output/relevance_verification_sample.csv`](file:///D:/Coding/PM/output/relevance_verification_sample.csv).
 2. **Penilaian Independen Buta:**
    - Arsiparis mengisi kolom `is_relevant` secara independen tanpa melihat jawaban peneliti.
 3. **Perhitungan Persentase Kesepakatan (*Percentage Agreement*):**
-   - Skrip menghitung persentase kesepakatan antar-penilai:
+   - Skrip `evaluate_relevance_agreement.py` menghitung persentase kesepakatan:
      $$\text{Agreement} = \frac{\text{Jumlah kesepakatan identik}}{\text{Total baris verifikasi}} \times 100\%$$
-   - Hasil kesepakatan dicatat sebagai bukti reliabilitas set uji dalam laporan ilmiah.
+   - Hasil kesepakatan dicatat sebagai bukti reliabilitas set uji dalam publikasi/laporan ilmiah.
+
+---
+
+## 5. Prosedur Penilaian Tambahan Dokumen Unjudged (Pasca-Tuning)
+
+1. **Pemeriksaan Top-10 Pasca-Tuning:**
+   - Setelah proses *grid search bobot field pada kelompok tuning* selesai, konfigurasi bobot terbaik dapat memunculkan dokumen baru di top-10 yang sebelumnya belum masuk ke pool awal.
+2. **Ekspor Buta Dokumen Tambahan:**
+   - Jalankan `python scripts/create_additional_judgment_pool.py`.
+   - Jika ditemukan dokumen top-10 yang belum dinilai (*unjudged*), skrip mengekspor pasangan tersebut secara buta ke [`output/relevance_additional_pool.csv`](file:///D:/Coding/PM/output/relevance_additional_pool.csv) dengan manifest hash mandiri di [`output/relevance_additional_manifest.json`](file:///D:/Coding/PM/output/relevance_additional_manifest.json).
+3. **Penilaian & Integrasi:**
+   - Penilai mengisi kolom `is_relevant` pada berkas tambahan tersebut.
+   - Impor penilaian tambahan ke set uji:
+     ```powershell
+     python scripts/build_testset.py --additional-pool output/relevance_additional_pool.csv
+     ```
+   - Lakukan commit hingga *working tree* bersih sebelum menjalankan evaluasi akhir.
+

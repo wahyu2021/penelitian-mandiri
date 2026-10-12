@@ -15,6 +15,7 @@ from core.evaluation.audit_metrics import (
     VALID_VERDICTS,
     calculate_field_audit_metrics,
     calculate_percentage_agreement,
+    validate_audit_row_integrity,
 )
 
 FIELDS = ["spm", "sp2d", "date", "amount", "party"]
@@ -41,8 +42,9 @@ def read_audit_file(csv_path: Path) -> List[Dict[str, str]]:
 def validate_audit_integrity(
     audit_rows: List[Dict[str, str]],
     manifest_path: Optional[Path] = None,
+    agreement_rows: Optional[List[Dict[str, str]]] = None,
 ) -> None:
-    """Validasi integritas kolom ekstraksi dan versi ekstraktor."""
+    """Validasi integritas kolom ekstraksi dan versi ekstraktor berbasis baris data."""
     if manifest_path and manifest_path.is_file():
         with open(manifest_path, "r", encoding="utf-8") as f:
             manifest = json.load(f)
@@ -54,29 +56,16 @@ def validate_audit_integrity(
                 f"diharapkan {EXPECTED_EXTRACTOR_VERSION!r}."
             )
 
-        expected_hash = manifest.get("extracted_data_sha256")
-        if expected_hash:
-            canonical = json.dumps(
-                [
-                    {
-                        "archive_id": int(r["archive_id"]),
-                        "summary_raw": r.get("summary_raw", ""),
-                        "spm": r.get("extracted_spm", ""),
-                        "sp2d": r.get("extracted_sp2d", ""),
-                        "date": r.get("extracted_date", ""),
-                        "amount": r.get("extracted_amount", ""),
-                        "party": r.get("extracted_party", ""),
-                    }
-                    for r in audit_rows
-                ],
-                sort_keys=True,
-            )
-            calc_hash = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
-            if calc_hash != expected_hash:
-                raise ValueError(
-                    "Integritas data ekstraksi terlanggar: kolom extracted_* atau "
-                    "summary_raw telah diubah dibanding sampel awal yang diekspor."
-                )
+        # Validasi berkas audit utama per baris
+        ref_records = manifest.get("reference_records")
+        if ref_records:
+            validate_audit_row_integrity(audit_rows, ref_records)
+
+        # Validasi berkas sampel kesepakatan per baris jika ada
+        if agreement_rows:
+            agree_refs = manifest.get("agreement_reference_records")
+            if agree_refs:
+                validate_audit_row_integrity(agreement_rows, agree_refs)
 
 
 def validate_and_collect_verdicts(
@@ -111,12 +100,13 @@ def evaluate_audit_data(
     audit_rows: List[Dict[str, str]],
     agreement_rows: Optional[List[Dict[str, str]]] = None,
     manifest_path: Optional[Path] = None,
+    rater_type: str = "intra-rater",
 ) -> Dict[str, object]:
     """Evaluasi audit ekstraksi dengan validasi ketat dan uji kesepakatan."""
     if not audit_rows:
         raise ValueError("Berkas audit CSV kosong.")
 
-    validate_audit_integrity(audit_rows, manifest_path)
+    validate_audit_integrity(audit_rows, manifest_path, agreement_rows)
 
     # Validasi dan kumpulkan penilaian
     audit_verdicts = validate_and_collect_verdicts(audit_rows, file_label="audit_utama")
@@ -149,11 +139,19 @@ def evaluate_audit_data(
                 agr = calculate_percentage_agreement(ratings_a, ratings_b)
                 agreement_results[fld] = agr
 
+    agreement_label = (
+        "Intra-rater (Peneliti dengan jeda waktu)"
+        if rater_type == "intra-rater"
+        else "Inter-rater (Arsiparis independen)"
+    )
+
     return {
         "extractor_version": EXPECTED_EXTRACTOR_VERSION,
         "n_evaluated": len(audit_rows),
         "fields": field_results,
         "agreement": agreement_results,
+        "agreement_type": rater_type,
+        "agreement_type_label": agreement_label,
     }
 
 
@@ -170,6 +168,15 @@ def main() -> None:
         "--agreement-csv",
         default="output/audit_agreement_sample.csv",
         help="Path berkas CSV penilaian ganda untuk uji kesepakatan.",
+    )
+    parser.add_argument(
+        "--rater-type",
+        choices=["intra-rater", "inter-rater"],
+        default="intra-rater",
+        help=(
+            "Jenis penilai kedua: 'intra-rater' (peneliti jeda waktu) atau "
+            "'inter-rater' (arsiparis independen). Default: intra-rater."
+        ),
     )
     parser.add_argument(
         "--manifest",
@@ -202,6 +209,7 @@ def main() -> None:
             audit_rows=audit_rows,
             agreement_rows=agree_rows,
             manifest_path=manifest_path if manifest_path.is_file() else None,
+            rater_type=args.rater_type,
         )
     except Exception as exc:
         print(f"[GALAT VALIDASI] {exc}", file=sys.stderr)
@@ -243,7 +251,8 @@ def main() -> None:
 
     if report["agreement"]:
         print("-" * 90)
-        print("PERSENTASE KESEPAKATAN ANTAR-PENILAI (PERCENTAGE AGREEMENT - 20 SAMPEL GANDA):")
+        agr_label = report.get("agreement_type_label", "Uji Kesepakatan")
+        print(f"PERSENTASE KESEPAKATAN ({agr_label.upper()} - 20 SAMPEL GANDA):")
         for fld in FIELDS:
             agr_pct = report["agreement"][fld] * 100.0
             print(f"  - {FIELD_LABELS[fld]:<20}: {agr_pct:>6.2f} %")

@@ -151,3 +151,83 @@ def calculate_percentage_agreement(
         if (a or "").strip().lower() == (b or "").strip().lower()
     )
     return matches / len(ratings_a)
+
+
+def normalize_text_for_comparison(val: Optional[str]) -> str:
+    """Normalisasi string untuk verifikasi integritas yang toleran terhadap Excel."""
+    if val is None:
+        return ""
+    # Samakan newline Windows/Unix dan hilangkan spasi tepi
+    return str(val).replace("\r\n", "\n").replace("\r", "\n").strip()
+
+
+def validate_audit_row_integrity(
+    rows: List[Dict[str, str]],
+    reference_records: Dict[str, Dict[str, str]],
+) -> int:
+    """Validasi integritas kolom referensi ekstraksi per baris (anti-tamper toleran Excel).
+
+    Memeriksa identitas baris dan kolom extracted_* serta summary_raw tanpa bergantung
+    pada hash biner berkas CSV utuh atau urutan baris hasil sorting di spreadsheet.
+
+    Args:
+        rows: Daftar baris terbaca dari berkas CSV audit penilaian.
+        reference_records: Kamus data acuan per archive_id dari metadata saat ekspor.
+
+    Returns:
+        Jumlah baris yang berhasil diverifikasi.
+
+    Raises:
+        ValueError: Jika ada baris hilang, duplikat, atau kolom referensi berubah.
+    """
+    if not rows:
+        raise ValueError("Berkas audit CSV tidak memuat baris data.")
+
+    expected_count = len(reference_records)
+    if len(rows) != expected_count:
+        raise ValueError(
+            f"Jumlah baris audit ({len(rows)}) tidak sesuai dengan acuan awal ({expected_count})."
+        )
+
+    seen_ids = set()
+    fields_to_check = [
+        ("summary_raw", "Ringkasan Dokumen (summary_raw)"),
+        ("extracted_spm", "Kolom extracted_spm"),
+        ("extracted_sp2d", "Kolom extracted_sp2d"),
+        ("extracted_date", "Kolom extracted_date"),
+        ("extracted_amount", "Kolom extracted_amount"),
+        ("extracted_party", "Kolom extracted_party"),
+    ]
+
+    for idx, r in enumerate(rows, start=1):
+        arch_id_raw = r.get("archive_id")
+        if arch_id_raw is None or not str(arch_id_raw).strip():
+            raise ValueError(f"Baris ke-{idx} tidak memiliki kolom archive_id yang sah.")
+
+        arch_id = str(arch_id_raw).strip()
+        if arch_id in seen_ids:
+            raise ValueError(f"Duplikasi archive_id '{arch_id}' terdeteksi pada baris ke-{idx}.")
+        seen_ids.add(arch_id)
+
+        if arch_id not in reference_records:
+            raise ValueError(
+                f"Arsip ID '{arch_id}' pada baris ke-{idx} tidak dikenal dalam sampel acuan awal."
+            )
+
+        ref = reference_records[arch_id]
+        sample_id = r.get("sample_id", str(idx))
+
+        for col_key, col_label in fields_to_check:
+            curr_val = normalize_text_for_comparison(r.get(col_key, ""))
+            ref_val = normalize_text_for_comparison(ref.get(col_key, ""))
+            if curr_val != ref_val:
+                raise ValueError(
+                    f"Integritas data terlanggar pada arsip ID {arch_id} (Sample {sample_id}):\n"
+                    f"{col_label} telah diubah.\n"
+                    f"Nilai asli     : {ref_val!r}\n"
+                    f"Nilai saat ini : {curr_val!r}\n"
+                    f"Hanya kolom verdict_* yang boleh diedit."
+                )
+
+    return len(seen_ids)
+

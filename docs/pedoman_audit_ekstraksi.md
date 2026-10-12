@@ -57,24 +57,44 @@ Untuk mempermudah penilai, gunakan matriks berikut saat memeriksa satu sel:
 1. **Format Sel Wajib Tipe Teks (*Text*):**
    - Sebelum mulai mengedit, pastikan semua kolom bertipe data **Teks (Text)**.
    - Jangan biarkan Excel mengubah format tanggal (misal `2008-10-15` berubah jadi `15/10/2008`)
-     atau menghapus angka nol di depan nomor surat.
-2. **Jangan Mengubah Kolom Asli:**
+     atau memformat angka nominal menjadi notasi ilmiah.
+2. **Keamanan Data Acuan & Toleransi Format Excel:**
    - Kolom `sample_id`, `archive_id`, `summary_raw`, dan seluruh kolom `extracted_*`
-     **dilarang keras diubah**. Skrip evaluasi memvalidasi integritas data asli melalui hash.
+     **dilarang diubah**. Skrip memverifikasi identitas baris dan kolom referensi tersebut.
+   - Verifikasi dilakukan per baris dan toleran terhadap penyimpanan ulang dari Excel
+     (perbedaan urutan sort baris, konversi baris baru CRLF vs LF, tanda kutip, maupun UTF-8 BOM
+     tidak akan membatalkan validasi asalkan teks ekstraksi asli tidak diedit).
 3. **Penyimpanan Berkas:**
    - Simpan berkas dengan format **CSV UTF-8 (Comma delimited) (*.csv)**.
    - Jangan gunakan format XLSX atau pemisah titik-koma (*semicolon* `;`).
 
 ---
 
-## 5. Prosedur Perhitungan Metrik
+## 5. Pelaksanaan Penilai Kedua & Prosedur Evaluasi
 
-Setelah lembar audit diisi lengkap, jalankan perintah:
-```powershell
-python -m scripts.evaluate_extraction_audit
-```
+### A. Penentuan Penilai Kedua (Sampel Kesepakatan 20 Baris)
+Berkas `output/audit_agreement_sample.csv` (20 baris acak dari sampel utama tanpa jawaban penilai 1)
+dapat dinilai melalui salah satu dari dua pendekatan:
+1. **Intra-rater Agreement (Peneliti dengan Jeda Waktu):**
+   Peneliti sendiri menilai kembali berkas 20 baris ini dengan jeda waktu minimal 3 hingga 7 hari
+   setelah penilaian berkas utama selesai, untuk mengukur konsistensi kriteria (*test-retest reliability*).
+2. **Inter-rater Agreement (Arsiparis Independen):**
+   Berkas 20 baris dinilai oleh arsiparis dari Dinas Kearsipan secara independen untuk menguji
+   objektivitas antar-penilai.
 
-Skrip akan melaporkan dua metrik utama untuk tiap field:
+### B. Menjalankan Evaluasi
+Jalankan perintah evaluasi sesuai jenis penilai kedua yang digunakan:
+
+- Jika dinilai sendiri dengan jeda waktu (default):
+  ```powershell
+  python scripts/evaluate_extraction_audit.py --rater-type intra-rater
+  ```
+- Jika dinilai oleh arsiparis:
+  ```powershell
+  python scripts/evaluate_extraction_audit.py --rater-type inter-rater
+  ```
+
+Skrip akan melaporkan:
 1. **Ketepatan (*Precision*):**
    $$\text{Ketepatan} = \frac{\text{benar}}{\text{benar} + \text{salah}}$$
    Mengukur seberapa andal hasil ekstraksi saat komputer mengeluarkan nilai.
@@ -84,4 +104,5 @@ Skrip akan melaporkan dua metrik utama untuk tiap field:
 3. **Interval Kepercayaan Wilson 95%:**
    Dihitung untuk ketepatan dan keterambilan untuk menjamin validitas statistik sampel.
 4. **Persentase Kesepakatan (*Percentage Agreement*):**
-   Dihitung pada 20 baris sampel ganda antara penilai 1 dan penilai 2.
+   Dihitung pada 20 baris sampel ganda dan diberi tanda sesuai jenis kesepakatan (*intra-rater* atau *inter-rater*).
+

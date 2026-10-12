@@ -105,10 +105,13 @@ def main() -> None:
     with open(testset_file, "r", encoding="utf-8") as f:
         testset = json.load(f)
 
-    # Filter kueri tuning
-    tuning_queries = [
-        q for q in testset.get("queries", []) if q.get("split") == "tuning"
-    ]
+    # Isolasi ketat anti-data leakage: Hanya kueri kelompok tuning yang diproses.
+    # Kueri kelompok 'test' sama sekali tidak boleh dibaca atau diakses saat tuning.
+    all_raw_queries = testset.get("queries", [])
+    tuning_queries = [q for q in all_raw_queries if q.get("split") == "tuning"]
+    n_test_detected = sum(1 for q in all_raw_queries if q.get("split") == "test")
+    del all_raw_queries  # Musnahkan kueri test dari ruang memori proses tuning
+
     if not tuning_queries:
         print("[GALAT] Tidak ada kueri dengan split 'tuning' dalam set uji.", file=sys.stderr)
         sys.exit(1)
