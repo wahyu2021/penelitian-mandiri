@@ -31,20 +31,20 @@ Metodologi: Berurutan Berbasis Gerbang Ilmiah (*Sequential Gated Execution*) —
 ## Tahap 2: Audit Ekstraksi Metadata & Pembekuan Versi
 
 ### 2.1 Pembekuan Versi Ekstraksi & Skrip Cakupan
-- [ ] Task: Tetapkan versi ekstraktor `v1.0.0` dan buat skrip `scripts/calculate_coverage.py` untuk menghitung persentase cakupan per field secara otomatis.
+- [x] Task: Tetapkan versi ekstraktor `v1.0.0` dan buat skrip `scripts/calculate_coverage.py` untuk menghitung persentase cakupan per field secara otomatis.
 
 ### 2.2 Penarikan 100 Sampel Acak Berstrata (Seed 42)
-- [ ] Task: Implementasikan generator sampel di `scripts/export_audit_sample.py`.
-    - [ ] Buat 100 sampel berstrata acak (seed 42) menurut strata: label No SPM, status arsip (In Aktif/Statis), dan jenis SPM. Catat kuota per strata.
-    - [ ] Ekspor lembar audit ke `output/audit_extraction_sample.csv` (diabaikan Git).
-    - [ ] Ekspor 20 sampel ganda untuk uji kesepakatan (*percentage agreement*).
+- [x] Task: Implementasikan generator sampel di `scripts/export_audit_sample.py`.
+    - [x] Buat 100 sampel berstrata acak (seed 42) menurut strata: label No SPM, status arsip (In Aktif/Statis), dan jenis SPM. Catat kuota per strata.
+    - [x] Ekspor lembar audit ke `output/audit_extraction_sample.csv` (diabaikan Git).
+    - [x] Ekspor 20 sampel ganda untuk uji kesepakatan (*percentage agreement*).
 
 ### 2.3 Skrip Perhitungan Akurasi Wilson & Kesepakatan
-- [ ] Task: Implementasikan `core/evaluation/audit_metrics.py` dan CLI `scripts/evaluate_extraction_audit.py`.
-    - [ ] Hitung akurasi per field (`benar`, `salah`, `tidak_ada_di_teks`) ditambah penanda nilai terlewat (*false negative*).
-    - [ ] Hitung 95% interval kepercayaan Wilson score untuk tiap field.
-    - [ ] Hitung persentase kesepakatan pada 20 sampel ganda.
-    - [ ] Tulis uji unit di `tests/test_audit_metrics.py`.
+- [x] Task: Implementasikan `core/evaluation/audit_metrics.py` dan CLI `scripts/evaluate_extraction_audit.py`.
+    - [x] Hitung akurasi per field (`benar`, `salah`, `tidak_ada_di_teks`) ditambah penanda nilai terlewat (*false negative*).
+    - [x] Hitung 95% interval kepercayaan Wilson score untuk tiap field.
+    - [x] Hitung persentase kesepakatan pada 20 sampel ganda.
+    - [x] Tulis uji unit di `tests/test_audit_metrics.py`.
 
 ### 2.4 Gerbang Manual: Pengisian Lembar Audit Ekstraksi
 - [ ] Task: Gerbang Manual - Peneliti mengisi penilaian pada `output/audit_extraction_sample.csv` dan menjalankan skrip evaluasi audit sebelum melangkah ke penyusunan kueri.
