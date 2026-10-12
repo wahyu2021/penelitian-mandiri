@@ -70,10 +70,12 @@ def build_testset_from_pool(
         tuning_ratio=tuning_ratio,
         seed=seed,
     )
+    tuning_ids = {q["query_id"] for q in tuning_q}
 
     all_queries = []
     for q in queries_list:
         q_entry = dict(q)
+        q_entry["split"] = "tuning" if q["query_id"] in tuning_ids else "test"
         q_entry["judgments"] = judgments_by_query[q["query_id"]]
         q_entry.pop("spm_number", None)
         all_queries.append(q_entry)

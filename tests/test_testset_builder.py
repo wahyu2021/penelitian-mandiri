@@ -125,3 +125,6 @@ def test_build_testset_from_pool(tmp_path: Path):
     assert res["n_queries"] == 2
     assert json_file.is_file()
     assert len(res["content_sha256"]) == 64
+    import json
+    saved = json.loads(json_file.read_text(encoding="utf-8"))
+    assert set(q["split"] for q in saved["queries"]) == {"tuning", "test"}
