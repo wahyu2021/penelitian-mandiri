@@ -113,4 +113,4 @@ Metodologi: Berurutan Berbasis Gerbang Ilmiah (*Sequential Gated Execution*) —
 ### 4.4 Pengujian Komprehensif & Penggabungan Cabang
 - [x] Task: Tulis uji unit di `tests/test_tuning.py` dan `tests/test_evaluator.py`.
 - [x] Task: Jalankan seluruh uji unit `pytest tests/` dan pastikan semua lulus.
-- [ ] Task: Gabungkan cabang fitur `feat/testset-and-evaluation` ke `main` dengan pesan commit konvensional.
+- [x] Task: Gabungkan cabang fitur `feat/testset-and-evaluation` ke `main` dengan pesan commit konvensional.
