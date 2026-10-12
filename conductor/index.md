@@ -33,5 +33,5 @@
 
 ---
 
-- [ ] **Track: testset-and-evaluation**
+- [~] **Track: testset-and-evaluation**
 *Link: [./tracks/testset-and-evaluation/](./tracks/testset-and-evaluation/)*
