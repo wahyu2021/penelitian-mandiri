@@ -54,7 +54,7 @@ Metodologi: Berurutan Berbasis Gerbang Ilmiah (*Sequential Gated Execution*) —
 ## Tahap 3: Pedoman Relevansi, Penyusunan Kueri & Blind Pooling
 
 ### 3.1 Pedoman Penilaian Relevansi Tertulis
-- [ ] Task: Tulis dokumen [docs/pedoman_penilaian_relevansi.md](../../../docs/pedoman_penilaian_relevansi.md) yang merinci kriteria relevan/tidak relevan dan aturan kesetaraan nomor SPM/substansi isi sama.
+- [x] Task: Tulis dokumen [docs/pedoman_penilaian_relevansi.md](../../../docs/pedoman_penilaian_relevansi.md) yang merinci kriteria relevan/tidak relevan dan aturan kesetaraan nomor SPM/substansi isi sama.
 
 ### 3.2 Generator Kueri Sintetis Bergangguan
 - [ ] Task: Implementasikan generator kueri di `core/testset/synthetic_generator.py` dan `core/testset/noise.py`.
