@@ -8,23 +8,23 @@ Metodologi: Berurutan Berbasis Gerbang Ilmiah (*Sequential Gated Execution*) —
 ## Tahap 1: Skema Database & Impor SQL Dump ke SQLite
 
 ### 1.1 Skema Database SQLite Lokal (`instance/app.sqlite`)
-- [ ] Task: Definisikan skema SQLite di `services/db.py` untuk tabel `import_batch`, `archive_raw`, `archive`, `archive_metadata`, `opd`, `classification`, `spm_type`, dan `data_issue`.
-    - [ ] Buat fungsi inisialisasi tabel SQLite murni tanpa ketergantungan web framework.
-    - [ ] Pastikan `.gitignore` mengabaikan `instance/app.sqlite` dan `*.db`.
+- [x] Task: Definisikan skema SQLite di `services/db.py` untuk tabel `import_batch`, `archive_raw`, `archive`, `archive_metadata`, `opd`, `classification`, `spm_type`, dan `data_issue`.
+    - [x] Buat fungsi inisialisasi tabel SQLite murni tanpa ketergantungan web framework.
+    - [x] Pastikan `.gitignore` mengabaikan `instance/app.sqlite` dan `*.db`.
 
 ### 1.2 Modul Impor & Validasi Kelima Angka Acuan
-- [ ] Task: Implementasikan modul impor di `services/importer.py` dan CLI `scripts/import_dump.py`.
-    - [ ] Baca dump SQL melalui `core.sql_dump_parser.parse_sql_dump`.
-    - [ ] Simpan salinan mentah ke `archive_raw` dan data bersih ke `archive`.
-    - [ ] Jalankan normalisasi dan ekstraksi metadata ke `archive_metadata`.
-    - [ ] Lakukan verifikasi otomatis kelima angka acuan: 1.737 total arsip (1.590 In Aktif, 147 Statis), 143 OPD yatim, 11 galat dokumen, 1.344 label No SPM, 147 tanggal input 0000-00-00. Gagal impor jika ada angka yang tidak cocok.
-    - [ ] Catat SHA-256 file dump pada tabel `import_batch`.
+- [x] Task: Implementasikan modul impor di `services/importer.py` dan CLI `scripts/import_dump.py`.
+    - [x] Baca dump SQL melalui `core.sql_dump_parser.parse_sql_dump`.
+    - [x] Simpan salinan mentah ke `archive_raw` dan data bersih ke `archive`.
+    - [x] Jalankan normalisasi dan ekstraksi metadata ke `archive_metadata`.
+    - [x] Lakukan verifikasi otomatis kelima angka acuan: 1.737 total arsip (1.590 In Aktif, 147 Statis), 143 OPD yatim, 11 galat dokumen, 1.344 label No SPM, 147 tanggal input 0000-00-00. Gagal impor jika ada angka yang tidak cocok.
+    - [x] Catat SHA-256 file dump pada tabel `import_batch`.
 
 ### 1.3 Pengujian Unit Impor
-- [ ] Task: Tulis uji unit `tests/test_importer.py` memvalidasi parsing, penyimpanan data mentah dan bersih, serta penolakan bila angka acuan tidak sesuai.
+- [x] Task: Tulis uji unit `tests/test_importer.py` memvalidasi parsing, penyimpanan data mentah dan bersih, serta penolakan bila angka acuan tidak sesuai.
 
 ### 1.4 Eksekusi Impor Riil & Verifikasi Angka Acuan
-- [ ] Task: Jalankan impor terhadap dump SIMANIS riil dan pastikan kelima angka acuan cocok persis.
+- [x] Task: Jalankan impor terhadap dump SIMANIS riil dan pastikan kelima angka acuan cocok persis.
 
 ---
 
