@@ -57,19 +57,19 @@ Metodologi: Berurutan Berbasis Gerbang Ilmiah (*Sequential Gated Execution*) —
 - [x] Task: Tulis dokumen [docs/pedoman_penilaian_relevansi.md](../../../docs/pedoman_penilaian_relevansi.md) yang merinci kriteria relevan/tidak relevan dan aturan kesetaraan nomor SPM/substansi isi sama.
 
 ### 3.2 Generator Kueri Sintetis Bergangguan
-- [ ] Task: Implementasikan generator kueri di `core/testset/synthetic_generator.py` dan `core/testset/noise.py`.
-    - [ ] Dukung 6 jenis gangguan realistis (*typo*, singkatan, spasi/tanda baca, urutan kata, kata hilang, ejaan varian).
-    - [ ] Catat ID arsip asal untuk kueri sintetis.
+- [x] Task: Implementasikan generator kueri di `core/testset/synthetic_generator.py` dan `core/testset/noise.py`.
+    - [x] Dukung 6 jenis gangguan realistis (*typo*, singkatan, spasi/tanda baca, urutan kata, kata hilang, ejaan varian).
+    - [x] Catat ID arsip asal untuk kueri sintetis.
 
 ### 3.3 Gerbang Manual: Pengumpulan Kueri Kasus Nyata Arsiparis
 - [ ] Task: Gerbang Manual - Kumpulkan kueri kasus nyata dari arsiparis (jika < 3, teruskan dengan kueri sintetis dan catat sebagai keterbatasan metodologis).
 
 ### 3.4 Modul Blind Pooling Top-10 & Ekspor Penilaian
-- [ ] Task: Implementasikan modul pooling di `core/testset/pooling.py` dan `scripts/create_relevance_pool.py`.
-    - [ ] Ambil Top-10 dari 5 metode pencarian (LIKE, Levenshtein, Jaro-Winkler, Token Set, N-gram).
-    - [ ] Masukkan arsip asal kueri sintetis ke dalam pool.
-    - [ ] Acak urutan dokumen per kueri (seed tetap 42) tanpa label metode atau skor.
-    - [ ] Ekspor ke `output/relevance_pool.csv` (diabaikan Git).
+- [x] Task: Implementasikan modul pooling di `core/testset/pooling.py` dan `scripts/create_relevance_pool.py`.
+    - [x] Ambil Top-10 dari 5 metode pencarian (LIKE, Levenshtein, Jaro-Winkler, Token Set, N-gram).
+    - [x] Masukkan arsip asal kueri sintetis ke dalam pool.
+    - [x] Acak urutan dokumen per kueri (seed tetap 42) tanpa label metode atau skor.
+    - [x] Ekspor ke `output/relevance_pool.csv` (diabaikan Git).
 
 ### 3.5 Gerbang Manual: Penilaian Pilot 5 Kueri
 - [ ] Task: Gerbang Manual - Nilai 5 kueri pilot terlebih dahulu untuk mengukur rata-rata dokumen unik dan beban waktu penilaian.
@@ -78,12 +78,12 @@ Metodologi: Berurutan Berbasis Gerbang Ilmiah (*Sequential Gated Execution*) —
 - [ ] Task: Gerbang Manual - Peneliti menyelesaikan penilaian relevansi seluruh kueri dan arsiparis memverifikasi sampel 20–30% untuk menghitung persentase kesepakatan.
 
 ### 3.7 Impor Hasil Penilaian, Anti-Leak Stratified Split & Penguncian JSON
-- [ ] Task: Implementasikan `scripts/build_testset.py` untuk mengimpor penilaian kembali ke `data/testset/testset_v1.json`.
-    - [ ] Struktur JSON lengkap: `query_id`, `query_text`, `source`, `query_type`, `noise_type`, `split`, daftar `archive_id` dan `is_relevant`.
-    - [ ] Lakukan stratified split ~30% tuning / ~70% test (seed 42).
-    - [ ] Pastikan kueri dari arsip yang sama, SPM yang sama, atau ringkasan sangat mirip (kandidat duplikat) masuk split yang sama agar tidak ada kebocoran data.
-    - [ ] Hitung hash SHA-256 berkas JSON dan kunci.
-    - [ ] Tulis uji unit di `tests/test_testset_builder.py`.
+- [x] Task: Implementasikan `scripts/build_testset.py` untuk mengimpor penilaian kembali ke `data/testset/testset_v1.json`.
+    - [x] Struktur JSON lengkap: `query_id`, `query_text`, `source`, `query_type`, `noise_type`, `split`, daftar `archive_id` dan `is_relevant`.
+    - [x] Lakukan stratified split ~30% tuning / ~70% test (seed 42).
+    - [x] Pastikan kueri dari arsip yang sama, SPM yang sama, atau ringkasan sangat mirip (kandidat duplikat) masuk split yang sama agar tidak ada kebocoran data.
+    - [x] Hitung hash SHA-256 berkas JSON dan kunci.
+    - [x] Tulis uji unit di `tests/test_testset_builder.py`.
 
 ---
 
