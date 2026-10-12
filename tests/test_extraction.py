@@ -25,12 +25,12 @@ def test_newlines_and_spacing_variants():
     text = (
         "- Pembayaran renovasi ruang rapat serbaguna\n"
         " No. SPM:999/BT/5/P   \n"
-        "Tanggal : 30 Maret 1999    Jumlah : Rp 172.900.000"
+        "Tanggal : 30 Maret 1999    Jumlah : Rp 150.000.000"
     )
     meta = extract_metadata(text)
     assert meta["spm_number"] == "999/BT/5/P"
     assert meta["document_date"] == "1999-03-30"
-    assert meta["amount_rp"] == 172900000
+    assert meta["amount_rp"] == 150000000
 
 
 def test_numeric_date():
@@ -67,11 +67,11 @@ def test_empty_input():
 
 
 def test_parse_rupiah_cases():
-    assert parse_rupiah("228.399.000,-") == 228399000
-    assert parse_rupiah("52.381.486,-") == 52381486
+    assert parse_rupiah("125.500.000,-") == 125500000
+    assert parse_rupiah("50.250.125,-") == 50250125
     assert parse_rupiah("1.000.000,00") == 1000000
-    assert parse_rupiah("172.900.000") == 172900000
-    assert parse_rupiah("74.500.000,-") == 74500000
+    assert parse_rupiah("150.000.000") == 150000000
+    assert parse_rupiah("75.000.000,-") == 75000000
     assert parse_rupiah("") is None
 
 
