@@ -6,6 +6,7 @@ from core.evaluation.audit_metrics import (
     calculate_percentage_agreement,
     wilson_score_interval,
 )
+from scripts.evaluate_extraction_audit import evaluate_audit_data
 
 
 def test_wilson_score_interval_hand_calculated():
@@ -38,35 +39,88 @@ def test_wilson_invalid_inputs_raise():
 
 
 def test_calculate_field_audit_metrics_cases():
-    verdicts = ["benar"] * 80 + ["salah"] * 10 + ["tidak_ada_di_teks"] * 10
-    missed = [False] * 100
+    # 80 benar, 10 salah, 5 terlewat, 5 tidak_ada_di_teks
+    verdicts = (
+        ["benar"] * 80 + ["salah"] * 10 + ["terlewat"] * 5 + ["tidak_ada_di_teks"] * 5
+    )
 
-    metrics = calculate_field_audit_metrics(verdicts, missed)
+    metrics = calculate_field_audit_metrics(verdicts)
     assert metrics["total_evaluated"] == 100
     assert metrics["n_benar"] == 80
     assert metrics["n_salah"] == 10
-    assert metrics["n_tidak_ada_di_teks"] == 10
-    assert metrics["n_extracted"] == 90
-    assert metrics["accuracy_extracted"] == pytest.approx(80 / 90)
+    assert metrics["n_terlewat"] == 5
+    assert metrics["n_tidak_ada_di_teks"] == 5
 
-    # Bila ada missed (false negative)
-    missed_flags = [False] * 90 + [True] * 5 + [False] * 5
-    m2 = calculate_field_audit_metrics(verdicts, missed_flags)
-    assert m2["n_missed"] == 5
+    # Ketepatan (precision) = benar / (benar + salah) = 80 / 90
+    assert metrics["n_extracted"] == 90
+    assert metrics["ketepatan"] == pytest.approx(80 / 90)
+
+    # Keterambilan (recall) = benar / (benar + terlewat) = 80 / 85
+    assert metrics["n_in_text"] == 85
+    assert metrics["keterambilan"] == pytest.approx(80 / 85)
+
+    low_k, up_k = metrics["wilson_ci_ketepatan"]
+    assert 0.0 <= low_k <= metrics["ketepatan"] <= up_k <= 1.0
+
+
+def test_calculate_field_audit_metrics_empty_or_invalid_raises():
+    with pytest.raises(ValueError, match="kosong"):
+        calculate_field_audit_metrics(["benar", ""])
+    with pytest.raises(ValueError, match="kosong"):
+        calculate_field_audit_metrics(["benar", None])
+    with pytest.raises(ValueError, match="nilai tidak sah"):
+        calculate_field_audit_metrics(["benar", "ragu_ragu"])
 
 
 def test_calculate_percentage_agreement_cases():
-    a = ["benar", "benar", "salah", "tidak_ada_di_teks"]
-    b = ["benar", "salah", "salah", "tidak_ada_di_teks"]
-    # 3 cocok dari 4 -> 75%
-    assert calculate_percentage_agreement(a, b) == 0.75
-
+    a = ["benar", "benar", "salah", "tidak_ada_di_teks", "terlewat"]
+    b = ["benar", "salah", "salah", "tidak_ada_di_teks", "terlewat"]
+    # 4 cocok dari 5 -> 80%
+    assert calculate_percentage_agreement(a, b) == 0.80
     # Semua cocok
     assert calculate_percentage_agreement(a, a) == 1.0
 
 
-def test_calculate_percentage_agreement_mismatched_length_raises():
-    with pytest.raises(ValueError):
-        calculate_percentage_agreement(["benar"], ["benar", "salah"])
-    with pytest.raises(ValueError):
-        calculate_percentage_agreement([], [])
+def test_evaluate_audit_data_integration():
+    rows_a = [
+        {
+            "archive_id": "1",
+            "verdict_spm": "benar",
+            "verdict_sp2d": "tidak_ada_di_teks",
+            "verdict_date": "benar",
+            "verdict_amount": "salah",
+            "verdict_party": "terlewat",
+        },
+        {
+            "archive_id": "2",
+            "verdict_spm": "terlewat",
+            "verdict_sp2d": "benar",
+            "verdict_date": "benar",
+            "verdict_amount": "benar",
+            "verdict_party": "tidak_ada_di_teks",
+        },
+    ]
+    rows_b = [
+        {
+            "archive_id": "1",
+            "verdict_spm": "benar",
+            "verdict_sp2d": "tidak_ada_di_teks",
+            "verdict_date": "benar",
+            "verdict_amount": "salah",
+            "verdict_party": "salah",  # Beda dengan rows_a (terlewat vs salah)
+        },
+        {
+            "archive_id": "2",
+            "verdict_spm": "terlewat",
+            "verdict_sp2d": "benar",
+            "verdict_date": "benar",
+            "verdict_amount": "benar",
+            "verdict_party": "tidak_ada_di_teks",
+        },
+    ]
+
+    res = evaluate_audit_data(rows_a, rows_b)
+    assert res["n_evaluated"] == 2
+    assert res["fields"]["spm"]["n_benar"] == 1
+    assert res["agreement"]["spm"] == 1.0
+    assert res["agreement"]["party"] == 0.5  # 1 cocok dari 2

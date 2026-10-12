@@ -130,6 +130,8 @@ def build_markdown_report(
     env_str = f"Python {manifest['python_version']} ({manifest['platform']})"
     lines.append(f"- **Lingkungan Eksekusi**: `{env_str}`")
     lines.append(f"- **Jumlah Kueri Uji (Test Split)**: `{manifest['n_test_queries']}`")
+    ragu_cnt = manifest.get("total_ragu", 0)
+    lines.append(f"- **Jumlah Baris Ragu**: `{ragu_cnt}`")
     lines.append("")
 
     # 2. Tabel Metrik Keseluruhan
@@ -399,6 +401,7 @@ def main() -> None:
         "python_version": platform.python_version(),
         "platform": platform.platform(),
         "n_test_queries": len(target_queries),
+        "total_ragu": testset.get("total_ragu_count", 0),
     }
 
     report_md = build_markdown_report(
