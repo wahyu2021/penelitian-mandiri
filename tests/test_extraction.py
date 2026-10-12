@@ -2,35 +2,52 @@ from core.extraction import extract_metadata, parse_rupiah
 from core.spm_types import CONFIDENCE_GUESS, describe_spm_type
 
 FULL = (
-    "Pembayaran termin ke I dan II atas pekerjaan pengecetan terminal alang-alang lebar "
-    "CV Arti Mandiri No SPM : 158/LS/Dishub/2007 No SP2D : 4858/2007 "
-    "tanggal : 14 desember 2007 Jumlah : Rp.228.399.000,-"
+    "Pembayaran termin ke I dan II atas pekerjaan pengadaan komputer dinas "
+    "CV Contoh Mandiri No SPM : 123/LS/Diskominfo/2021 No SP2D : 4567/2021 "
+    "tanggal : 14 desember 2021 Jumlah : Rp.250.000.000,-"
 )
 
 
 def test_full_example():
     meta = extract_metadata(FULL)
-    assert meta["spm_number"] == "158/LS/DISHUB/2007"
-    assert meta["spm_sequence"] == "158"
+    assert meta["spm_number"] == "123/LS/DISKOMINFO/2021"
+    assert meta["spm_sequence"] == "123"
     assert meta["spm_type_code"] == "LS"
-    assert meta["spm_suffix"] == "DISHUB/2007"
-    assert meta["sp2d_number"] == "4858/2007"
-    assert meta["document_date"] == "2007-12-14"
-    assert meta["amount_rp"] == 228399000
-    assert meta["party_name"] == "CV Arti Mandiri"
+    assert meta["spm_suffix"] == "DISKOMINFO/2021"
+    assert meta["sp2d_number"] == "4567/2021"
+    assert meta["document_date"] == "2021-12-14"
+    assert meta["amount_rp"] == 250000000
+    assert meta["party_name"] == "CV Contoh Mandiri"
     assert meta["has_spm_label"] is True
 
 
 def test_newlines_and_spacing_variants():
-    text = "- Pembayaran atas rehabilitasi Pasar Kuto\n No. SPM:446/BT/5/P   \nTanggal : 30 Maret 1999    Jumlah : Rp 172.900.000"
+    text = (
+        "- Pembayaran renovasi ruang rapat serbaguna\n"
+        " No. SPM:999/BT/5/P   \n"
+        "Tanggal : 30 Maret 1999    Jumlah : Rp 172.900.000"
+    )
     meta = extract_metadata(text)
-    assert meta["spm_number"] == "446/BT/5/P"
+    assert meta["spm_number"] == "999/BT/5/P"
     assert meta["document_date"] == "1999-03-30"
     assert meta["amount_rp"] == 172900000
 
 
 def test_numeric_date():
-    assert extract_metadata("No SPM : 1/LS/2 Tgl 05/11/2003 Jumlah : Rp 1.000")["document_date"] == "2003-11-05"
+    text = "No SPM : 1/LS/2 Tgl 05/11/2003 Jumlah : Rp 1.000"
+    assert extract_metadata(text)["document_date"] == "2003-11-05"
+
+
+def test_spm_type_variants_extraction():
+    meta1 = extract_metadata("No SPM: 037/SPM - LS/Instansi/2009")
+    assert meta1["spm_sequence"] == "37"
+    assert meta1["spm_type_code"] == "LS"
+    assert meta1["spm_suffix"] == "INSTANSI/2009"
+
+    meta2 = extract_metadata("No SPM: 050/SPM/GU/Instansi/2010")
+    assert meta2["spm_sequence"] == "50"
+    assert meta2["spm_type_code"] == "GU"
+    assert meta2["spm_suffix"] == "INSTANSI/2010"
 
 
 def test_impossible_date_is_not_extracted():

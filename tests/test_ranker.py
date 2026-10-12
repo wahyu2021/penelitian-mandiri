@@ -3,14 +3,14 @@ import pytest
 from core.search.index import SearchIndex
 from core.search.matchers import FUZZY_METHOD_NAMES, create_matcher
 from core.search.ranker import FieldRanker, equal_weights, normalize_weights
-from tests.test_search_index import make_record
+from tests.conftest import make_record
 
 
 def build_index():
     return SearchIndex.from_records([
         make_record(1, "renovasi pasar", spm_number=None, party_name=None, opd_id=6),
-        make_record(2, "jembatan sungai", spm_number="158/LS/DISHUB/2007",
-                    party_name="CV Arti Mandiri", opd_id=7),
+        make_record(2, "jembatan sungai", spm_number="123/LS/DISKOMINFO/2021",
+                    party_name="CV Contoh Mandiri", opd_id=7),
         make_record(3, "renovasi pasar", spm_number=None, party_name=None, opd_id=6),
     ])
 
@@ -34,10 +34,10 @@ def test_single_field_weight():
 def test_spm_part_and_party_fields_are_searched():
     spm_ranker = FieldRanker(build_index(), create_matcher("levenshtein"),
                              {"summary": 0, "spm": 1, "party": 0})
-    assert spm_ranker.search("158")[0].id == 2
+    assert spm_ranker.search("123")[0].id == 2
     party_ranker = FieldRanker(build_index(), create_matcher("levenshtein"),
                                {"summary": 0, "spm": 0, "party": 1})
-    top = party_ranker.search("arti")[0]
+    top = party_ranker.search("contoh")[0]
     assert top.id == 2 and top.score == pytest.approx(1.0)
 
 

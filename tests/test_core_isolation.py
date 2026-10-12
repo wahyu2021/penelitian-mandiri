@@ -31,7 +31,22 @@ def test_core_does_not_import_web_or_orm():
 
 
 def test_core_does_not_read_sensitive_tables():
-    # Nama tabel sensitif hanya boleh muncul sebagai daftar pengecualian/dokumentasi.
-    source = (CORE_DIR / "sql_dump_parser.py").read_text(encoding="utf-8")
-    assert "ALLOWED_TABLES" in source
-    assert 'tables["apptb_user"]' not in source and 'tables["apptb_log"]' not in source
+    from core.sql_dump_parser import ALLOWED_TABLES, parse_sql_text
+
+    assert "apptb_user" not in ALLOWED_TABLES
+    assert "apptb_log" not in ALLOWED_TABLES
+    assert "apptb_arsip1" not in ALLOWED_TABLES
+
+    sample_sql = (
+        "INSERT INTO `apptb_user` (`id_user`, `username`, `password`) VALUES "
+        "(1, 'admin', 'secret_hash');\n"
+        "INSERT INTO `apptb_log` (`id_log`, `activity`) VALUES "
+        "(1, 'login');\n"
+        "INSERT INTO `apptb_opd` (`id_opd`, `nama_opd`) VALUES "
+        "(1, 'Dinas Test');\n"
+    )
+    result = parse_sql_text(sample_sql)
+    assert "apptb_user" not in result
+    assert "apptb_log" not in result
+    assert len(result["apptb_opd"]) == 1
+    assert result["apptb_opd"][0]["nama_opd"] == "Dinas Test"

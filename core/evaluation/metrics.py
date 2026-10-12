@@ -32,16 +32,20 @@ def _relevant_hits(retrieved: Sequence[int], relevant: Collection[int], k: int) 
     return sum(1 for doc_id in retrieved[:k] if doc_id in relevant)
 
 
-def precision_at_k(retrieved: Sequence[int], relevant: Collection[int], k: int = PRECISION_K) -> float:
+def precision_at_k(
+    retrieved: Sequence[int], relevant: Collection[int], k: int = PRECISION_K
+) -> float:
     """Precision@k dengan penyebut k meski hasil kurang dari k."""
     _validate(retrieved, relevant, k)
     return _relevant_hits(retrieved, relevant, k) / k
 
 
-def recall_at_k(retrieved: Sequence[int], relevant: Collection[int], k: int = RECALL_K) -> float:
-    """Recall@k terhadap seluruh dokumen relevan."""
+def recall_at_k(
+    retrieved: Sequence[int], relevant: Collection[int], k: int = RECALL_K
+) -> float:
+    """Recall@k terhadap seluruh dokumen relevan unik (duplikat diabaikan)."""
     _validate(retrieved, relevant, k)
-    return _relevant_hits(retrieved, relevant, k) / len(relevant)
+    return _relevant_hits(retrieved, relevant, k) / len(frozenset(relevant))
 
 
 def first_relevant_rank(
@@ -55,7 +59,9 @@ def first_relevant_rank(
     return None
 
 
-def reciprocal_rank(retrieved: Sequence[int], relevant: Collection[int], k: int = MRR_K) -> float:
+def reciprocal_rank(
+    retrieved: Sequence[int], relevant: Collection[int], k: int = MRR_K
+) -> float:
     """Reciprocal rank dalam k teratas; 0 bila tidak ada dokumen relevan."""
     rank = first_relevant_rank(retrieved, relevant, k)
     return 0.0 if rank is None else 1.0 / rank
@@ -104,15 +110,16 @@ def evaluate_query(retrieved: Sequence[int], relevant: Collection[int]) -> Query
     Raises:
         ValueError: tidak ada dokumen relevan atau hasil memuat duplikat.
     """
+    unique_relevant = frozenset(relevant)
     return QueryMetrics(
-        n_relevant=len(relevant),
+        n_relevant=len(unique_relevant),
         n_retrieved=len(retrieved),
-        precision_at_5=precision_at_k(retrieved, relevant, PRECISION_K),
-        recall_at_10=recall_at_k(retrieved, relevant, RECALL_K),
-        reciprocal_rank=reciprocal_rank(retrieved, relevant, MRR_K),
-        first_relevant_rank=first_relevant_rank(retrieved, relevant, MRR_K),
-        hit_at_5=hit_rate_at_k(retrieved, relevant, HIT_RATE_KS[0]),
-        hit_at_10=hit_rate_at_k(retrieved, relevant, HIT_RATE_KS[1]),
+        precision_at_5=precision_at_k(retrieved, unique_relevant, PRECISION_K),
+        recall_at_10=recall_at_k(retrieved, unique_relevant, RECALL_K),
+        reciprocal_rank=reciprocal_rank(retrieved, unique_relevant, MRR_K),
+        first_relevant_rank=first_relevant_rank(retrieved, unique_relevant, MRR_K),
+        hit_at_5=hit_rate_at_k(retrieved, unique_relevant, HIT_RATE_KS[0]),
+        hit_at_10=hit_rate_at_k(retrieved, unique_relevant, HIT_RATE_KS[1]),
         zero_result=is_zero_result(retrieved),
     )
 

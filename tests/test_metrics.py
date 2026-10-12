@@ -26,6 +26,14 @@ def test_recall_hand_calculated():
     assert recall_at_k([4, 5], {4, 5}, 10) == 1.0
 
 
+def test_recall_with_duplicate_relevant_does_not_inflate_denominator():
+    # Bila relevant memuat duplikat [1, 1, 2], penyebut harus tetap 2 (frozenset)
+    assert recall_at_k([1, 2], [1, 1, 2], 10) == 1.0
+    metrics = evaluate_query([1, 2], [1, 1, 2])
+    assert metrics.n_relevant == 2
+    assert metrics.recall_at_10 == 1.0
+
+
 def test_reciprocal_rank_hand_calculated():
     assert reciprocal_rank(A_RETRIEVED, A_RELEVANT) == pytest.approx(1 / 3)
     assert first_relevant_rank(A_RETRIEVED, A_RELEVANT) == 3

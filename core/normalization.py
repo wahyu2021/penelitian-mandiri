@@ -27,8 +27,9 @@ def normalize_code(value: str) -> str:
 def normalize_text(text: str, expand_abbreviations: bool = True) -> str:
     """Normalisasi teks untuk pengindeksan dan pencarian.
 
-    Langkah: NFKC, huruf kecil, kode bergaris miring dijaga utuh
-    (`446 / bt/5/p` -> `446/bt/5/p`), tanda baca lain jadi pemisah,
+    Langkah: NFKC, huruf kecil, kode bergaris miring dijaga utuh bila memuat angka
+    (`446 / bt/5/p` -> `446/bt/5/p`), sedangkan kata biasa bergaris miring tanpa angka
+    (`ahli/tukang` -> `ahli tukang`) dipecah, tanda baca lain jadi pemisah,
     lalu ekspansi singkatan bila diminta.
 
     Args:
@@ -40,7 +41,13 @@ def normalize_text(text: str, expand_abbreviations: bool = True) -> str:
     """
     lowered = unicodedata.normalize("NFKC", text or "").lower()
     joined = _SLASH_BETWEEN_ALNUM.sub("/", lowered)
-    tokens = _TOKEN.findall(joined)
+    raw_tokens = _TOKEN.findall(joined)
+    tokens: List[str] = []
+    for raw in raw_tokens:
+        if "/" in raw and not any(c.isdigit() for c in raw):
+            tokens.extend(raw.split("/"))
+        else:
+            tokens.append(raw)
     if expand_abbreviations:
         tokens = [ABBREVIATIONS.get(token, token) for token in tokens]
     return " ".join(tokens)

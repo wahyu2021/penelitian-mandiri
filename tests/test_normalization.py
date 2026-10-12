@@ -27,9 +27,19 @@ def test_empty_and_none():
 
 
 def test_query_and_document_use_same_pipeline():
-    assert normalize_text("CV. Arti  Mandiri") == normalize_text("cv arti mandiri")
+    assert normalize_text("CV. Contoh  Mandiri") == normalize_text("cv contoh mandiri")
 
 
 def test_normalize_code():
     assert normalize_code(" 446 / bt/5 /p. ") == "446/BT/5/P"
     assert normalize_code("") == ""
+
+
+def test_slash_without_digits_splits_into_separate_tokens():
+    assert tokenize("tenaga ahli/tukang dan alat/bahan") == [
+        "tenaga", "ahli", "tukang", "dan", "alat", "bahan"
+    ]
+    # Sedangkan kode yang memuat digit tetap utuh
+    assert tokenize("dokumen 446/bt/5/p dan sk/2021") == [
+        "dokumen", "446/bt/5/p", "dan", "sk/2021"
+    ]

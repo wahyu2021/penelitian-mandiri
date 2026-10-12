@@ -53,7 +53,9 @@ def build_haystack(record: Mapping[str, object]) -> str:
     """
     location = "/".join(str(record.get(key) or "") for key in (
         "location_block", "location_rack", "location_row", "box_number"))
-    document_label = DOCUMENT_DOWNLOAD_LABEL if record.get("has_document") else DOCUMENT_MISSING_LABEL
+    document_label = (
+        DOCUMENT_DOWNLOAD_LABEL if record.get("has_document") else DOCUMENT_MISSING_LABEL
+    )
     year = record.get("year")
     parts = [
         record.get("opd_name"), record.get("file_number"), record.get("classification_label"),
@@ -88,7 +90,17 @@ def matches_filters(
     year: Optional[int] = None,
     status: Optional[int] = None,
 ) -> bool:
-    """True bila dokumen lolos seluruh filter yang diisi."""
+    """Periksa apakah dokumen lolos seluruh filter yang diisi.
+
+    Args:
+        document: Dokumen pencarian yang diperiksa.
+        opd_id: Filter ID OPD (opsional).
+        year: Filter kurun waktu tahun (opsional).
+        status: Filter status arsip (opsional).
+
+    Returns:
+        True bila dokumen cocok dengan seluruh filter aktif.
+    """
     return (
         (opd_id is None or document.opd_id == opd_id)
         and (year is None or document.year == year)
@@ -104,7 +116,14 @@ class SearchIndex:
 
     @classmethod
     def from_records(cls, records: Iterable[Mapping[str, object]]) -> "SearchIndex":
-        """Bangun indeks dari record (lihat `build_document`)."""
+        """Bangun indeks dari deret record (lihat `build_document`).
+
+        Args:
+            records: Iterable berisi dict record data arsip.
+
+        Returns:
+            Instance SearchIndex baru yang memuat seluruh dokumen.
+        """
         return cls(build_document(record) for record in records)
 
     def __len__(self) -> int:

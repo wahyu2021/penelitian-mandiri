@@ -1,8 +1,8 @@
 """Perangking dokumen berdasarkan skor gabungan per field."""
-from typing import Dict, List, NamedTuple, Optional
+from typing import Dict, List, NamedTuple, Optional, Sequence
 
 from core.normalization import tokenize
-from core.search.index import SearchIndex
+from core.search.index import SearchDocument, SearchIndex
 from core.search.matchers.base import BaseMatcher
 
 FIELD_SUMMARY = "summary"
@@ -52,7 +52,7 @@ class FieldRanker:
         self.matcher = matcher
         self.weights = normalize_weights(weights if weights is not None else equal_weights())
 
-    def score_document(self, query_tokens: List[str], document) -> float:
+    def score_document(self, query_tokens: Sequence[str], document: SearchDocument) -> float:
         """Skor gabungan satu dokumen untuk token kueri."""
         field_tokens = {
             FIELD_SUMMARY: document.summary_tokens,

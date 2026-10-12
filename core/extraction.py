@@ -30,7 +30,9 @@ _SPM_LABEL = re.compile(r"no\.?\s*spm", re.I)
 _SPM = re.compile(r"no\.?\s*spm\s*[:.\-]?\s*(?P<v>.{2,45}?)" + _STOP_WITH_SP2D, re.I)
 _SP2D = re.compile(r"no\.?\s*sp2d\s*[:.\-]?\s*(?P<v>.{2,30}?)" + _STOP, re.I)
 _DATE_TEXT = re.compile(
-    r"(?:tanggal|tgl)\.?\s*[:\-]?\s*(\d{1,2})\s*[-/ ]?\s*([A-Za-z]{3,9})\s*[-/ ]?\s*(\d{4})", re.I)
+    r"(?:tanggal|tgl)\.?\s*[:\-]?\s*(\d{1,2})\s*[-/ ]?\s*([A-Za-z]{3,9})\s*[-/ ]?\s*(\d{4})",
+    re.I,
+)
 _DATE_NUMERIC = re.compile(
     r"(?:tanggal|tgl)\.?\s*[:\-]?\s*(\d{1,2})[/-](\d{1,2})[/-](\d{4})", re.I)
 _AMOUNT = re.compile(r"jumlah\s*[:\-]?\s*rp\.?\s*:?\s*(\d[\d.,]*)", re.I)
@@ -88,10 +90,21 @@ def extract_metadata(summary: str) -> Metadata:
         result["spm_number"] = number or None
         if parts[0].isdigit():
             result["spm_sequence"] = parts[0].lstrip("0") or "0"
+
+        type_idx = 1
         if len(parts) > 1:
-            result["spm_type_code"] = parts[1] or None
-        if len(parts) > 2:
-            result["spm_suffix"] = "/".join(parts[2:]) or None
+            raw_type = parts[1].strip()
+            # Bila bagian ke-2 hanya "SPM" dan ada bagian ke-3 (mis. 037/SPM/LS/...)
+            if raw_type.upper() == "SPM" and len(parts) > 2:
+                type_idx = 2
+                raw_type = parts[2].strip()
+            # Bersihkan prefix "SPM-" atau "SPM - " bila ada (mis. "SPM-LS" -> "LS")
+            cleaned_type = re.sub(r"^SPM\s*[-–]?\s*", "", raw_type, flags=re.I).strip()
+            result["spm_type_code"] = cleaned_type or raw_type or None
+
+        suffix_parts = parts[type_idx + 1:]
+        if suffix_parts:
+            result["spm_suffix"] = "/".join(suffix_parts) or None
         search_from = spm_match.end()
 
     sp2d_match = _SP2D.search(text)

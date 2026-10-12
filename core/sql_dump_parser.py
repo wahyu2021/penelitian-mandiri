@@ -57,6 +57,20 @@ def _read_quoted(text: str, pos: int) -> Tuple[str, int]:
     raise ValueError("String SQL tidak ditutup")
 
 
+def _skip_statement(text: str, pos: int) -> int:
+    """Lewati teks SQL hingga tanda titik koma (;) di luar kutip tunggal."""
+    length = len(text)
+    while pos < length:
+        char = text[pos]
+        if char == ";":
+            return pos + 1
+        if char == "'":
+            _, pos = _read_quoted(text, pos + 1)
+        else:
+            pos += 1
+    return pos
+
+
 def _parse_tuples(text: str, pos: int) -> Tuple[List[List[Optional[str]]], int]:
     """Parse deret tuple `(..),(..)` sampai `;` di luar kutip.
 
@@ -77,6 +91,8 @@ def _parse_tuples(text: str, pos: int) -> Tuple[List[List[Optional[str]]], int]:
         while pos < length:
             while pos < length and text[pos] in " \t\r\n":
                 pos += 1
+            if pos >= length:
+                raise ValueError("Dump SQL terpotong di dalam baris data")
             if text[pos] == "'":
                 value, pos = _read_quoted(text, pos + 1)
                 row.append(value)
@@ -88,6 +104,8 @@ def _parse_tuples(text: str, pos: int) -> Tuple[List[List[Optional[str]]], int]:
                 row.append(None if token.upper() == "NULL" else token)
             while pos < length and text[pos] in " \t\r\n":
                 pos += 1
+            if pos >= length:
+                raise ValueError("Dump SQL terpotong di dalam baris data")
             if text[pos] == ",":
                 pos += 1
                 continue
@@ -120,7 +138,7 @@ def parse_sql_text(text: str) -> Dict[str, List[Row]]:
         table = match.group("table")
         if table not in ALLOWED_TABLES:
             # Lewati seluruh statement tanpa mem-parse isinya.
-            _, pos = _parse_tuples(text, match.end())
+            pos = _skip_statement(text, match.end())
             continue
         columns = [c.strip("` \r\n") for c in match.group("columns").split(",")]
         raw_rows, pos = _parse_tuples(text, match.end())

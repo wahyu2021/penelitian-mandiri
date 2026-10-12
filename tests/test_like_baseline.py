@@ -1,11 +1,11 @@
 from core.search.index import SearchIndex
 from core.search.like_baseline import MATCH_SCORE, LikeBaselineSearch
-from tests.test_search_index import make_record
+from tests.conftest import make_record
 
 
 def build_search():
     index = SearchIndex.from_records([
-        make_record(3, "Renovasi Pasar Kuto", opd_id=6, classification_label="Umum"),
+        make_record(3, "Renovasi Pasar Baru", opd_id=6, classification_label="Umum"),
         make_record(1, "Pasar Km 5 renovasi", opd_id=7, classification_label="Umum"),
         make_record(2, "Jembatan sungai", opd_id=6, classification_label="Umum"),
     ])
@@ -29,7 +29,7 @@ def test_typo_finds_nothing():
 
 
 def test_term_in_other_displayed_column_matches():
-    assert ids(build_search().search("perdagangan 1999 jembatan")) == [2]
+    assert ids(build_search().search("komunikasi 1999 jembatan")) == [2]
 
 
 def test_empty_query_returns_nothing():
