@@ -90,27 +90,27 @@ Metodologi: Berurutan Berbasis Gerbang Ilmiah (*Sequential Gated Execution*) —
 ## Tahap 4: Penyetelan Bobot, Penilaian Tambahan & Evaluasi Temu Kembali CLI
 
 ### 4.1 Modul Penyetelan Bobot (Tuning Phase)
-- [ ] Task: Implementasikan `core/evaluation/tuning.py` dan CLI `scripts/tune_weights.py`.
-    - [ ] Jalankan grid search bobot field (*summary, spm, party*) hanya pada kelompok tuning (~30%).
-    - [ ] Pilih kombinasi bobot terbaik berdasarkan MRR@10 tertinggi (jika seri, gunakan P@5).
-    - [ ] Simpan bobot optimal dan laporkan perbandingan terhadap bobot sama rata.
+- [x] Task: Implementasikan `core/evaluation/tuning.py` dan CLI `scripts/tune_weights.py`.
+    - [x] Jalankan grid search bobot field (*summary, spm, party*) hanya pada kelompok tuning (~30%).
+    - [x] Pilih kombinasi bobot terbaik berdasarkan MRR@10 tertinggi (jika seri, gunakan P@5).
+    - [x] Simpan bobot optimal dan laporkan perbandingan terhadap bobot sama rata.
 
 ### 4.2 Pemeriksaan & Penilaian Tambahan Dokumen Belum Dinilai di Top-10
-- [ ] Task: Implementasikan `scripts/check_unjudged.py`.
-    - [ ] Periksa kemunculan dokumen belum dinilai di Top-10 setelah bobot diterapkan.
-    - [ ] Jika ada, lakukan penilaian buta tambahan dan simpan di `data/testset/additional_judgments_v1.json` dengan hash sendiri tanpa mengubah `testset_v1.json`.
-    - [ ] Laporkan jumlah `unjudged_in_top10` (dokumen belum dinilai diasumsikan tidak relevan).
+- [x] Task: Implementasikan `scripts/check_unjudged.py`.
+    - [x] Periksa kemunculan dokumen belum dinilai di Top-10 setelah bobot diterapkan.
+    - [x] Jika ada, lakukan penilaian buta tambahan dan simpan di `data/testset/additional_judgments_v1.json` dengan hash sendiri tanpa mengubah `testset_v1.json`.
+    - [x] Laporkan jumlah `unjudged_in_top10` (dokumen belum dinilai diasumsikan tidak relevan).
 
 ### 4.3 Evaluasi Akhir CLI pada Kelompok Test
-- [ ] Task: Implementasikan `core/evaluation/evaluator.py` dan CLI `scripts/evaluate.py`.
-    - [ ] Eksekusi evaluasi akhir satu kali pada kelompok test (~70%).
-    - [ ] Tolak eksekusi jika *working tree Git kotor* (uncommitted changes).
-    - [ ] Catat parameter reproducibility otomatis: seed, hash dump, hash testset, commit SHA, rata-rata latensi, status working tree.
-    - [ ] Hitung P@5, R@10, MRR@10, Hit Rate@5, Hit Rate@10, zero-result queries, dan unjudged in top-10.
-    - [ ] Pisahkan pelaporan kasus nyata arsiparis vs kueri sintetis; rincikan per jenis/gangguan sebagai gambaran.
-    - [ ] Ekspor rekapitulasi ke `output/final_evaluation_report.md`.
+- [x] Task: Implementasikan `core/evaluation/evaluator.py` dan CLI `scripts/evaluate.py`.
+    - [x] Eksekusi evaluasi akhir satu kali pada kelompok test (~70%).
+    - [x] Tolak eksekusi jika *working tree Git kotor* (uncommitted changes).
+    - [x] Catat parameter reproducibility otomatis: seed, hash dump, hash testset, commit SHA, rata-rata latensi, status working tree.
+    - [x] Hitung P@5, R@10, MRR@10, Hit Rate@5, Hit Rate@10, zero-result queries, dan unjudged in top-10.
+    - [x] Pisahkan pelaporan kasus nyata arsiparis vs kueri sintetis; rincikan per jenis/gangguan sebagai gambaran.
+    - [x] Ekspor rekapitulasi ke `output/final_evaluation_report.md`.
 
 ### 4.4 Pengujian Komprehensif & Penggabungan Cabang
-- [ ] Task: Tulis uji unit di `tests/test_tuning.py` dan `tests/test_evaluator.py`.
-- [ ] Task: Jalankan seluruh uji unit `pytest tests/` dan pastikan semua lulus.
+- [x] Task: Tulis uji unit di `tests/test_tuning.py` dan `tests/test_evaluator.py`.
+- [x] Task: Jalankan seluruh uji unit `pytest tests/` dan pastikan semua lulus.
 - [ ] Task: Gabungkan cabang fitur `feat/testset-and-evaluation` ke `main` dengan pesan commit konvensional.
