@@ -30,12 +30,15 @@ EXPECTED_EXTRACTOR_VERSION = "v1.0.0"
 
 
 def read_audit_file(csv_path: Path) -> List[Dict[str, str]]:
-    """Baca berkas CSV audit dengan encoding utf-8-sig."""
+    """Baca berkas CSV audit dengan encoding utf-8-sig dan deteksi delimiter otomatis."""
     if not csv_path.is_file():
         raise FileNotFoundError(f"Berkas audit tidak ditemukan: {csv_path}")
 
     with open(csv_path, "r", encoding="utf-8-sig") as f:
-        reader = csv.DictReader(f)
+        first_line = f.readline()
+        delimiter = ";" if ";" in first_line and "," not in first_line else ","
+        f.seek(0)
+        reader = csv.DictReader(f, delimiter=delimiter)
         return list(reader)
 
 
@@ -202,7 +205,16 @@ def main() -> None:
 
     agree_rows = None
     if agree_path.is_file():
-        agree_rows = read_audit_file(agree_path)
+        candidate_agree = read_audit_file(agree_path)
+        has_any_verdict = any(
+            bool((r.get(f"verdict_{fld}") or "").strip())
+            for r in candidate_agree
+            for fld in FIELDS
+        )
+        if has_any_verdict:
+            agree_rows = candidate_agree
+        else:
+            print("[INFO] Berkas kesepakatan (audit_agreement_sample.csv) belum dinilai; evaluasi kesepakatan dilewati.")
 
     try:
         report = evaluate_audit_data(
