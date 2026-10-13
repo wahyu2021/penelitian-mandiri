@@ -8,10 +8,17 @@ import csv
 import json
 import re
 import shutil
+import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
+from core.testset.noise import add_noise
+from scripts.export_relevance_verification_sample import export_verification_sample
+
 OUTPUT_DIR = ROOT_DIR / "output"
 BACKUP_DIR = OUTPUT_DIR / ".real_data_backup"
 
@@ -166,7 +173,7 @@ def anonymize_all_csvs() -> None:
 
     print(f"Total archive dummy dipetakan: {len(archive_dummies)}")
 
-    # 2. Anonimkan candidate queries
+    # 2. Anonimkan candidate queries dengan menerapkan gangguan realistis
     cq_path = BACKUP_DIR / ".candidate_queries.json"
     if not cq_path.is_file():
         cq_path = OUTPUT_DIR / ".candidate_queries.json"
@@ -176,66 +183,89 @@ def anonymize_all_csvs() -> None:
         with open(cq_path, "r", encoding="utf-8") as f:
             candidates = json.load(f)
 
-        for cq in candidates:
+        for idx, cq in enumerate(candidates, start=1):
             qid = cq["query_id"]
             qtype = cq["query_type"]
+            noise = cq["noise_type"]
             aid = cq.get("origin_archive_id")
             dummy_data = archive_dummies.get(aid, {})
 
             if qtype == "nomor_spm" and dummy_data.get("spm_number"):
-                new_q = dummy_data["spm_number"]
+                base_q = dummy_data["spm_number"]
             elif qtype == "pihak" and dummy_data.get("party_name"):
-                new_q = dummy_data["party_name"]
+                base_q = dummy_data["party_name"]
             elif qtype == "topik":
-                new_q = cq["query_text"]
-                if "kuto besak" in new_q.lower():
-                    new_q = "gedung fasilitas umum"
+                base_q = cq.get("base_text") or cq["query_text"]
+                if "kuto besak" in base_q.lower():
+                    base_q = "gedung fasilitas umum"
             elif qtype == "campuran":
-                new_q = cq["query_text"]
-                if "kuto besak" in new_q.lower():
-                    new_q = "gedung fasilitas umum"
+                base_q = cq.get("base_text") or cq["query_text"]
+                if "kuto besak" in base_q.lower():
+                    base_q = "gedung fasilitas umum"
             else:
-                new_q = cq["query_text"]
+                base_q = cq.get("base_text") or cq["query_text"]
 
-            cq["query_text"] = new_q
-            cq["base_text"] = new_q
-            query_text_map[qid] = new_q
+            # Terapkan gangguan secara deterministik
+            seed = 42 + idx
+            noisy_q = add_noise(base_q, noise, seed=seed)
+
+            cq["base_text"] = base_q
+            cq["query_text"] = noisy_q
+            query_text_map[qid] = noisy_q
 
         with open(OUTPUT_DIR / ".candidate_queries.json", "w", encoding="utf-8") as f:
             json.dump(candidates, f, indent=2, ensure_ascii=False)
-        print("Diperbarui: .candidate_queries.json")
+        print("Diperbarui: .candidate_queries.json dengan gangguan realistis")
 
-    # 3. Anonimkan relevance_pool.csv, pilot, dan verification sample
-    for fname in ["relevance_pool.csv", "relevance_pool_pilot_5.csv", "relevance_verification_sample.csv"]:
-        src = BACKUP_DIR / fname
-        if not src.is_file():
-            src = OUTPUT_DIR / fname
-        with open(src, "r", encoding="utf-8-sig") as f:
-            reader = csv.DictReader(f)
-            fieldnames = reader.fieldnames
-            rows = list(reader)
+    # 3. Anonimkan relevance_pool.csv
+    src_pool = BACKUP_DIR / "relevance_pool.csv"
+    if not src_pool.is_file():
+        src_pool = OUTPUT_DIR / "relevance_pool.csv"
 
-        for row in rows:
-            aid = int(row["archive_id"])
-            dummy = archive_dummies[aid]
-            row["summary_raw"] = dummy["summary_raw"]
-            row["spm_number"] = dummy["spm_number"]
-            row["party_name"] = dummy["party_name"]
-            if row["query_id"] in query_text_map:
-                row["query_text"] = query_text_map[row["query_id"]]
-            # Pastikan kolom penilaian tetap kosong
-            row["is_relevant"] = ""
-            row["ragu"] = ""
-            if "auditor_notes" in row:
-                row["auditor_notes"] = ""
-            if "archivist_notes" in row:
-                row["archivist_notes"] = ""
+    with open(src_pool, "r", encoding="utf-8-sig") as f:
+        reader = csv.DictReader(f)
+        fieldnames = reader.fieldnames
+        pool_rows = list(reader)
 
-        with open(OUTPUT_DIR / fname, "w", encoding="utf-8-sig", newline="") as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
-            writer.writerows(rows)
-        print(f"Diperbarui langsung (data dummy): {fname} ({len(rows)} baris)")
+    for row in pool_rows:
+        aid = int(row["archive_id"])
+        dummy = archive_dummies[aid]
+        row["summary_raw"] = dummy["summary_raw"]
+        row["spm_number"] = dummy["spm_number"]
+        row["party_name"] = dummy["party_name"]
+        if row["query_id"] in query_text_map:
+            row["query_text"] = query_text_map[row["query_id"]]
+        # Wajib kosongkan kolom penilaian
+        row["is_relevant"] = ""
+        row["ragu"] = ""
+        if "auditor_notes" in row:
+            row["auditor_notes"] = ""
+        if "archivist_notes" in row:
+            row["archivist_notes"] = ""
+
+    out_pool = OUTPUT_DIR / "relevance_pool.csv"
+    with open(out_pool, "w", encoding="utf-8-sig", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(pool_rows)
+    print(f"Diperbarui langsung (data dummy): relevance_pool.csv ({len(pool_rows)} baris)")
+
+    # Perbarui relevance_pool_pilot_5.csv (hanya kueri Q001 s.d Q005)
+    pilot_rows = [r for r in pool_rows if r["query_id"] in ["Q001", "Q002", "Q003", "Q004", "Q005"]]
+    with open(OUTPUT_DIR / "relevance_pool_pilot_5.csv", "w", encoding="utf-8-sig", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(pilot_rows)
+    print(f"Diperbarui langsung (data dummy): relevance_pool_pilot_5.csv ({len(pilot_rows)} baris)")
+
+    # Perbarui relevance_verification_sample.csv (sampel berstrata acak 120 baris)
+    export_verification_sample(
+        pool_csv_path=out_pool,
+        output_csv_path=OUTPUT_DIR / "relevance_verification_sample.csv",
+        sample_size=120,
+        seed=42,
+    )
+    print("Diperbarui langsung (data dummy): relevance_verification_sample.csv (120 baris)")
 
     # 4. Anonimkan audit_extraction_sample.csv & audit_agreement_sample.csv
     new_reference_records = {}

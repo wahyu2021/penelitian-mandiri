@@ -15,6 +15,8 @@ from tests.conftest import make_record
 
 
 def test_noise_functions():
+    from rapidfuzz.distance import Levenshtein
+
     base = "pembayaran termin renovasi gedung jalan merdeka"
     noises = [
         "typo", "singkatan", "spasi_tanda_baca",
@@ -24,6 +26,50 @@ def test_noise_functions():
         noisy = add_noise(base, noise, seed=42)
         assert isinstance(noisy, str)
         assert len(noisy) > 0
+        # Jarak edit wajib > 0 untuk semua jenis gangguan
+        assert Levenshtein.distance(base, noisy) > 0
+
+    # tanpa_gangguan wajib berjarak 0
+    clean = add_noise(base, "tanpa_gangguan", seed=42)
+    assert clean == base
+    assert Levenshtein.distance(base, clean) == 0
+
+
+def test_spm_noise_realistic_and_distance_greater_than_zero():
+    """Uji gangguan nomor SPM realistis: jarak > 0 kecuali tanpa_gangguan, deterministik."""
+    from rapidfuzz.distance import Levenshtein
+
+    spm_samples = [
+        "290/LS/Dinas/2000",
+        "414/LS/Dinas/2002",
+        "924/BT/Dinas/2002",
+        "332/BT/Dinas/2006",
+        "728/BT/Dinas/2004",
+        "534/LS/Dinas/2002",
+        "773/LS/Dinas/2009",
+        "515/BT/Dinas/2005",
+        "689/LS/Dinas/2007",
+        "503/LS/SPM/SETWAN/2011",
+        "133/PERTA/2008",
+        "121/2/P",
+    ]
+    noises = [
+        "typo", "singkatan", "spasi_tanda_baca",
+        "urutan_kata", "kata_hilang", "ejaan_varian",
+    ]
+
+    for spm in spm_samples:
+        # tanpa_gangguan wajib jarak 0
+        assert add_noise(spm, "tanpa_gangguan", seed=42) == spm
+        assert Levenshtein.distance(spm, add_noise(spm, "tanpa_gangguan", seed=42)) == 0
+
+        for noise in noises:
+            noisy = add_noise(spm, noise, seed=42)
+            dist = Levenshtein.distance(spm, noisy)
+            assert dist > 0, f"SPM '{spm}' dengan noise '{noise}' menghasilkan dist == 0!"
+            # Deterministik: seed yang sama menghasilkan teks yang identik
+            noisy2 = add_noise(spm, noise, seed=42)
+            assert noisy == noisy2
 
 
 def test_synthetic_query_generation():

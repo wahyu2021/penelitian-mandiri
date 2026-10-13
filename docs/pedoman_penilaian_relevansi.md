@@ -25,7 +25,8 @@ Penilaian wajib mengikuti kriteria ketat berikut sesuai jenis kueri:
 
 ### 2.1 Kueri Nomor SPM (`nomor_spm`)
 - **Relevan (1):**
-  - Hanya arsip yang merujuk pada **nomor SPM yang sama persis** dengan yang dicari (termasuk variasi format tanda baca/spasi dan salinan berkas duplikat dari SPM yang sama).
+  - Hanya arsip yang merujuk pada **nomor SPM yang sama persis** dengan yang dicari (termasuk variasi format tanda baca/spasi, ejaan varian seperti `L.S`/`02`, dan salinan berkas duplikat dari SPM yang sama).
+  - Untuk kueri dengan gangguan **`kata_hilang`**, ikuti aturan khusus pada Bagian 2.5 di bawah.
 - **Tidak Relevan (0):**
   - Arsip dengan nomor SPM yang berbeda, meskipun berasal dari OPD/dinas yang sama atau tahun yang sama.
 
@@ -48,6 +49,16 @@ Penilaian wajib mengikuti kriteria ketat berikut sesuai jenis kueri:
   - Wajib **memenuhi kedua unsur secara bersamaan** (misal pihak + tahun, atau pekerjaan + tahun, atau pihak + pekerjaan).
 - **Tidak Relevan (0):**
   - Arsip yang hanya memenuhi salah satu unsur tetapi bertentangan pada unsur lainnya.
+
+### 2.5 Aturan Khusus Kueri Bergangguan Kata Hilang (`kata_hilang`)
+- **Kesesuaian Komponen Tertulis:**
+  - Semua komponen atau kata yang **masih tertulis** dalam teks kueri wajib cocok (*match*) dengan data pada arsip. Komponen yang hilang dianggap *wildcard* (tidak dibatasi).
+  - Contoh pada nomor SPM: kueri `414/LS/2002` (komponen dinas hilang) mensyaratkan nomor urut `414`, kode jenis `LS`, dan tahun `2002` cocok seluruhnya.
+- **Ketentuan Penilaian bila Lebih dari Satu Arsip Cocok:**
+  - Jika akibat komponen yang hilang tersebut terdapat **lebih dari satu arsip yang cocok** dengan seluruh komponen tertulis:
+    - **Semua arsip yang cocok dinilai relevan:** `is_relevant = 1`.
+    - **Wajib ditandai ragu:** `ragu = 1` (untuk mencatat bahwa kueri bersifat ambigu/kurang spesifik).
+  - Jika arsip bertentangan dengan salah satu komponen yang tertulis (misal kueri `414/LS/2002` tetapi arsip berjenis `BT` atau bertahun `2005`), nilai `is_relevant = 0` dan `ragu = 0`.
 
 ---
 
