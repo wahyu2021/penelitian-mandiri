@@ -150,296 +150,271 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans">
+<body class="bg-slate-100 text-slate-800 h-screen flex flex-col font-sans overflow-hidden">
 
     <!-- FLOATING TOP NOTIFICATION TOAST (FEEDBACK UTAMA) -->
-    <div id="floatingToast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 transition-all duration-200 transform -translate-y-12 opacity-0 pointer-events-none">
-        <div id="floatingToastInner" class="flex items-center space-x-2.5 px-5 py-2.5 rounded-full shadow-xl text-xs sm:text-sm font-bold border">
+    <div id="floatingToast" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-200 transform -translate-y-12 opacity-0 pointer-events-none">
+        <div id="floatingToastInner" class="flex items-center space-x-2.5 px-5 py-2 rounded-full shadow-2xl text-xs sm:text-sm font-bold border">
             <span id="toastIcon" class="text-base">✓</span>
             <span id="toastMessage">Tersimpan di CSV</span>
         </div>
     </div>
 
-    <!-- Top Navigation Header -->
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
-        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+    <!-- Top Navigation Header (Ramping, Tinggi Tetap) -->
+    <header class="bg-white border-b border-slate-200 shrink-0 z-40 shadow-2xs h-14 flex items-center px-4">
+        <div class="w-full flex flex-wrap items-center justify-between gap-2">
+            <!-- Brand & Dataset -->
             <div class="flex items-center space-x-3">
-                <div class="w-9 h-9 rounded-xl bg-brand-600 text-white flex items-center justify-center font-bold shadow-md shadow-brand-500/20">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="w-8 h-8 rounded-lg bg-brand-600 text-white flex items-center justify-center font-bold shadow-sm shadow-brand-500/20 text-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
                 </div>
                 <div>
-                    <h1 class="text-base font-bold text-slate-900 leading-tight">Pelabel Relevansi Temu Kembali Arsip</h1>
-                    <p class="text-xs text-slate-500">Dinas Perpustakaan dan Kearsipan Kota Palembang</p>
+                    <h1 class="text-xs sm:text-sm font-bold text-slate-900 leading-tight">Pelabel Relevansi Arsip</h1>
+                    <select id="datasetSelect" onchange="changeDataset()" class="text-2xs bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded px-1.5 py-0.5 font-medium text-slate-700 outline-none focus:ring-1 focus:ring-brand-500 cursor-pointer">
+                        {% for key, cfg in datasets.items() %}
+                        <option value="{{ key }}" {% if key == active_dataset %}selected{% endif %}>{{ cfg.label }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
             </div>
 
-            <!-- Dataset Selector, Sound Toggle & Modal Triggers -->
-            <div class="flex items-center space-x-2">
-                <select id="datasetSelect" onchange="changeDataset()" class="text-xs bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-lg px-3 py-2 font-medium text-slate-700 outline-none focus:ring-2 focus:ring-brand-500 transition-all cursor-pointer">
-                    {% for key, cfg in datasets.items() %}
-                    <option value="{{ key }}" {% if key == active_dataset %}selected{% endif %}>{{ cfg.label }}</option>
-                    {% endfor %}
-                </select>
+            <!-- Integrated Mini Progress Bar -->
+            <div class="hidden md:flex items-center space-x-3 text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
+                <div class="flex items-center space-x-2">
+                    <span class="text-slate-500 font-medium">Progres:</span>
+                    <strong id="progressText" class="text-slate-800 font-bold font-mono">0 / 0</strong>
+                    <span id="percentText" class="text-brand-700 font-extrabold font-mono text-2xs bg-brand-100 px-1.5 py-0.5 rounded-full">0%</span>
+                </div>
+                <div class="w-24 h-2 bg-slate-200 rounded-full overflow-hidden">
+                    <div id="progressBar" class="bg-brand-600 h-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+                <div class="flex items-center space-x-1.5 text-2xs font-semibold pl-1 border-l border-slate-200">
+                    <span class="text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">Relevan: <strong id="countRelevant">0</strong></span>
+                    <span class="text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200">Tidak: <strong id="countIrrelevant">0</strong></span>
+                    <span class="text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">Ragu: <strong id="countRagu">0</strong></span>
+                </div>
+            </div>
 
-                <!-- Sound Toggle -->
-                <button id="soundToggleBtn" onclick="toggleSound()" title="Aktif/Nonaktifkan Suara Efek" class="inline-flex items-center space-x-1 px-2.5 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold border border-slate-300 transition-all cursor-pointer">
+            <!-- Action Controls & Modals -->
+            <div class="flex items-center space-x-1.5">
+                <button id="soundToggleBtn" onclick="toggleSound()" title="Aktif/Nonaktifkan Suara Efek (M)" class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs border border-slate-300 transition-all cursor-pointer">
                     <span id="soundIcon">🔊</span>
                 </button>
-
-                <!-- Pedoman Trigger -->
-                <button onclick="toggleModal('guideModal')" class="inline-flex items-center space-x-1.5 px-3 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-300 transition-all cursor-pointer">
-                    <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                    </svg>
+                <button onclick="toggleModal('guideModal')" class="inline-flex items-center space-x-1 px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-300 transition-all cursor-pointer">
                     <span>Pedoman</span>
                     <span class="kbd-badge">?</span>
                 </button>
-
-                <!-- Pintasan Trigger -->
-                <button onclick="toggleModal('shortcutModal')" class="inline-flex items-center space-x-1 px-2.5 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold border border-slate-300 transition-all cursor-pointer">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
-                    </svg>
+                <button onclick="toggleModal('shortcutModal')" class="inline-flex items-center space-x-1 px-2 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold border border-slate-300 transition-all cursor-pointer">
                     <span>Pintasan</span>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- Main Content Container -->
-    <main class="max-w-4xl w-full mx-auto px-4 py-6 flex-1 flex flex-col space-y-4">
+    <!-- WORKSPACE UTAMA DUA KOLOM: FIT TO SCREEN (ZERO SCROLL) -->
+    <main class="flex-1 w-full max-w-7xl mx-auto p-3 overflow-hidden min-h-0">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 h-full min-h-0">
 
-        <!-- Progress Overview Bar -->
-        <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div class="flex-1">
-                <div class="flex items-center justify-between text-xs font-semibold text-slate-600 mb-1.5">
-                    <span class="flex items-center gap-1.5">
-                        <span class="inline-block w-2.5 h-2.5 rounded-full bg-brand-500 animate-pulse"></span>
-                        Kemajuan Penilaian: <strong id="progressText" class="text-slate-900 font-bold">0 / 0</strong>
-                    </span>
-                    <span id="percentText" class="text-brand-600 font-bold">0%</span>
-                </div>
-                <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden flex">
-                    <div id="progressBar" class="bg-brand-500 h-full transition-all duration-300" style="width: 0%"></div>
-                </div>
-            </div>
+            <!-- ========================================== -->
+            <!-- KOLOM KIRI (7 Kolom): FOKUS MEMBACA TEKS   -->
+            <!-- ========================================== -->
+            <div class="lg:col-span-7 flex flex-col h-full min-h-0">
+                <div id="mainCard" class="bg-white rounded-2xl border border-slate-200 shadow-xs p-4 sm:p-5 flex flex-col h-full justify-between min-h-0 transition-all">
+                    
+                    <!-- Atas: Info Kueri & Posisi Item -->
+                    <div class="space-y-2.5">
+                        <div class="flex items-center justify-between text-xs">
+                            <div class="flex items-center space-x-2">
+                                <span id="cardQueryId" class="px-2 py-0.5 rounded-md bg-slate-800 text-white font-mono font-bold text-xs">Q001</span>
+                                <span id="cardItemPosition" class="text-slate-500 font-semibold font-mono">Item 1 dari 1077</span>
+                                <span id="cardPoolOrder" class="text-slate-400 font-semibold font-mono">Rank #1</span>
+                            </div>
+                            <div class="flex items-center space-x-1.5">
+                                <span id="badgeQueryType" class="px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 font-semibold border border-brand-200 text-2xs">topik</span>
+                                <span id="badgeNoiseType" class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-semibold border border-slate-200 text-2xs">tanpa_gangguan</span>
+                            </div>
+                        </div>
 
-            <!-- Stats Badge Group -->
-            <div class="flex items-center space-x-2 text-xs font-semibold shrink-0">
-                <span class="inline-flex items-center space-x-1 px-2.5 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    <span>Relevan:</span>
-                    <strong id="countRelevant" class="font-bold">0</strong>
-                </span>
-                <span class="inline-flex items-center space-x-1 px-2.5 py-1.5 rounded-lg bg-rose-50 text-rose-700 border border-rose-200">
-                    <span class="w-2 h-2 rounded-full bg-rose-500"></span>
-                    <span>Tidak Relevan:</span>
-                    <strong id="countIrrelevant" class="font-bold">0</strong>
-                </span>
-                <span class="inline-flex items-center space-x-1 px-2.5 py-1.5 rounded-lg bg-amber-50 text-amber-700 border border-amber-200">
-                    <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-                    <span>Ragu:</span>
-                    <strong id="countRagu" class="font-bold">0</strong>
-                </span>
-            </div>
-        </div>
-
-        <!-- Filter & Jump Control -->
-        <div class="flex flex-wrap items-center justify-between gap-3 text-xs">
-            <div class="flex items-center space-x-2">
-                <span class="font-semibold text-slate-500">Kueri:</span>
-                <select id="queryJumpSelect" onchange="jumpToSelectedQuery()" class="bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-800 outline-none focus:ring-2 focus:ring-brand-500 transition-all cursor-pointer shadow-2xs">
-                    <!-- Populated via JS -->
-                </select>
-                <button onclick="jumpToFirstUnjudged()" class="px-3 py-1.5 rounded-lg bg-white border border-brand-300 text-brand-700 hover:bg-brand-50 font-semibold transition-all shadow-2xs cursor-pointer flex items-center space-x-1">
-                    <span>Lompat ke Belum Dinilai</span>
-                    <span class="kbd-badge">U</span>
-                </button>
-            </div>
-
-            <div class="flex items-center space-x-2">
-                <label class="inline-flex items-center space-x-1.5 text-slate-600 font-medium cursor-pointer select-none">
-                    <input type="checkbox" id="unjudgedOnlyCheck" onchange="toggleUnjudgedOnly()" class="rounded border-slate-300 text-brand-600 focus:ring-brand-500">
-                    <span>Hanya tampilkan yang belum dinilai</span>
-                </label>
-            </div>
-        </div>
-
-        <!-- Flashcard Penilaian Utama -->
-        <div id="mainCard" class="bg-white rounded-2xl border border-slate-200 shadow-md p-6 sm:p-8 flex flex-col space-y-5 relative transition-all">
-            
-            <!-- Card Header: Kueri Info & Navigasi Baris -->
-            <div>
-                <div class="flex items-center justify-between text-xs mb-2">
-                    <span class="text-slate-500 font-semibold tracking-wide uppercase flex items-center gap-2">
-                        <span id="cardQueryId" class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-800 font-mono font-bold">Q001</span>
-                        <span id="cardItemPosition">Item 1 dari 1077</span>
-                    </span>
-                    <div class="flex items-center space-x-2">
-                        <span id="badgeQueryType" class="px-2.5 py-0.5 rounded-full bg-brand-50 text-brand-700 font-semibold border border-brand-200 text-2xs">topik</span>
-                        <span id="badgeNoiseType" class="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 font-semibold border border-slate-200 text-2xs">tanpa_gangguan</span>
-                    </div>
-                </div>
-
-                <!-- Teks Kueri Pencarian -->
-                <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 flex items-start space-x-3">
-                    <div class="mt-0.5 text-brand-600">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
-                    </div>
-                    <div>
-                        <div class="text-2xs font-bold uppercase tracking-wider text-slate-400">Kata Kunci Kueri Pencarian:</div>
-                        <div id="cardQueryText" class="text-lg sm:text-xl font-extrabold text-slate-900 mt-0.5 font-mono select-all">
-                            ...
+                        <!-- Kotak Teks Kueri Pencarian -->
+                        <div class="bg-indigo-50/60 border border-indigo-100 rounded-xl p-3 flex items-start space-x-2.5">
+                            <div class="mt-0.5 text-brand-600 shrink-0">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <div class="text-3xs font-bold uppercase tracking-wider text-indigo-500">Kata Kunci Kueri:</div>
+                                <div id="cardQueryText" class="text-base sm:text-lg font-extrabold text-slate-900 font-mono select-all truncate">
+                                    ...
+                                </div>
+                            </div>
                         </div>
                     </div>
+
+                    <!-- Tengah: Teks Dokumen Arsip (Fleksibel, Terbaca Jelas) -->
+                    <div class="my-auto py-2 flex flex-col min-h-0">
+                        <div class="text-2xs font-bold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center justify-between">
+                            <span>Teks Ringkasan Arsip (Temu Kembali):</span>
+                            <span class="text-3xs text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">Kata kunci disorot otomatis</span>
+                        </div>
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 shadow-2xs overflow-y-auto max-h-[46vh] sm:max-h-[50vh]">
+                            <div id="cardSummaryRaw" class="text-sm sm:text-base text-slate-800 leading-relaxed font-normal">
+                                Memuat data arsip...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bawah: Grid Metadata Tiga Kolom & Tips Koreksi -->
+                    <div class="space-y-2 pt-1 border-t border-slate-100">
+                        <div class="grid grid-cols-3 gap-2 text-2xs">
+                            <div class="bg-slate-50 border border-slate-200 rounded-lg p-2">
+                                <div class="text-3xs font-bold text-slate-400 uppercase">Nomor SPM</div>
+                                <div id="cardSpmNumber" class="font-bold text-slate-800 mt-0.5 font-mono truncate">-</div>
+                            </div>
+                            <div class="bg-slate-50 border border-slate-200 rounded-lg p-2">
+                                <div class="text-3xs font-bold text-slate-400 uppercase">Rekanan / Pihak</div>
+                                <div id="cardPartyName" class="font-bold text-slate-800 mt-0.5 truncate">-</div>
+                            </div>
+                            <div class="bg-slate-50 border border-slate-200 rounded-lg p-2">
+                                <div class="text-3xs font-bold text-slate-400 uppercase">ID Arsip</div>
+                                <div id="cardArchiveId" class="font-bold text-slate-800 mt-0.5 font-mono">#0</div>
+                            </div>
+                        </div>
+                        <div class="text-3xs text-slate-400 flex items-center justify-between">
+                            <span>💡 Tips Koreksi: Tekan <span class="font-bold text-slate-600">[ ← ]</span> untuk kembali atau <span class="font-bold text-slate-600">[ Ctrl + Z ]</span> untuk membatalkan.</span>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
-            <!-- Card Body: Ringkasan Arsip Kandidat -->
-            <div class="flex flex-col space-y-3">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Teks Dokumen Arsip Hasil Temu Kembali:</span>
-                    <span id="cardPoolOrder" class="text-2xs font-semibold text-slate-400">Peringkat Pool: #1</span>
-                </div>
+            <!-- ========================================== -->
+            <!-- KOLOM KANAN (5 Kolom): AKSI & KONTROL CEPAT -->
+            <!-- ========================================== -->
+            <div class="lg:col-span-5 flex flex-col h-full min-h-0">
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-4 sm:p-5 flex flex-col h-full justify-between min-h-0 space-y-3">
+                    
+                    <!-- Atas: Filter Kueri & Status Saat Ini -->
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between gap-2 pb-2 border-b border-slate-100">
+                            <div>
+                                <div class="text-3xs font-bold uppercase text-slate-400">Status Penilaian:</div>
+                                <div class="flex items-center space-x-1.5 mt-0.5">
+                                    <span id="currentStatusBadge" class="px-2.5 py-1 rounded-md font-extrabold text-xs bg-slate-100 text-slate-600">
+                                        Belum Dinilai
+                                    </span>
+                                    <span id="currentRaguBadge" class="hidden px-2 py-1 rounded-md font-bold text-2xs bg-amber-100 text-amber-800 border border-amber-200">
+                                        Ragu
+                                    </span>
+                                </div>
+                            </div>
 
-                <div class="bg-white border-2 border-slate-100 rounded-xl p-5 shadow-2xs hover:border-slate-200 transition-colors">
-                    <div id="cardSummaryRaw" class="text-base text-slate-800 leading-relaxed font-normal">
-                        Memuat data arsip...
-                    </div>
-                </div>
+                            <!-- Tombol Ragu & Reset Nilai -->
+                            <div class="flex items-center space-x-1">
+                                <button id="btnToggleRagu" onclick="toggleRagu()" title="Tandai / Hapus Ragu (R)" class="px-2 py-1 rounded-lg border border-amber-300 text-amber-800 hover:bg-amber-50 text-2xs font-semibold transition-all flex items-center space-x-1 cursor-pointer">
+                                    <span>Ragu</span>
+                                    <span class="kbd-badge">R</span>
+                                </button>
+                                <button id="btnResetVerdict" onclick="resetCurrentVerdict()" title="Kosongkan nilai baris ini (Del)" class="px-2 py-1 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 text-2xs font-semibold transition-all flex items-center space-x-1 cursor-pointer">
+                                    <span>Reset</span>
+                                    <span class="kbd-badge">Del</span>
+                                </button>
+                            </div>
+                        </div>
 
-                <!-- Metadata Ekstraksi Dokumen -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
-                    <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5">
-                        <div class="text-2xs font-semibold text-slate-400 uppercase">Nomor SPM</div>
-                        <div id="cardSpmNumber" class="text-xs font-bold text-slate-800 mt-0.5 font-mono truncate">-</div>
+                        <!-- Dropdown Kueri & Toggle Unjudged -->
+                        <div class="flex flex-wrap items-center justify-between gap-2 text-2xs">
+                            <div class="flex items-center space-x-1.5">
+                                <span class="font-bold text-slate-500">Kueri:</span>
+                                <select id="queryJumpSelect" onchange="jumpToSelectedQuery()" class="bg-slate-50 border border-slate-300 rounded px-2 py-1 font-semibold text-slate-800 text-2xs outline-none focus:ring-1 focus:ring-brand-500 cursor-pointer">
+                                    <!-- Populated via JS -->
+                                </select>
+                                <button onclick="jumpToFirstUnjudged()" class="px-2 py-1 rounded bg-brand-50 border border-brand-200 text-brand-700 font-bold hover:bg-brand-100 transition-all cursor-pointer">
+                                    <span>Unjudged</span>
+                                    <span class="kbd-badge ml-0.5">U</span>
+                                </button>
+                            </div>
+                            <label class="inline-flex items-center space-x-1 text-slate-600 font-medium cursor-pointer select-none">
+                                <input type="checkbox" id="unjudgedOnlyCheck" onchange="toggleUnjudgedOnly()" class="rounded border-slate-300 text-brand-600 focus:ring-brand-500 text-xs">
+                                <span>Hanya belum dinilai</span>
+                            </label>
+                        </div>
                     </div>
-                    <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5">
-                        <div class="text-2xs font-semibold text-slate-400 uppercase">Pihak / Rekanan</div>
-                        <div id="cardPartyName" class="text-xs font-bold text-slate-800 mt-0.5 truncate">-</div>
+
+                    <!-- Tengah: 2 Tombol Aksi Raksasa (Paling Mudah Diklik / Dipencet) -->
+                    <div class="space-y-2.5 my-auto">
+                        <!-- Button Relevan (1) -->
+                        <button id="btnRelevant" onclick="setVerdict(1)" class="group w-full flex items-center justify-between py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-md shadow-emerald-600/20 active:scale-98 transition-all cursor-pointer">
+                            <div class="flex items-center space-x-2.5">
+                                <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                                    <svg class="w-5 h-5 stroke-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                </div>
+                                <div class="text-left">
+                                    <div class="text-sm sm:text-base font-extrabold leading-tight">RELEVAN</div>
+                                    <div class="text-3xs text-emerald-100 font-normal">Sesuai kueri pencarian</div>
+                                </div>
+                            </div>
+                            <span class="kbd-badge bg-emerald-700 text-white border-emerald-500 shadow-none text-xs px-2 py-1">1</span>
+                        </button>
+
+                        <!-- Button Tidak Relevan (0) -->
+                        <button id="btnIrrelevant" onclick="setVerdict(0)" class="group w-full flex items-center justify-between py-3.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold shadow-md shadow-rose-600/20 active:scale-98 transition-all cursor-pointer">
+                            <div class="flex items-center space-x-2.5">
+                                <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                                    <svg class="w-5 h-5 stroke-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </div>
+                                <div class="text-left">
+                                    <div class="text-sm sm:text-base font-extrabold leading-tight">TIDAK RELEVAN</div>
+                                    <div class="text-3xs text-rose-100 font-normal">Tidak sesuai kueri</div>
+                                </div>
+                            </div>
+                            <span class="kbd-badge bg-rose-700 text-white border-rose-500 shadow-none text-xs px-2 py-1">0</span>
+                        </button>
                     </div>
-                    <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5">
-                        <div class="text-2xs font-semibold text-slate-400 uppercase">ID Arsip (Database)</div>
-                        <div id="cardArchiveId" class="text-xs font-bold text-slate-800 mt-0.5 font-mono">#0</div>
+
+                    <!-- Bawah: Catatan & Navigasi -->
+                    <div class="space-y-2 pt-2 border-t border-slate-100">
+                        <!-- Input Catatan 1 Baris Ramping -->
+                        <div>
+                            <input type="text" id="cardNotes" placeholder="Catatan auditor opsional..." onchange="saveNotesOnly()" class="w-full text-2xs bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand-500 rounded-lg px-2.5 py-1.5 outline-none transition-all">
+                        </div>
+
+                        <!-- Tombol Navigasi Prev / Next -->
+                        <div class="flex items-center justify-between gap-2">
+                            <button onclick="navigate(-1)" class="flex-1 inline-flex items-center justify-center space-x-1.5 py-2 px-3 rounded-lg border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold text-2xs transition-all cursor-pointer">
+                                <span class="kbd-badge">←</span>
+                                <span>Sebelumnya (Koreksi)</span>
+                            </button>
+
+                            <button onclick="navigate(1)" class="flex-1 inline-flex items-center justify-center space-x-1.5 py-2 px-3 rounded-lg border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold text-2xs transition-all cursor-pointer">
+                                <span>Selanjutnya</span>
+                                <span class="kbd-badge">→</span>
+                            </button>
+                        </div>
+
+                        <!-- Riwayat Aksi Terakhir & Tombol Undo -->
+                        <div id="lastActionBar" class="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 flex items-center justify-between text-3xs text-slate-600 transition-all opacity-0 pointer-events-none">
+                            <div class="flex items-center space-x-1 truncate max-w-[70%]">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
+                                <span class="truncate">Terakhir: <strong id="lastActionText" class="text-slate-900">-</strong></span>
+                            </div>
+                            <button onclick="undoLastAction()" class="inline-flex items-center space-x-1 px-2 py-0.5 rounded bg-white border border-slate-300 hover:bg-slate-100 font-bold text-brand-700 transition-all cursor-pointer shrink-0">
+                                <span>↩ Batalkan</span>
+                                <span class="kbd-badge text-3xs px-1">Ctrl+Z</span>
+                            </button>
+                        </div>
                     </div>
+
                 </div>
             </div>
 
-            <!-- Catatan Auditor / Arsiparis Opsional -->
-            <div class="pt-1">
-                <div class="flex items-center justify-between mb-1">
-                    <label for="cardNotes" class="text-xs font-semibold text-slate-600 flex items-center gap-1.5">
-                        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                        </svg>
-                        <span>Catatan Khusus (Opsional):</span>
-                    </label>
-                </div>
-                <input type="text" id="cardNotes" placeholder="Tuliskan catatan jika ada hal khusus..." onchange="saveNotesOnly()" class="w-full text-xs bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand-500 rounded-lg px-3 py-2 outline-none transition-all">
-            </div>
-
-            <!-- Current Judgment Status Indicator & Quick Toggles -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-3">
-                <div class="text-xs text-slate-500 flex items-center space-x-2">
-                    <span>Status Saat Ini:</span>
-                    <span id="currentStatusBadge" class="px-2.5 py-1 rounded-md font-bold text-xs bg-slate-100 text-slate-600">
-                        Belum Dinilai
-                    </span>
-                    <span id="currentRaguBadge" class="hidden px-2.5 py-1 rounded-md font-bold text-xs bg-amber-100 text-amber-800 border border-amber-200">
-                        Ragu
-                    </span>
-                </div>
-
-                <div class="flex items-center space-x-2">
-                    <!-- Reset / Kosongkan Nilai -->
-                    <button id="btnResetVerdict" onclick="resetCurrentVerdict()" title="Kosongkan kembali nilai item ini" class="px-2.5 py-1.5 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 text-xs font-semibold transition-all flex items-center space-x-1 cursor-pointer">
-                        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                        </svg>
-                        <span>Kosongkan Nilai</span>
-                        <span class="kbd-badge">Del</span>
-                    </button>
-
-                    <!-- Toggle Ragu -->
-                    <button id="btnToggleRagu" onclick="toggleRagu()" class="px-3 py-1.5 rounded-lg border border-amber-300 text-amber-800 hover:bg-amber-50 text-xs font-semibold transition-all flex items-center space-x-1.5 cursor-pointer">
-                        <svg class="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                        </svg>
-                        <span>Tandai Ragu</span>
-                        <span class="kbd-badge">R</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Big Action Buttons (1 & 0) -->
-            <div class="grid grid-cols-2 gap-4 pt-1">
-                <!-- Button Relevan (1) -->
-                <button id="btnRelevant" onclick="setVerdict(1)" class="group flex flex-col items-center justify-center py-4 sm:py-5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-md shadow-emerald-600/20 active:scale-98 transition-all cursor-pointer">
-                    <div class="flex items-center space-x-2">
-                        <svg class="w-6 h-6 stroke-2 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                        <span class="text-base sm:text-lg">RELEVAN</span>
-                        <span class="kbd-badge bg-emerald-700 text-white border-emerald-500 shadow-none">1</span>
-                    </div>
-                    <span class="text-2xs text-emerald-100 font-normal mt-0.5">Sesuai dengan kueri pencarian</span>
-                </button>
-
-                <!-- Button Tidak Relevan (0) -->
-                <button id="btnIrrelevant" onclick="setVerdict(0)" class="group flex flex-col items-center justify-center py-4 sm:py-5 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold shadow-md shadow-rose-600/20 active:scale-98 transition-all cursor-pointer">
-                    <div class="flex items-center space-x-2">
-                        <svg class="w-6 h-6 stroke-2 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                        <span class="text-base sm:text-lg">TIDAK RELEVAN</span>
-                        <span class="kbd-badge bg-rose-700 text-white border-rose-500 shadow-none">0</span>
-                    </div>
-                    <span class="text-2xs text-rose-100 font-normal mt-0.5">Tidak sesuai dengan kueri</span>
-                </button>
-            </div>
-
-            <!-- Navigation Controls (Prev / Next) -->
-            <div class="flex items-center justify-between border-t border-slate-100 pt-4">
-                <button onclick="navigate(-1)" class="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 font-semibold text-xs transition-all cursor-pointer">
-                    <span class="kbd-badge">←</span>
-                    <span>Sebelumnya (Koreksi)</span>
-                </button>
-
-                <div class="text-xs text-slate-400 font-mono hidden sm:block">
-                    Tekan <span class="font-bold text-slate-600">1</span>, <span class="font-bold text-slate-600">0</span>, <span class="font-bold text-slate-600">R</span>, atau <span class="font-bold text-slate-600">←</span> / <span class="font-bold text-slate-600">→</span>
-                </div>
-
-                <button onclick="navigate(1)" class="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 font-semibold text-xs transition-all cursor-pointer">
-                    <span>Selanjutnya</span>
-                    <span class="kbd-badge">→</span>
-                </button>
-            </div>
         </div>
-
-        <!-- RIWAYAT AKSI TERAKHIR & TOMBOL BATALKAN (UNDO) -->
-        <div id="lastActionBar" class="bg-slate-100 border border-slate-200 rounded-xl p-3 flex items-center justify-between text-xs text-slate-600 transition-all opacity-0 pointer-events-none">
-            <div class="flex items-center space-x-2">
-                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                <span>Tindakan Terakhir: <strong id="lastActionText" class="text-slate-900">-</strong></span>
-            </div>
-            <button onclick="undoLastAction()" class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-white border border-slate-300 hover:bg-slate-200 font-bold text-brand-700 shadow-2xs transition-all cursor-pointer">
-                <span>↩ Batalkan (Undo)</span>
-                <span class="kbd-badge">Ctrl+Z</span>
-            </button>
-        </div>
-
-        <!-- Tips Singkat Koreksi -->
-        <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-blue-800 flex items-start space-x-2">
-            <span class="text-base">💡</span>
-            <div>
-                <strong>Cara Memperbaiki Jika Salah Isi:</strong> Tekan tombol panah kiri <strong>[ ← ]</strong> untuk kembali ke baris sebelumnya, lalu langsung tekan nilai yang benar (<strong>1</strong> atau <strong>0</strong>). Anda juga bisa menekan tombol <strong>[ Ctrl + Z ]</strong> untuk membatalkan tindakan terakhir, atau tombol <strong>[ Kosongkan Nilai ]</strong> jika ingin membatalkan penilaian pada baris tersebut.
-            </div>
-        </div>
-
     </main>
 
     <!-- Modal Pedoman Penilaian Relevansi -->
