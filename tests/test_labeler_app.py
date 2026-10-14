@@ -2,7 +2,7 @@
 import csv
 from pathlib import Path
 import pytest
-from scripts.relevance_labeler_app import app, write_pool_csv
+from scripts.relevance_labeler_app import app, write_pool_csv, get_local_ip
 
 
 @pytest.fixture
@@ -60,6 +60,17 @@ def test_index_route(client):
     res = c.get("/")
     assert res.status_code == 200
     assert b"Pelabel Relevansi" in res.data
+    # Verifikasi elemen responsif mobile
+    assert b"btnMobileRelevant" in res.data
+    assert b"btnMobileIrrelevant" in res.data
+    assert b"btnMobileRagu" in res.data
+    assert b"mobileProgressBar" in res.data
+
+
+def test_get_local_ip():
+    ip = get_local_ip()
+    assert isinstance(ip, str)
+    assert len(ip.split(".")) == 4
 
 
 def test_api_get_data(client):

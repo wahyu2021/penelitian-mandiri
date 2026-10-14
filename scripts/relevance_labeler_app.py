@@ -10,6 +10,7 @@ import csv
 import json
 import os
 import shutil
+import socket
 import sys
 import webbrowser
 from datetime import datetime
@@ -150,7 +151,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 h-screen flex flex-col font-sans overflow-hidden">
+<body class="bg-slate-100 text-slate-800 min-h-screen lg:h-screen flex flex-col font-sans overflow-y-auto lg:overflow-hidden select-none">
 
     <!-- FLOATING TOP NOTIFICATION TOAST (FEEDBACK UTAMA) -->
     <div id="floatingToast" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-200 transform -translate-y-12 opacity-0 pointer-events-none">
@@ -161,17 +162,20 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     </div>
 
     <!-- Top Navigation Header (Ramping, Tinggi Tetap) -->
-    <header class="bg-white border-b border-slate-200 shrink-0 z-40 shadow-2xs h-14 flex items-center px-4">
-        <div class="w-full flex flex-wrap items-center justify-between gap-2">
+    <header class="bg-white border-b border-slate-200 shrink-0 z-40 shadow-2xs h-14 flex flex-col justify-center px-3 sm:px-4">
+        <div class="w-full flex items-center justify-between gap-2">
             <!-- Brand & Dataset -->
-            <div class="flex items-center space-x-3">
-                <div class="w-8 h-8 rounded-lg bg-brand-600 text-white flex items-center justify-center font-bold shadow-sm shadow-brand-500/20 text-sm">
+            <div class="flex items-center space-x-2 sm:space-x-3 min-w-0">
+                <div class="w-8 h-8 rounded-lg bg-brand-600 text-white flex items-center justify-center font-bold shadow-sm shadow-brand-500/20 text-sm shrink-0">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
                 </div>
-                <div>
-                    <h1 class="text-xs sm:text-sm font-bold text-slate-900 leading-tight">Pelabel Relevansi Arsip</h1>
+                <div class="min-w-0">
+                    <h1 class="text-xs sm:text-sm font-bold text-slate-900 leading-tight truncate">
+                        <span class="hidden sm:inline">Pelabel Relevansi Arsip</span>
+                        <span class="sm:hidden">Pelabel Arsip</span>
+                    </h1>
                     <select id="datasetSelect" onchange="changeDataset()" class="text-2xs bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded px-1.5 py-0.5 font-medium text-slate-700 outline-none focus:ring-1 focus:ring-brand-500 cursor-pointer">
                         {% for key, cfg in datasets.items() %}
                         <option value="{{ key }}" {% if key == active_dataset %}selected{% endif %}>{{ cfg.label }}</option>
@@ -180,7 +184,13 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
                 </div>
             </div>
 
-            <!-- Integrated Mini Progress Bar -->
+            <!-- Mini Progress Chip khusus Layar Mobile (< md) -->
+            <div class="flex md:hidden items-center space-x-1.5 text-2xs bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 font-mono shrink-0">
+                <span id="mobileProgressText" class="font-bold text-slate-800">0/0</span>
+                <span id="mobilePercentText" class="text-brand-700 font-extrabold bg-brand-100 px-1 rounded text-3xs">0%</span>
+            </div>
+
+            <!-- Integrated Mini Progress Bar Desktop (>= md) -->
             <div class="hidden md:flex items-center space-x-3 text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
                 <div class="flex items-center space-x-2">
                     <span class="text-slate-500 font-medium">Progres:</span>
@@ -198,30 +208,35 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
             </div>
 
             <!-- Action Controls & Modals -->
-            <div class="flex items-center space-x-1.5">
+            <div class="flex items-center space-x-1 sm:space-x-1.5 shrink-0">
                 <button id="soundToggleBtn" onclick="toggleSound()" title="Aktif/Nonaktifkan Suara Efek (M)" class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs border border-slate-300 transition-all cursor-pointer">
                     <span id="soundIcon">🔊</span>
                 </button>
-                <button onclick="toggleModal('guideModal')" class="inline-flex items-center space-x-1 px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-300 transition-all cursor-pointer">
-                    <span>Pedoman</span>
+                <button onclick="toggleModal('guideModal')" class="inline-flex items-center space-x-1 px-2 sm:px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-300 transition-all cursor-pointer">
+                    <span class="hidden sm:inline">Pedoman</span>
                     <span class="kbd-badge">?</span>
                 </button>
-                <button onclick="toggleModal('shortcutModal')" class="inline-flex items-center space-x-1 px-2 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold border border-slate-300 transition-all cursor-pointer">
+                <button onclick="toggleModal('shortcutModal')" class="hidden sm:inline-flex items-center space-x-1 px-2 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold border border-slate-300 transition-all cursor-pointer">
                     <span>Pintasan</span>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- WORKSPACE UTAMA DUA KOLOM: FIT TO SCREEN (ZERO SCROLL) -->
-    <main class="flex-1 w-full max-w-7xl mx-auto p-3 overflow-hidden min-h-0">
+    <!-- Mobile Slim Progress Bar Strip (< md) -->
+    <div class="w-full bg-slate-200 h-1 overflow-hidden md:hidden shrink-0">
+        <div id="mobileProgressBar" class="bg-brand-600 h-full transition-all duration-300" style="width: 0%"></div>
+    </div>
+
+    <!-- WORKSPACE UTAMA: ZERO SCROLL DI DESKTOP, RESPONSIF RAMAH JEMPOL DI MOBILE -->
+    <main class="flex-1 w-full max-w-7xl mx-auto p-2 sm:p-3 pb-24 lg:pb-3 overflow-y-visible lg:overflow-hidden min-h-0">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 h-full min-h-0">
 
             <!-- ========================================== -->
             <!-- KOLOM KIRI (7 Kolom): FOKUS MEMBACA TEKS   -->
             <!-- ========================================== -->
             <div class="lg:col-span-7 flex flex-col h-full min-h-0">
-                <div id="mainCard" class="bg-white rounded-2xl border border-slate-200 shadow-xs p-4 sm:p-5 flex flex-col h-full justify-between min-h-0 transition-all">
+                <div id="mainCard" class="bg-white rounded-2xl border border-slate-200 shadow-xs p-3.5 sm:p-5 flex flex-col h-full justify-between min-h-0 transition-all">
                     
                     <!-- Atas: Info Kueri & Posisi Item -->
                     <div class="space-y-2.5">
@@ -259,7 +274,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
                             <span>Teks Ringkasan Arsip (Temu Kembali):</span>
                             <span class="text-3xs text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">Kata kunci disorot otomatis</span>
                         </div>
-                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 shadow-2xs overflow-y-auto max-h-[46vh] sm:max-h-[50vh]">
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 sm:p-4 shadow-2xs overflow-y-auto max-h-[36vh] sm:max-h-[44vh] lg:max-h-[50vh]">
                             <div id="cardSummaryRaw" class="text-sm sm:text-base text-slate-800 leading-relaxed font-normal">
                                 Memuat data arsip...
                             </div>
@@ -416,6 +431,49 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 
         </div>
     </main>
+
+    <!-- ======================================================== -->
+    <!-- BILAH AKSI JEMPOL KHUSUS MOBILE (THUMB-ZONE ACTION BAR)  -->
+    <!-- Tampil hanya di layar HP/Tablet (< lg)                   -->
+    <!-- ======================================================== -->
+    <aside class="lg:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 px-2.5 py-2 z-40 shadow-2xl safe-area-pb">
+        <div class="max-w-md mx-auto flex items-center justify-between gap-1.5 sm:gap-2">
+            <!-- Prev -->
+            <button onclick="navigate(-1)" title="Arsip Sebelumnya" class="h-12 w-11 shrink-0 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 flex items-center justify-center border border-slate-300 transition-all cursor-pointer">
+                <svg class="w-5 h-5 stroke-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path>
+                </svg>
+            </button>
+
+            <!-- Tombol TIDAK RELEVAN (0) Mobile -->
+            <button id="btnMobileIrrelevant" onclick="setVerdict(0)" class="flex-1 h-12 rounded-xl bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-extrabold text-xs sm:text-sm flex items-center justify-center space-x-1 shadow-md shadow-rose-600/20 transition-all cursor-pointer">
+                <svg class="w-4 h-4 stroke-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+                <span>TIDAK (0)</span>
+            </button>
+
+            <!-- Tombol RELEVAN (1) Mobile -->
+            <button id="btnMobileRelevant" onclick="setVerdict(1)" class="flex-1 h-12 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-extrabold text-xs sm:text-sm flex items-center justify-center space-x-1 shadow-md shadow-emerald-600/20 transition-all cursor-pointer">
+                <svg class="w-4 h-4 stroke-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span>RELEVAN (1)</span>
+            </button>
+
+            <!-- Tombol Ragu Mobile -->
+            <button id="btnMobileRagu" onclick="toggleRagu()" title="Tandai Ragu" class="h-12 w-11 shrink-0 rounded-xl bg-amber-50 hover:bg-amber-100 active:scale-95 text-amber-800 font-bold flex items-center justify-center border border-amber-300 transition-all cursor-pointer">
+                <span class="text-sm">⚠️</span>
+            </button>
+
+            <!-- Next -->
+            <button onclick="navigate(1)" title="Arsip Selanjutnya" class="h-12 w-11 shrink-0 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 flex items-center justify-center border border-slate-300 transition-all cursor-pointer">
+                <svg class="w-5 h-5 stroke-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </button>
+        </div>
+    </aside>
 
     <!-- Modal Pedoman Penilaian Relevansi -->
     <div id="guideModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
@@ -592,13 +650,24 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 
         function updateStats(stats) {
             if (!stats) return;
-            document.getElementById("progressText").textContent = `${stats.judged} / ${stats.total}`;
+            const judgedText = `${stats.judged} / ${stats.total}`;
             const pct = stats.total > 0 ? Math.round((stats.judged / stats.total) * 100) : 0;
-            document.getElementById("percentText").textContent = `${pct}%`;
-            document.getElementById("progressBar").style.width = `${pct}%`;
+            const pctText = `${pct}%`;
+
+            document.getElementById("progressText").textContent = judgedText;
+            document.getElementById("percentText").textContent = pctText;
+            document.getElementById("progressBar").style.width = pctText;
             document.getElementById("countRelevant").textContent = stats.relevant;
             document.getElementById("countIrrelevant").textContent = stats.irrelevant;
             document.getElementById("countRagu").textContent = stats.ragu;
+
+            // Update mini progress chip & bar di mobile (< md)
+            const mobProg = document.getElementById("mobileProgressText");
+            const mobPct = document.getElementById("mobilePercentText");
+            const mobBar = document.getElementById("mobileProgressBar");
+            if (mobProg) mobProg.textContent = `${stats.judged}/${stats.total}`;
+            if (mobPct) mobPct.textContent = pctText;
+            if (mobBar) mobBar.style.width = pctText;
         }
 
         function populateQueryDropdown() {
@@ -647,18 +716,24 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
             const statusBadge = document.getElementById("currentStatusBadge");
             const btnRel = document.getElementById("btnRelevant");
             const btnIrrel = document.getElementById("btnIrrelevant");
+            const btnMobileRel = document.getElementById("btnMobileRelevant");
+            const btnMobileIrrel = document.getElementById("btnMobileIrrelevant");
 
             btnRel.classList.remove("ring-4", "ring-emerald-300");
             btnIrrel.classList.remove("ring-4", "ring-rose-300");
+            if (btnMobileRel) btnMobileRel.classList.remove("ring-4", "ring-emerald-300");
+            if (btnMobileIrrel) btnMobileIrrel.classList.remove("ring-4", "ring-rose-300");
 
             if (item.is_relevant === "1" || item.is_relevant === 1) {
                 statusBadge.textContent = "RELEVAN (1)";
                 statusBadge.className = "px-2.5 py-1 rounded-md font-bold text-xs bg-emerald-100 text-emerald-800 border border-emerald-300";
                 btnRel.classList.add("ring-4", "ring-emerald-300");
+                if (btnMobileRel) btnMobileRel.classList.add("ring-4", "ring-emerald-300");
             } else if (item.is_relevant === "0" || item.is_relevant === 0) {
                 statusBadge.textContent = "TIDAK RELEVAN (0)";
                 statusBadge.className = "px-2.5 py-1 rounded-md font-bold text-xs bg-rose-100 text-rose-800 border border-rose-300";
                 btnIrrel.classList.add("ring-4", "ring-rose-300");
+                if (btnMobileIrrel) btnMobileIrrel.classList.add("ring-4", "ring-rose-300");
             } else {
                 statusBadge.textContent = "Belum Dinilai";
                 statusBadge.className = "px-2.5 py-1 rounded-md font-bold text-xs bg-slate-100 text-slate-600";
@@ -666,12 +741,22 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 
             const raguBadge = document.getElementById("currentRaguBadge");
             const btnToggleRagu = document.getElementById("btnToggleRagu");
+            const btnMobileRagu = document.getElementById("btnMobileRagu");
+
             if (item.ragu === "1" || item.ragu === 1) {
                 raguBadge.classList.remove("hidden");
                 btnToggleRagu.classList.add("bg-amber-100", "font-bold");
+                if (btnMobileRagu) {
+                    btnMobileRagu.classList.remove("bg-amber-50");
+                    btnMobileRagu.classList.add("bg-amber-200", "ring-2", "ring-amber-500", "font-extrabold");
+                }
             } else {
                 raguBadge.classList.add("hidden");
                 btnToggleRagu.classList.remove("bg-amber-100", "font-bold");
+                if (btnMobileRagu) {
+                    btnMobileRagu.classList.remove("bg-amber-200", "ring-2", "ring-amber-500", "font-extrabold");
+                    btnMobileRagu.classList.add("bg-amber-50");
+                }
             }
 
             syncQueryDropdownSelection(item.query_id);
@@ -726,6 +811,11 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
             triggerCardFlash(verdict === 1 ? 'emerald' : 'rose');
             playSound(verdict === 1 ? 'relevant' : 'irrelevant');
 
+            // Haptic vibration feedback untuk layar sentuh HP
+            if (navigator.vibrate) {
+                try { navigator.vibrate(verdict === 1 ? 25 : [20, 30, 20]); } catch(e) {}
+            }
+
             // Tampilkan Floating Feedback yang sangat jelas
             const verdictLabel = verdict === 1 ? "RELEVAN (1)" : "TIDAK RELEVAN (0)";
             showFloatingToast(`✓ Tersimpan: [${item.query_id} #${item.pool_order || (currentIndex+1)}] → ${verdictLabel}`, verdict === 1 ? "relevant" : "irrelevant");
@@ -748,6 +838,9 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
             item.ragu = (item.ragu === "1" || item.ragu === 1) ? "0" : "1";
             
             playSound('undo');
+            if (navigator.vibrate) {
+                try { navigator.vibrate(20); } catch(e) {}
+            }
             const statusStr = (item.ragu === "1") ? "Ditandai RAGU (1)" : "Status Ragu Dihapus (0)";
             showFloatingToast(`⚠ ${statusStr} untuk [${item.query_id}]`, "warning");
 
@@ -1154,25 +1247,41 @@ def api_save_item():
     })
 
 
+def get_local_ip() -> str:
+    """Mendeteksi alamat IP lokal perangkat dalam jaringan Wi-Fi/LAN."""
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+            s.connect(("8.8.8.8", 80))
+            return s.getsockname()[0]
+    except Exception:
+        return "127.0.0.1"
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Jalankan server aplikasi pelabel relevansi.")
     parser.add_argument("--port", type=int, default=5000, help="Port server web (default: 5000)")
-    parser.add_argument("--host", default="127.0.0.1", help="Host server web (default: 127.0.0.1)")
+    parser.add_argument("--host", default="127.0.0.1", help="Host server web (default: 127.0.0.1, gunakan 0.0.0.0 untuk akses dari HP)")
     parser.add_argument("--no-browser", action="store_true", help="Jangan buka browser otomatis")
     args = parser.parse_args()
 
+    local_ip = get_local_ip()
     url = f"http://{args.host}:{args.port}"
     print("=" * 65)
     print("  APLIKASI PELABEL RELEVANSI TEMU KEMBALI ARSIP")
     print("=" * 65)
-    print(f"[*] Server berjalan di: {url}")
+    print(f"[*] Akses PC/Laptop    : {url}")
+    if args.host in ("0.0.0.0", "::"):
+        print(f"[*] Akses HP / Tablet  : http://{local_ip}:{args.port} (dalam 1 Wi-Fi)")
+    else:
+        print(f"[*] Tips Akses HP      : Jalankan dengan flag --host 0.0.0.0")
+        print(f"                         Lalu buka http://{local_ip}:{args.port} dari HP")
     print("[*] Berkas aktif default: output/relevance_pool.csv")
     print("[*] Tekan Ctrl + C di terminal untuk menghentikan server.")
     print("=" * 65)
 
     if not args.no_browser:
         try:
-            webbrowser.open(url)
+            webbrowser.open(url if args.host != "0.0.0.0" else f"http://127.0.0.1:{args.port}")
         except Exception:
             pass
 
