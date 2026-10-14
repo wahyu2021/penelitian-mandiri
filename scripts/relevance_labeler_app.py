@@ -1,8 +1,9 @@
 """Aplikasi Web Interaktif untuk Pelabelan Relevansi (Relevance Assessment Tool).
 
 Memungkinkan peneliti dan arsiparis menilai kandidat dokumen satu per satu
-dengan mudah, cepat, dan nyaman menggunakan keyboard shortcut (1, 0, R, Panah).
+dengan mudah, cepat, dan nyaman menggunakan keyboard shortcut (1, 0, R, Panah, Ctrl+Z).
 Menyimpan penilaian langsung ke berkas CSV di folder output/.
+Dilengkapi feedback visual jelas, riwayat aksi terakhir, tombol batal (Undo), dan reset.
 """
 import argparse
 import csv
@@ -77,7 +78,6 @@ def write_pool_csv(file_path: Path, fieldnames: List[str], rows: List[Dict[str, 
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)
-    # Ganti berkas asli secara atomik
     temp_file.replace(file_path)
 
 
@@ -134,9 +134,31 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
             color: #334155;
             font-weight: 700;
         }
+        @keyframes flashGreen {
+            0% { background-color: rgba(16, 185, 129, 0.25); border-color: rgba(16, 185, 129, 0.8); }
+            100% { background-color: #ffffff; border-color: #e2e8f0; }
+        }
+        @keyframes flashRed {
+            0% { background-color: rgba(244, 63, 94, 0.25); border-color: rgba(244, 63, 94, 0.8); }
+            100% { background-color: #ffffff; border-color: #e2e8f0; }
+        }
+        .flash-emerald {
+            animation: flashGreen 0.28s ease-out;
+        }
+        .flash-rose {
+            animation: flashRed 0.28s ease-out;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans">
+
+    <!-- FLOATING TOP NOTIFICATION TOAST (FEEDBACK UTAMA) -->
+    <div id="floatingToast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 transition-all duration-200 transform -translate-y-12 opacity-0 pointer-events-none">
+        <div id="floatingToastInner" class="flex items-center space-x-2.5 px-5 py-2.5 rounded-full shadow-xl text-xs sm:text-sm font-bold border">
+            <span id="toastIcon" class="text-base">✓</span>
+            <span id="toastMessage">Tersimpan di CSV</span>
+        </div>
+    </div>
 
     <!-- Top Navigation Header -->
     <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
@@ -153,7 +175,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
                 </div>
             </div>
 
-            <!-- Dataset Selector & Guide Trigger -->
+            <!-- Dataset Selector, Sound Toggle & Modal Triggers -->
             <div class="flex items-center space-x-2">
                 <select id="datasetSelect" onchange="changeDataset()" class="text-xs bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-lg px-3 py-2 font-medium text-slate-700 outline-none focus:ring-2 focus:ring-brand-500 transition-all cursor-pointer">
                     {% for key, cfg in datasets.items() %}
@@ -161,6 +183,12 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
                     {% endfor %}
                 </select>
 
+                <!-- Sound Toggle -->
+                <button id="soundToggleBtn" onclick="toggleSound()" title="Aktif/Nonaktifkan Suara Efek" class="inline-flex items-center space-x-1 px-2.5 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold border border-slate-300 transition-all cursor-pointer">
+                    <span id="soundIcon">🔊</span>
+                </button>
+
+                <!-- Pedoman Trigger -->
                 <button onclick="toggleModal('guideModal')" class="inline-flex items-center space-x-1.5 px-3 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-300 transition-all cursor-pointer">
                     <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
@@ -169,6 +197,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
                     <span class="kbd-badge">?</span>
                 </button>
 
+                <!-- Pintasan Trigger -->
                 <button onclick="toggleModal('shortcutModal')" class="inline-flex items-center space-x-1 px-2.5 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold border border-slate-300 transition-all cursor-pointer">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
@@ -180,7 +209,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     </header>
 
     <!-- Main Content Container -->
-    <main class="max-w-4xl w-full mx-auto px-4 py-6 flex-1 flex flex-col space-y-5">
+    <main class="max-w-4xl w-full mx-auto px-4 py-6 flex-1 flex flex-col space-y-4">
 
         <!-- Progress Overview Bar -->
         <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -220,12 +249,12 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         <!-- Filter & Jump Control -->
         <div class="flex flex-wrap items-center justify-between gap-3 text-xs">
             <div class="flex items-center space-x-2">
-                <span class="font-semibold text-slate-500">Lompat ke Kueri:</span>
+                <span class="font-semibold text-slate-500">Kueri:</span>
                 <select id="queryJumpSelect" onchange="jumpToSelectedQuery()" class="bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-800 outline-none focus:ring-2 focus:ring-brand-500 transition-all cursor-pointer shadow-2xs">
-                    <!-- Options populated via JS -->
+                    <!-- Populated via JS -->
                 </select>
                 <button onclick="jumpToFirstUnjudged()" class="px-3 py-1.5 rounded-lg bg-white border border-brand-300 text-brand-700 hover:bg-brand-50 font-semibold transition-all shadow-2xs cursor-pointer flex items-center space-x-1">
-                    <span>Lompat ke yang Belum Dinilai</span>
+                    <span>Lompat ke Belum Dinilai</span>
                     <span class="kbd-badge">U</span>
                 </button>
             </div>
@@ -239,16 +268,8 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         </div>
 
         <!-- Flashcard Penilaian Utama -->
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-md p-6 sm:p-8 flex flex-col space-y-6 relative transition-all">
+        <div id="mainCard" class="bg-white rounded-2xl border border-slate-200 shadow-md p-6 sm:p-8 flex flex-col space-y-5 relative transition-all">
             
-            <!-- Toast Notifikasi Tersimpan -->
-            <div id="saveToast" class="absolute top-4 right-4 bg-emerald-600 text-white text-xs font-semibold px-3 py-1.5 rounded-full shadow-lg opacity-0 transition-opacity duration-200 flex items-center space-x-1.5 pointer-events-none">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
-                </svg>
-                <span>Tersimpan di CSV</span>
-            </div>
-
             <!-- Card Header: Kueri Info & Navigasi Baris -->
             <div>
                 <div class="flex items-center justify-between text-xs mb-2">
@@ -315,14 +336,14 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
                         <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                         </svg>
-                        <span>Catatan Auditor / Catatan Khusus (Opsional):</span>
+                        <span>Catatan Khusus (Opsional):</span>
                     </label>
                 </div>
-                <input type="text" id="cardNotes" placeholder="Tuliskan catatan jika ada hal khusus..." onchange="saveCurrentVerdict(null, null, true)" class="w-full text-xs bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand-500 rounded-lg px-3 py-2 outline-none transition-all">
+                <input type="text" id="cardNotes" placeholder="Tuliskan catatan jika ada hal khusus..." onchange="saveNotesOnly()" class="w-full text-xs bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand-500 rounded-lg px-3 py-2 outline-none transition-all">
             </div>
 
-            <!-- Current Judgment Status Indicator -->
-            <div class="flex items-center justify-between border-t border-slate-100 pt-4">
+            <!-- Current Judgment Status Indicator & Quick Toggles -->
+            <div class="flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-3">
                 <div class="text-xs text-slate-500 flex items-center space-x-2">
                     <span>Status Saat Ini:</span>
                     <span id="currentStatusBadge" class="px-2.5 py-1 rounded-md font-bold text-xs bg-slate-100 text-slate-600">
@@ -333,13 +354,25 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
                     </span>
                 </div>
 
-                <button id="btnToggleRagu" onclick="toggleRagu()" class="px-3 py-1.5 rounded-lg border border-amber-300 text-amber-800 hover:bg-amber-50 text-xs font-semibold transition-all flex items-center space-x-1.5 cursor-pointer">
-                    <svg class="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                    </svg>
-                    <span>Tandai Ragu</span>
-                    <span class="kbd-badge">R</span>
-                </button>
+                <div class="flex items-center space-x-2">
+                    <!-- Reset / Kosongkan Nilai -->
+                    <button id="btnResetVerdict" onclick="resetCurrentVerdict()" title="Kosongkan kembali nilai item ini" class="px-2.5 py-1.5 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 text-xs font-semibold transition-all flex items-center space-x-1 cursor-pointer">
+                        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                        <span>Kosongkan Nilai</span>
+                        <span class="kbd-badge">Del</span>
+                    </button>
+
+                    <!-- Toggle Ragu -->
+                    <button id="btnToggleRagu" onclick="toggleRagu()" class="px-3 py-1.5 rounded-lg border border-amber-300 text-amber-800 hover:bg-amber-50 text-xs font-semibold transition-all flex items-center space-x-1.5 cursor-pointer">
+                        <svg class="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                        <span>Tandai Ragu</span>
+                        <span class="kbd-badge">R</span>
+                    </button>
+                </div>
             </div>
 
             <!-- Big Action Buttons (1 & 0) -->
@@ -373,17 +406,37 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
             <div class="flex items-center justify-between border-t border-slate-100 pt-4">
                 <button onclick="navigate(-1)" class="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 font-semibold text-xs transition-all cursor-pointer">
                     <span class="kbd-badge">←</span>
-                    <span>Sebelumnya</span>
+                    <span>Sebelumnya (Koreksi)</span>
                 </button>
 
-                <div class="text-xs text-slate-400 font-mono">
-                    Gunakan tombol keyboard <span class="font-bold text-slate-600">1</span>, <span class="font-bold text-slate-600">0</span>, <span class="font-bold text-slate-600">R</span>, atau <span class="font-bold text-slate-600">Panah</span>
+                <div class="text-xs text-slate-400 font-mono hidden sm:block">
+                    Tekan <span class="font-bold text-slate-600">1</span>, <span class="font-bold text-slate-600">0</span>, <span class="font-bold text-slate-600">R</span>, atau <span class="font-bold text-slate-600">←</span> / <span class="font-bold text-slate-600">→</span>
                 </div>
 
                 <button onclick="navigate(1)" class="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 font-semibold text-xs transition-all cursor-pointer">
                     <span>Selanjutnya</span>
                     <span class="kbd-badge">→</span>
                 </button>
+            </div>
+        </div>
+
+        <!-- RIWAYAT AKSI TERAKHIR & TOMBOL BATALKAN (UNDO) -->
+        <div id="lastActionBar" class="bg-slate-100 border border-slate-200 rounded-xl p-3 flex items-center justify-between text-xs text-slate-600 transition-all opacity-0 pointer-events-none">
+            <div class="flex items-center space-x-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span>Tindakan Terakhir: <strong id="lastActionText" class="text-slate-900">-</strong></span>
+            </div>
+            <button onclick="undoLastAction()" class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-white border border-slate-300 hover:bg-slate-200 font-bold text-brand-700 shadow-2xs transition-all cursor-pointer">
+                <span>↩ Batalkan (Undo)</span>
+                <span class="kbd-badge">Ctrl+Z</span>
+            </button>
+        </div>
+
+        <!-- Tips Singkat Koreksi -->
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-blue-800 flex items-start space-x-2">
+            <span class="text-base">💡</span>
+            <div>
+                <strong>Cara Memperbaiki Jika Salah Isi:</strong> Tekan tombol panah kiri <strong>[ ← ]</strong> untuk kembali ke baris sebelumnya, lalu langsung tekan nilai yang benar (<strong>1</strong> atau <strong>0</strong>). Anda juga bisa menekan tombol <strong>[ Ctrl + Z ]</strong> untuk membatalkan tindakan terakhir, atau tombol <strong>[ Kosongkan Nilai ]</strong> jika ingin membatalkan penilaian pada baris tersebut.
             </div>
         </div>
 
@@ -464,7 +517,15 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
                     <span class="kbd-badge">R</span>
                 </div>
                 <div class="flex items-center justify-between py-1.5 border-b border-slate-100">
-                    <span class="text-slate-600">Arsip Sebelumnya</span>
+                    <span class="text-slate-600">Batalkan Tindakan Terakhir (Undo)</span>
+                    <span class="kbd-badge">Ctrl + Z</span>
+                </div>
+                <div class="flex items-center justify-between py-1.5 border-b border-slate-100">
+                    <span class="text-slate-600">Kosongkan Nilai Kartu Saat Ini</span>
+                    <span class="kbd-badge">Del / Backspace</span>
+                </div>
+                <div class="flex items-center justify-between py-1.5 border-b border-slate-100">
+                    <span class="text-slate-600">Koreksi / Arsip Sebelumnya</span>
                     <span class="kbd-badge">←</span>
                 </div>
                 <div class="flex items-center justify-between py-1.5 border-b border-slate-100">
@@ -490,12 +551,50 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         let currentIndex = 0;
         let activeDataset = "{{ active_dataset }}";
         let isSaving = false;
+        let soundEnabled = true;
+        let lastAction = null; // Menyimpan state untuk Undo
 
-        // Muat data saat halaman dibuka
         document.addEventListener("DOMContentLoaded", () => {
             loadDatasetData();
             setupKeyboardShortcuts();
         });
+
+        // Suara Efek Sintetis (Web Audio API)
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                if (type === 'relevant') {
+                    // Ding ceria naik
+                    osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+                    osc.frequency.exponentialRampToValueAtTime(783.99, ctx.currentTime + 0.1); // G5
+                } else if (type === 'irrelevant') {
+                    // Nada turun lembut
+                    osc.frequency.setValueAtTime(440, ctx.currentTime); // A4
+                    osc.frequency.exponentialRampToValueAtTime(329.63, ctx.currentTime + 0.1); // E4
+                } else if (type === 'undo' || type === 'reset') {
+                    // Nada netral
+                    osc.frequency.setValueAtTime(392, ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(493.88, ctx.currentTime + 0.08);
+                }
+
+                gain.gain.setValueAtTime(0.09, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.12);
+            } catch(e) {}
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById("soundIcon").textContent = soundEnabled ? "🔊" : "🔇";
+            showFloatingToast(soundEnabled ? "Suara Efek Aktif" : "Suara Efek Dimatikan", "info");
+        }
 
         async function loadDatasetData() {
             try {
@@ -506,7 +605,6 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
                 updateStats(data.stats);
                 populateQueryDropdown();
                 
-                // Cari index item belum dinilai pertama, jika tidak ada tetap di 0
                 const firstUnjudged = allItems.findIndex(item => item.is_relevant === "" || item.is_relevant === null);
                 currentIndex = firstUnjudged !== -1 ? firstUnjudged : 0;
                 
@@ -565,14 +663,12 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
             document.getElementById("cardQueryText").textContent = item.query_text;
             document.getElementById("cardPoolOrder").textContent = `Peringkat Pool: #${item.pool_order || (currentIndex + 1)}`;
             
-            // Highlight keyword di summary_raw
             document.getElementById("cardSummaryRaw").innerHTML = highlightKeywords(item.summary_raw, item.query_text);
             document.getElementById("cardSpmNumber").textContent = item.spm_number || "-";
             document.getElementById("cardPartyName").textContent = item.party_name || "-";
             document.getElementById("cardArchiveId").textContent = `#${item.archive_id}`;
             document.getElementById("cardNotes").value = item.auditor_notes || item.archivist_notes || "";
 
-            // Update status badge
             const statusBadge = document.getElementById("currentStatusBadge");
             const btnRel = document.getElementById("btnRelevant");
             const btnIrrel = document.getElementById("btnIrrelevant");
@@ -593,7 +689,6 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
                 statusBadge.className = "px-2.5 py-1 rounded-md font-bold text-xs bg-slate-100 text-slate-600";
             }
 
-            // Update ragu badge
             const raguBadge = document.getElementById("currentRaguBadge");
             const btnToggleRagu = document.getElementById("btnToggleRagu");
             if (item.ragu === "1" || item.ragu === 1) {
@@ -604,18 +699,15 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
                 btnToggleRagu.classList.remove("bg-amber-100", "font-bold");
             }
 
-            // Sync dropdown kueri
             syncQueryDropdownSelection(item.query_id);
         }
 
         function highlightKeywords(text, query) {
             if (!text || !query) return text || "";
-            // Pisahkan kueri menjadi token kata (panjang >= 2)
             const tokens = query.split(/[\s/,.\-_]+/).filter(t => t.length >= 2);
             if (tokens.length === 0) return escapeHtml(text);
 
             let escaped = escapeHtml(text);
-            // Sort by length desc agar token panjang diproses terlebih dahulu
             tokens.sort((a, b) => b.length - a.length);
 
             tokens.forEach(tok => {
@@ -641,29 +733,118 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         async function setVerdict(verdict) {
             if (allItems.length === 0) return;
             const item = allItems[currentIndex];
-            item.is_relevant = String(verdict);
-            await saveCurrentVerdict();
             
-            // Auto-advance ke arsip berikutnya
-            navigate(1);
+            // Rekam state sebelum diubah untuk fitur UNDO
+            lastAction = {
+                index: currentIndex,
+                query_id: item.query_id,
+                item_pos: currentIndex + 1,
+                prev_is_relevant: item.is_relevant,
+                prev_ragu: item.ragu,
+                prev_notes: item.auditor_notes || "",
+                new_verdict: verdict,
+            };
+
+            item.is_relevant = String(verdict);
+
+            // Efek Flash & Suara Seketika
+            triggerCardFlash(verdict === 1 ? 'emerald' : 'rose');
+            playSound(verdict === 1 ? 'relevant' : 'irrelevant');
+
+            // Tampilkan Floating Feedback yang sangat jelas
+            const verdictLabel = verdict === 1 ? "RELEVAN (1)" : "TIDAK RELEVAN (0)";
+            showFloatingToast(`✓ Tersimpan: [${item.query_id} #${item.pool_order || (currentIndex+1)}] → ${verdictLabel}`, verdict === 1 ? "relevant" : "irrelevant");
+
+            // Update Last Action Bar
+            updateLastActionBar(`[${item.query_id} #${item.pool_order || (currentIndex+1)}] dinilai ${verdictLabel}`);
+
+            // Simpan ke CSV
+            await saveItemToServer(item);
+
+            // Lanjut ke arsip berikutnya setelah delay singkat untuk transisi halus
+            setTimeout(() => {
+                navigate(1);
+            }, 140);
         }
 
         async function toggleRagu() {
             if (allItems.length === 0) return;
             const item = allItems[currentIndex];
             item.ragu = (item.ragu === "1" || item.ragu === 1) ? "0" : "1";
-            await saveCurrentVerdict(null, null, true);
+            
+            playSound('undo');
+            const statusStr = (item.ragu === "1") ? "Ditandai RAGU (1)" : "Status Ragu Dihapus (0)";
+            showFloatingToast(`⚠ ${statusStr} untuk [${item.query_id}]`, "warning");
+
+            await saveItemToServer(item);
             renderCurrentCard();
         }
 
-        async function saveCurrentVerdict(advanceAfter = false, step = 1, silent = false) {
-            if (isSaving || allItems.length === 0) return;
+        async function resetCurrentVerdict() {
+            if (allItems.length === 0) return;
+            const item = allItems[currentIndex];
+            
+            // Rekam state untuk undo
+            lastAction = {
+                index: currentIndex,
+                query_id: item.query_id,
+                item_pos: currentIndex + 1,
+                prev_is_relevant: item.is_relevant,
+                prev_ragu: item.ragu,
+                prev_notes: item.auditor_notes || "",
+                new_verdict: "",
+            };
+
+            item.is_relevant = "";
+            item.ragu = "";
+            playSound('reset');
+            showFloatingToast(`Status [${item.query_id}] dikembalikan ke BELUM DINILAI`, "info");
+            updateLastActionBar(`[${item.query_id} #${item.pool_order || (currentIndex+1)}] di-reset (kosong)`);
+
+            await saveItemToServer(item);
+            renderCurrentCard();
+        }
+
+        async function undoLastAction() {
+            if (!lastAction) {
+                showFloatingToast("Tidak ada tindakan yang dapat dibatalkan", "info");
+                return;
+            }
+
+            const action = lastAction;
+            currentIndex = action.index;
+            const item = allItems[currentIndex];
+            
+            item.is_relevant = action.prev_is_relevant;
+            item.ragu = action.prev_ragu;
+            item.auditor_notes = action.prev_notes;
+            if (item.archivist_notes !== undefined) {
+                item.archivist_notes = action.prev_notes;
+            }
+
+            playSound('undo');
+            showFloatingToast(`↩ Berhasil dibatalkan! Kembali ke item #${action.item_pos}`, "info");
+            
+            // Sembunyikan bar undo setelah dibatalkan
+            hideLastActionBar();
+            lastAction = null;
+
+            await saveItemToServer(item);
+            renderCurrentCard();
+        }
+
+        async function saveNotesOnly() {
+            if (allItems.length === 0) return;
             const item = allItems[currentIndex];
             item.auditor_notes = document.getElementById("cardNotes").value.trim();
             if (item.archivist_notes !== undefined) {
                 item.archivist_notes = item.auditor_notes;
             }
+            await saveItemToServer(item);
+            showFloatingToast("Catatan tersimpan", "info");
+        }
 
+        async function saveItemToServer(item) {
             isSaving = true;
             try {
                 const res = await fetch("/api/save", {
@@ -676,20 +857,76 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
                         archive_id: item.archive_id,
                         is_relevant: item.is_relevant,
                         ragu: item.ragu,
-                        notes: item.auditor_notes,
+                        notes: item.auditor_notes || "",
                     })
                 });
                 const result = await res.json();
                 if (result.success) {
                     updateStats(result.stats);
                     populateQueryDropdown();
-                    if (!silent) showToast();
                 }
             } catch (err) {
                 console.error("Gagal menyimpan ke server:", err);
+                showFloatingToast("⚠️ Gagal menyimpan ke server!", "error");
             } finally {
                 isSaving = false;
             }
+        }
+
+        function triggerCardFlash(type) {
+            const card = document.getElementById("mainCard");
+            card.classList.remove("flash-emerald", "flash-rose");
+            void card.offsetWidth; // Force reflow
+            card.classList.add(type === 'emerald' ? 'flash-emerald' : 'flash-rose');
+        }
+
+        function showFloatingToast(message, type = 'info') {
+            const toast = document.getElementById("floatingToast");
+            const toastInner = document.getElementById("floatingToastInner");
+            const toastIcon = document.getElementById("toastIcon");
+            const toastMessage = document.getElementById("toastMessage");
+
+            toastMessage.textContent = message;
+
+            if (type === 'relevant') {
+                toastInner.className = "flex items-center space-x-2.5 px-5 py-2.5 rounded-full shadow-2xl text-xs sm:text-sm font-bold bg-emerald-600 text-white border-emerald-400";
+                toastIcon.textContent = "✓";
+            } else if (type === 'irrelevant') {
+                toastInner.className = "flex items-center space-x-2.5 px-5 py-2.5 rounded-full shadow-2xl text-xs sm:text-sm font-bold bg-rose-600 text-white border-rose-400";
+                toastIcon.textContent = "✗";
+            } else if (type === 'warning') {
+                toastInner.className = "flex items-center space-x-2.5 px-5 py-2.5 rounded-full shadow-2xl text-xs sm:text-sm font-bold bg-amber-500 text-slate-900 border-amber-300";
+                toastIcon.textContent = "⚠";
+            } else if (type === 'error') {
+                toastInner.className = "flex items-center space-x-2.5 px-5 py-2.5 rounded-full shadow-2xl text-xs sm:text-sm font-bold bg-red-700 text-white border-red-500";
+                toastIcon.textContent = "🚨";
+            } else {
+                toastInner.className = "flex items-center space-x-2.5 px-5 py-2.5 rounded-full shadow-2xl text-xs sm:text-sm font-bold bg-slate-800 text-white border-slate-600";
+                toastIcon.textContent = "ℹ️";
+            }
+
+            toast.classList.remove("-translate-y-12", "opacity-0");
+            toast.classList.add("translate-y-0", "opacity-100");
+
+            if (window._toastTimer) clearTimeout(window._toastTimer);
+            window._toastTimer = setTimeout(() => {
+                toast.classList.remove("translate-y-0", "opacity-100");
+                toast.classList.add("-translate-y-12", "opacity-0");
+            }, 1800);
+        }
+
+        function updateLastActionBar(text) {
+            const bar = document.getElementById("lastActionBar");
+            const label = document.getElementById("lastActionText");
+            label.textContent = text;
+            bar.classList.remove("opacity-0", "pointer-events-none");
+            bar.classList.add("opacity-100", "pointer-events-auto");
+        }
+
+        function hideLastActionBar() {
+            const bar = document.getElementById("lastActionBar");
+            bar.classList.remove("opacity-100", "pointer-events-auto");
+            bar.classList.add("opacity-0", "pointer-events-none");
         }
 
         function navigate(step) {
@@ -706,9 +943,8 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
                     }
                     nextIdx += step;
                 }
-                // Jika sudah habis
                 if (step > 0) {
-                    alert("Seluruh item telah selesai dinilai!");
+                    showFloatingToast("Seluruh item yang belum dinilai sudah selesai!", "relevant");
                 }
                 return;
             }
@@ -725,8 +961,9 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
             if (idx !== -1) {
                 currentIndex = idx;
                 renderCurrentCard();
+                showFloatingToast(`Lompat ke item #${idx + 1} (belum dinilai)`, "info");
             } else {
-                alert("Semua item pada dataset ini sudah dinilai!");
+                showFloatingToast("Semua item pada dataset ini sudah dinilai!", "relevant");
             }
         }
 
@@ -752,7 +989,6 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         function toggleUnjudgedOnly() {
             const unjudgedOnly = document.getElementById("unjudgedOnlyCheck").checked;
             if (unjudgedOnly) {
-                // Jika item saat ini sudah dinilai, lompat ke unjudged pertama setelahnya
                 if (allItems[currentIndex].is_relevant !== "" && allItems[currentIndex].is_relevant !== null) {
                     navigate(1);
                 }
@@ -762,15 +998,9 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         function changeDataset() {
             const select = document.getElementById("datasetSelect");
             activeDataset = select.value;
+            lastAction = null;
+            hideLastActionBar();
             loadDatasetData();
-        }
-
-        function showToast() {
-            const toast = document.getElementById("saveToast");
-            toast.classList.remove("opacity-0");
-            setTimeout(() => {
-                toast.classList.add("opacity-0");
-            }, 1200);
         }
 
         function toggleModal(modalId) {
@@ -780,8 +1010,14 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 
         function setupKeyboardShortcuts() {
             window.addEventListener("keydown", (e) => {
-                // Abaikan jika user sedang mengetik di input notes
                 if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.tagName === "SELECT") {
+                    return;
+                }
+
+                // Ctrl+Z untuk Undo
+                if ((e.ctrlKey || e.metaKey) && (e.key === "z" || e.key === "Z")) {
+                    e.preventDefault();
+                    undoLastAction();
                     return;
                 }
 
@@ -794,6 +1030,15 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
                 } else if (e.key === "r" || e.key === "R") {
                     e.preventDefault();
                     toggleRagu();
+                } else if (e.key === "Backspace" || e.key === "Delete") {
+                    e.preventDefault();
+                    resetCurrentVerdict();
+                } else if (e.key === "z" || e.key === "Z") {
+                    e.preventDefault();
+                    undoLastAction();
+                } else if (e.key === "m" || e.key === "M") {
+                    e.preventDefault();
+                    toggleSound();
                 } else if (e.key === "ArrowLeft" || e.key === "[") {
                     e.preventDefault();
                     navigate(-1);
@@ -888,7 +1133,6 @@ def api_save_item():
 
     fieldnames, rows = read_pool_csv(file_path)
 
-    # Temukan baris yang cocok berdasarkan index atau query_id + archive_id
     matched_row: Optional[Dict[str, str]] = None
     if index is not None and 0 <= int(index) < len(rows):
         r = rows[int(index)]
@@ -916,10 +1160,8 @@ def api_save_item():
     elif "archivist_notes" in matched_row:
         matched_row["archivist_notes"] = notes
 
-    # Tulis ulang berkas CSV secara aman
     write_pool_csv(file_path, fieldnames, rows)
 
-    # Hitung ulang statistik
     judged = sum(1 for r in rows if str(r.get("is_relevant", "")).strip() in ["1", "0"])
     relevant = sum(1 for r in rows if str(r.get("is_relevant", "")).strip() == "1")
     irrelevant = sum(1 for r in rows if str(r.get("is_relevant", "")).strip() == "0")
