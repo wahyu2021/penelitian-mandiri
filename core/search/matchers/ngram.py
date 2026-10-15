@@ -37,3 +37,8 @@ class DiceNgramMatcher(BaseMatcher):
         right_grams = character_ngrams(right, self.n)
         overlap = sum((left_grams & right_grams).values())
         return 2.0 * overlap / (sum(left_grams.values()) + sum(right_grams.values()))
+
+
+# Alias untuk kompatibilitas penamaan
+NGramMatcher = DiceNgramMatcher
+

@@ -4,7 +4,7 @@ from typing import Dict, Tuple
 from core.search.matchers.base import BaseMatcher
 from core.search.matchers.jaro_winkler import JaroWinklerMatcher
 from core.search.matchers.levenshtein import LevenshteinMatcher
-from core.search.matchers.ngram import DiceNgramMatcher
+from core.search.matchers.ngram import DiceNgramMatcher, NGramMatcher
 from core.search.matchers.token_set import TokenSetMatcher
 
 _MATCHER_CLASSES: Dict[str, type] = {
