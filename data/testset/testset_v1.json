@@ -1,0 +1,5879 @@
+{
+  "version": "v1.0.0",
+  "seed": 42,
+  "tuning_ratio": 0.3,
+  "n_queries": 40,
+  "n_tuning": 12,
+  "n_test": 28,
+  "unjudged_rows_count": 0,
+  "total_ragu_count": 0,
+  "created_at": "2026-10-15T06:36:45.259836+00:00",
+  "queries": [
+    {
+      "query_id": "Q001",
+      "query_text": "termin dan III atas",
+      "query_type": "topik",
+      "source": "sintetis",
+      "noise_type": "tanpa_gangguan",
+      "origin_archive_id": 1786,
+      "split": "test",
+      "judgments": [
+        {
+          "archive_id": 584,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 860,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 28,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 2,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 548,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 839,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 602,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 359,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 876,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 745,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 875,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 674,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 21,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 22,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1786,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 607,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1035,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 844,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 730,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 8,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 873,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 14,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 670,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 874,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 597,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 820,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 69,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 29,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 371,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 673,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 560,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 4,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 360,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 621,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1530,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 972,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 869,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 27,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 821,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 5,
+          "is_relevant": 1,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q002",
+      "query_text": "290/LS/Dinaa/2000",
+      "query_type": "nomor_spm",
+      "source": "sintetis",
+      "noise_type": "typo",
+      "origin_archive_id": 1570,
+      "split": "test",
+      "judgments": [
+        {
+          "archive_id": 1027,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1742,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1659,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1570,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 670,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1656,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 4,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1826,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1504,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1549,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 153,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1548,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1563,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1043,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 729,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 602,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1599,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1743,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 811,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1023,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 599,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1025,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 148,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1042,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1052,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 269,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1669,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 605,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 590,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 554,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 551,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 604,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q003",
+      "query_text": "CV Con. Mandiri 6",
+      "query_type": "pihak",
+      "source": "sintetis",
+      "noise_type": "singkatan",
+      "origin_archive_id": 955,
+      "split": "tuning",
+      "judgments": [
+        {
+          "archive_id": 105,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 691,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 955,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 745,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 67,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 112,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 734,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 104,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1784,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 72,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 713,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 692,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1070,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 737,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 708,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 106,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 641,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 709,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 710,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1073,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 379,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 735,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 714,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 707,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q004",
+      "query_text": "100%  atas pengadaan unit 2008",
+      "query_type": "campuran",
+      "source": "sintetis",
+      "noise_type": "spasi_tanda_baca",
+      "origin_archive_id": 1617,
+      "split": "test",
+      "judgments": [
+        {
+          "archive_id": 121,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1640,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 122,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1641,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 117,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1642,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 108,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 96,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1072,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1628,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1069,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1617,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1637,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 120,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1616,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 97,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1619,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 99,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q005",
+      "query_text": "2009 Pembangunan SPM term",
+      "query_type": "topik",
+      "source": "sintetis",
+      "noise_type": "urutan_kata",
+      "origin_archive_id": 895,
+      "split": "test",
+      "judgments": [
+        {
+          "archive_id": 65,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1783,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 211,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 536,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 531,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 253,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 894,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 64,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1782,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 535,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1685,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 915,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 758,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 214,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1687,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1073,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 734,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 895,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 532,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 526,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 37,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 530,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 62,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 254,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 36,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 59,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 537,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1686,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 61,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 38,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 60,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 759,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 914,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 66,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q006",
+      "query_text": "414/LS/2002",
+      "query_type": "nomor_spm",
+      "source": "sintetis",
+      "noise_type": "kata_hilang",
+      "origin_archive_id": 302,
+      "split": "test",
+      "judgments": [
+        {
+          "archive_id": 103,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1536,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 760,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 303,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 528,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1533,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1531,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 298,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1541,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 925,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 641,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1534,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 304,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 728,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1666,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1073,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 145,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 106,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 300,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1532,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1535,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1542,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 302,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 759,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q007",
+      "query_text": "CV cuntoh Mandiri 8",
+      "query_type": "pihak",
+      "source": "sintetis",
+      "noise_type": "ejaan_varian",
+      "origin_archive_id": 357,
+      "split": "test",
+      "judgments": [
+        {
+          "archive_id": 874,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 284,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 668,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 584,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 557,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 509,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 860,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 352,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 364,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 370,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 873,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 361,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 526,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 371,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 806,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 667,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 554,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 357,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 528,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 740,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 869,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 317,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 664,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 603,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 964,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 663,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q008",
+      "query_text": "SPM Pembangunan 2002 termin 2002",
+      "query_type": "campuran",
+      "source": "sintetis",
+      "noise_type": "tanpa_gangguan",
+      "origin_archive_id": 578,
+      "split": "tuning",
+      "judgments": [
+        {
+          "archive_id": 526,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 118,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 535,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 578,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 577,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 576,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 258,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 22,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 9,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1005,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 530,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 8,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 4,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 536,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 116,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 621,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 66,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 6,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 532,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 7,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 100,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 734,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 584,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 525,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 362,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 119,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 5,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 531,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 221,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1530,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 211,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 537,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 344,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 65,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 245,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q009",
+      "query_text": "Uang untu dipertanggung jawabkan",
+      "query_type": "topik",
+      "source": "sintetis",
+      "noise_type": "typo",
+      "origin_archive_id": 1696,
+      "split": "tuning",
+      "judgments": [
+        {
+          "archive_id": 457,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 783,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1056,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 937,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1548,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 111,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 793,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1696,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1744,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1554,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1743,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 951,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1796,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1795,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 327,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 80,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1058,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1623,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 686,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 325,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1011,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 584,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 485,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 482,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 587,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1742,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1016,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 322,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1588,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 338,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1631,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 961,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1719,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1530,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1709,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 103,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 320,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q010",
+      "query_text": "924/BT/dis/2002",
+      "query_type": "nomor_spm",
+      "source": "sintetis",
+      "noise_type": "singkatan",
+      "origin_archive_id": 632,
+      "split": "test",
+      "judgments": [
+        {
+          "archive_id": 622,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 614,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 628,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 609,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 624,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 508,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 594,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 602,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 605,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 523,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 606,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 603,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 632,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 591,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 630,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 627,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 598,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 597,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 633,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 612,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 608,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 618,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 621,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 590,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 604,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q011",
+      "query_text": "PT  Rekanan Contoh 17",
+      "query_type": "pihak",
+      "source": "sintetis",
+      "noise_type": "spasi_tanda_baca",
+      "origin_archive_id": 1616,
+      "split": "test",
+      "judgments": [
+        {
+          "archive_id": 75,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1617,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1616,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 96,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1786,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 67,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 116,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1636,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1618,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1626,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 100,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 68,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 66,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1789,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1782,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 69,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 65,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 686,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1785,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1619,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1783,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 98,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 99,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 97,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 70,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1637,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q012",
+      "query_text": "SPM termin 2004 Pembangunan 2004",
+      "query_type": "campuran",
+      "source": "sintetis",
+      "noise_type": "urutan_kata",
+      "origin_archive_id": 779,
+      "split": "test",
+      "judgments": [
+        {
+          "archive_id": 211,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 266,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 43,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 535,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1029,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 118,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 776,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 531,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 100,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 596,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1014,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 511,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 777,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 214,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 497,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 526,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1530,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1030,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 241,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 65,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 537,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 774,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1782,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 494,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1032,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 532,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 119,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 66,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 530,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 536,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 779,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 734,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 117,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 116,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 718,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 245,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 498,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 525,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q013",
+      "query_text": "fasilitas umum",
+      "query_type": "topik",
+      "source": "sintetis",
+      "noise_type": "kata_hilang",
+      "origin_archive_id": 1272,
+      "split": "tuning",
+      "judgments": [
+        {
+          "archive_id": 1782,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 900,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 968,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 2,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1044,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 990,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 81,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 66,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 466,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1783,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 559,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 943,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 704,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 971,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 714,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 65,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 489,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1259,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 546,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1272,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 307,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1824,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 942,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1797,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q014",
+      "query_text": "332/B.T/Dinas/2006",
+      "query_type": "nomor_spm",
+      "source": "sintetis",
+      "noise_type": "ejaan_varian",
+      "origin_archive_id": 1576,
+      "split": "tuning",
+      "judgments": [
+        {
+          "archive_id": 1502,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 615,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 507,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1577,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 516,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1575,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1624,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 498,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 104,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1790,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1017,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 618,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 153,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1588,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1574,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 522,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 447,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1036,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1576,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1625,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 511,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1580,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 612,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 105,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1508,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 512,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 356,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q015",
+      "query_text": "PT Rekanan Contoh 11",
+      "query_type": "pihak",
+      "source": "sintetis",
+      "noise_type": "tanpa_gangguan",
+      "origin_archive_id": 910,
+      "split": "test",
+      "judgments": [
+        {
+          "archive_id": 113,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 754,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 114,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 105,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 667,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1625,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 910,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 814,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 668,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1634,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 65,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 906,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 115,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 104,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 112,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 850,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1624,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 66,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 96,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 836,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 97,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 958,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 898,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1632,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1635,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 849,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 901,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q016",
+      "query_text": "SPM Pembangunan 2003 tahap 2030",
+      "query_type": "campuran",
+      "source": "sintetis",
+      "noise_type": "typo",
+      "origin_archive_id": 430,
+      "split": "test",
+      "judgments": [
+        {
+          "archive_id": 113,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1624,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 531,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 430,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1625,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 532,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1619,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 443,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 392,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 100,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 466,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 537,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 99,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 473,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1633,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 486,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 584,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1618,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1620,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 468,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1623,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 104,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 526,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 105,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 98,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 481,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 112,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 439,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1632,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q017",
+      "query_text": "SPM pemb 1998 uang",
+      "query_type": "topik",
+      "source": "sintetis",
+      "noise_type": "singkatan",
+      "origin_archive_id": 320,
+      "split": "test",
+      "judgments": [
+        {
+          "archive_id": 1687,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1639,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 119,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 944,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 543,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 111,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 114,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 532,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 936,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 317,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 542,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 323,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 563,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 372,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 324,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1631,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 584,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 953,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 320,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 980,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 969,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 362,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 987,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 939,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 537,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 531,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 318,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 337,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 535,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 548,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q018",
+      "query_text": "728-BT-Dinas-2004",
+      "query_type": "nomor_spm",
+      "source": "sintetis",
+      "noise_type": "spasi_tanda_baca",
+      "origin_archive_id": 604,
+      "split": "test",
+      "judgments": [
+        {
+          "archive_id": 622,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 591,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1012,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 603,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 631,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 599,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 590,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 627,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1063,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1054,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1044,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 592,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 605,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 624,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 604,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 594,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 597,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1487,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1014,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 510,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 598,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q019",
+      "query_text": "10 Contoh Mandiri CV",
+      "query_type": "pihak",
+      "source": "sintetis",
+      "noise_type": "urutan_kata",
+      "origin_archive_id": 609,
+      "split": "tuning",
+      "judgments": [
+        {
+          "archive_id": 610,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 904,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 877,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 394,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 337,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 913,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 122,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 584,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 609,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 963,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1797,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 981,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 608,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 754,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 284,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 81,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 949,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 543,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 740,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q020",
+      "query_text": "atas pekerjaan pembuatan pagar",
+      "query_type": "campuran",
+      "source": "sintetis",
+      "noise_type": "kata_hilang",
+      "origin_archive_id": 93,
+      "split": "test",
+      "judgments": [
+        {
+          "archive_id": 1620,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 93,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 117,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 109,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 108,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 100,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 91,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 101,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1005,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 110,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 999,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 570,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 114,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 98,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1621,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 43,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1637,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1004,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1636,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 116,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1634,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1627,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 102,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 92,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1618,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1622,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 107,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q021",
+      "query_text": "SPM pembangonan 2001 termin",
+      "query_type": "topik",
+      "source": "sintetis",
+      "noise_type": "ejaan_varian",
+      "origin_archive_id": 999,
+      "split": "test",
+      "judgments": [
+        {
+          "archive_id": 532,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 81,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1765,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 999,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 78,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 525,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 536,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 100,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 530,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1797,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 77,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 307,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 531,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1691,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 65,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 79,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1766,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 535,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 80,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 99,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 565,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 526,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1619,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 76,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 537,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1689,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1530,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 75,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q022",
+      "query_text": "487/PK/Dinas/2001",
+      "query_type": "nomor_spm",
+      "source": "sintetis",
+      "noise_type": "tanpa_gangguan",
+      "origin_archive_id": 441,
+      "split": "tuning",
+      "judgments": [
+        {
+          "archive_id": 440,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 429,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 522,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 468,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 484,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 945,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 466,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 511,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 513,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 517,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 510,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 441,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 506,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 447,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 520,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 523,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 512,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 485,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 457,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 508,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 519,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 472,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q023",
+      "query_text": "PT Rekanan Contoh 1",
+      "query_type": "pihak",
+      "source": "sintetis",
+      "noise_type": "typo",
+      "origin_archive_id": 642,
+      "split": "tuning",
+      "judgments": [
+        {
+          "archive_id": 300,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1023,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 641,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 642,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 952,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 644,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 635,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 314,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 946,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 977,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 679,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1042,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1052,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 681,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 976,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q024",
+      "query_text": "Biaya rehab rua wakil-Wakil 2007",
+      "query_type": "campuran",
+      "source": "sintetis",
+      "noise_type": "singkatan",
+      "origin_archive_id": 1680,
+      "split": "test",
+      "judgments": [
+        {
+          "archive_id": 75,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 56,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 847,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 584,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1792,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 697,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 535,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 77,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 915,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1791,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 696,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 647,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1688,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 665,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 61,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 529,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 811,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 76,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 914,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 675,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1680,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 54,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 659,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 755,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1682,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 657,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 666,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 658,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 648,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q025",
+      "query_text": "SPM Pembangunan 2001 biaya, ",
+      "query_type": "topik",
+      "source": "sintetis",
+      "noise_type": "spasi_tanda_baca",
+      "origin_archive_id": 991,
+      "split": "test",
+      "judgments": [
+        {
+          "archive_id": 1621,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 532,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 563,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 536,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 535,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1623,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 525,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 567,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 531,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 111,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 568,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 515,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 564,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 103,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 101,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1631,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 979,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 991,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 945,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 102,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 969,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 570,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 530,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 526,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q026",
+      "query_text": "534/LS/2002/Dinas",
+      "query_type": "nomor_spm",
+      "source": "sintetis",
+      "noise_type": "urutan_kata",
+      "origin_archive_id": 62,
+      "split": "tuning",
+      "judgments": [
+        {
+          "archive_id": 926,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 63,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 153,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1683,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 298,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 64,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1689,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 73,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 60,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 59,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 644,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1541,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 56,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 729,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1542,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1064,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 104,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 927,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 925,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 304,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 300,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1690,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 57,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 58,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1682,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 305,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1789,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 61,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 302,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 62,
+          "is_relevant": 1,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q027",
+      "query_text": "Contoh Mandiri 2",
+      "query_type": "pihak",
+      "source": "sintetis",
+      "noise_type": "kata_hilang",
+      "origin_archive_id": 101,
+      "split": "test",
+      "judgments": [
+        {
+          "archive_id": 391,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1008,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 102,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 128,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1649,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1010,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 119,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1648,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1009,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1621,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1647,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1622,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 65,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 624,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1618,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1639,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 98,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 101,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 130,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 557,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 131,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 129,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 118,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q028",
+      "query_text": "beaya pengadaan mesin pompa 2002",
+      "query_type": "campuran",
+      "source": "sintetis",
+      "noise_type": "ejaan_varian",
+      "origin_archive_id": 1730,
+      "split": "test",
+      "judgments": [
+        {
+          "archive_id": 1639,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 535,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1631,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1782,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 98,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 138,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 584,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1623,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1651,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 103,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 686,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 65,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1549,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 119,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 99,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 825,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1619,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1620,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 688,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 100,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 752,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1657,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1730,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1069,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 118,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 596,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 111,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 66,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 40,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 122,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q029",
+      "query_text": "termin atas pekerjaan perencanaan",
+      "query_type": "topik",
+      "source": "sintetis",
+      "noise_type": "tanpa_gangguan",
+      "origin_archive_id": 1507,
+      "split": "tuning",
+      "judgments": [
+        {
+          "archive_id": 1627,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 122,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 570,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 100,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 371,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1005,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 523,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 75,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1618,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 98,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 79,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 76,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 283,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 107,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 78,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 80,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 77,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 101,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 121,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 999,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1004,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1507,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 518,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 372,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 109,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 266,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 316,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 567,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1002,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 108,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 522,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1621,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 515,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 120,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 99,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q030",
+      "query_text": "773/KS/Dinas/2009",
+      "query_type": "nomor_spm",
+      "source": "sintetis",
+      "noise_type": "typo",
+      "origin_archive_id": 1639,
+      "split": "test",
+      "judgments": [
+        {
+          "archive_id": 106,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 116,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1628,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 350,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 531,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 532,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 93,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 333,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 119,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 122,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 99,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1639,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 108,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 117,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1619,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 118,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1642,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1626,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1057,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q031",
+      "query_text": "CV Con. Mandiri 21",
+      "query_type": "pihak",
+      "source": "sintetis",
+      "noise_type": "singkatan",
+      "origin_archive_id": 995,
+      "split": "tuning",
+      "judgments": [
+        {
+          "archive_id": 70,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 65,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 71,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 67,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 68,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 74,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 995,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 72,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 73,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 66,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 69,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q032",
+      "query_text": "termin  dan atas pekerjaan 2004",
+      "query_type": "campuran",
+      "source": "sintetis",
+      "noise_type": "spasi_tanda_baca",
+      "origin_archive_id": 1706,
+      "split": "test",
+      "judgments": [
+        {
+          "archive_id": 730,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 81,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 72,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1782,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 912,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1797,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1785,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 100,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 526,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 69,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1618,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1639,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1795,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 116,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 584,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1619,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 120,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 371,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 98,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 674,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 75,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 99,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 713,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 118,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 68,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1786,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 535,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1706,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1640,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 911,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 65,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 673,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1530,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q033",
+      "query_text": "SPM Pembangunan terminj 2007",
+      "query_type": "topik",
+      "source": "sintetis",
+      "noise_type": "urutan_kata",
+      "origin_archive_id": 714,
+      "split": "test",
+      "judgments": [
+        {
+          "archive_id": 714,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 807,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 584,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 708,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 532,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 524,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 118,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 715,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 100,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 804,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 531,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 704,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 707,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 535,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 530,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 537,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 526,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 805,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1681,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 806,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 700,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 710,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 709,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 701,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 712,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 711,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 525,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 119,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 811,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 705,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 812,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q034",
+      "query_text": "515/BT/2005",
+      "query_type": "nomor_spm",
+      "source": "sintetis",
+      "noise_type": "kata_hilang",
+      "origin_archive_id": 445,
+      "split": "test",
+      "judgments": [
+        {
+          "archive_id": 444,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 453,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 450,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 507,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 510,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 270,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 262,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 265,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 261,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 624,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1045,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 445,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 266,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1591,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 512,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 489,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 622,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 452,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 456,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 272,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1030,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 602,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1053,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1049,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1014,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 486,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 271,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 267,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 467,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1047,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1029,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 446,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1046,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 455,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 487,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 454,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q035",
+      "query_text": "CV cuntoh Mandiri 4",
+      "query_type": "pihak",
+      "source": "sintetis",
+      "noise_type": "ejaan_varian",
+      "origin_archive_id": 853,
+      "split": "test",
+      "judgments": [
+        {
+          "archive_id": 362,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 551,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 584,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 370,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 670,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 75,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 589,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 294,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1795,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 375,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 594,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 675,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 613,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 854,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1791,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 853,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 439,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 805,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1782,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 560,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1062,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 963,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 949,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q036",
+      "query_text": "terminan III atas pekerjaan 2001",
+      "query_type": "campuran",
+      "source": "sintetis",
+      "noise_type": "tanpa_gangguan",
+      "origin_archive_id": 1558,
+      "split": "tuning",
+      "judgments": [
+        {
+          "archive_id": 109,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 79,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1628,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1637,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 101,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 98,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 76,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 120,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1635,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 302,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1560,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1618,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 121,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1558,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 108,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1636,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1629,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1789,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1621,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 674,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1559,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1627,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 77,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 107,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 78,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1786,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 69,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 122,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q037",
+      "query_text": "Penyerahan Paila Adipura oleh",
+      "query_type": "topik",
+      "source": "sintetis",
+      "noise_type": "typo",
+      "origin_archive_id": 1281,
+      "split": "test",
+      "judgments": [
+        {
+          "archive_id": 1634,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1635,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 101,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 122,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1630,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 115,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 102,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1621,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 107,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 108,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 116,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 109,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1281,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 324,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1280,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 377,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 323,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1279,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1642,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 114,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1622,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1620,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 110,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 99,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 100,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1619,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q038",
+      "query_text": "689/LS/dis/2007",
+      "query_type": "nomor_spm",
+      "source": "sintetis",
+      "noise_type": "singkatan",
+      "origin_archive_id": 1627,
+      "split": "test",
+      "judgments": [
+        {
+          "archive_id": 107,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1625,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 113,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1618,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 100,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 108,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 92,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1627,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 117,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 116,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1611,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 112,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1631,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 118,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1629,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 109,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 111,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 110,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 105,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q039",
+      "query_text": "CV  Contoh Mandiri 8",
+      "query_type": "pihak",
+      "source": "sintetis",
+      "noise_type": "spasi_tanda_baca",
+      "origin_archive_id": 1657,
+      "split": "test",
+      "judgments": [
+        {
+          "archive_id": 1626,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 116,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 99,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1619,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1636,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 122,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1634,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 117,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 100,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 98,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1642,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 138,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1620,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 141,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1637,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1657,
+          "is_relevant": 1,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1662,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    },
+    {
+      "query_id": "Q040",
+      "query_text": "SPM termin 2002 Pembangunan 2002",
+      "query_type": "campuran",
+      "source": "sintetis",
+      "noise_type": "urutan_kata",
+      "origin_archive_id": 375,
+      "split": "test",
+      "judgments": [
+        {
+          "archive_id": 584,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 5,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 65,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 576,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 258,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 734,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 577,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 22,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 362,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 532,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 221,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 531,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 536,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 525,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 344,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 7,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1530,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 9,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 6,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 119,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 537,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 535,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 4,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 116,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 526,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 211,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 621,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 1005,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 8,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 375,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 100,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 66,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 118,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 245,
+          "is_relevant": 0,
+          "ragu": 0
+        },
+        {
+          "archive_id": 530,
+          "is_relevant": 0,
+          "ragu": 0
+        }
+      ],
+      "ragu_count": 0
+    }
+  ],
+  "content_sha256": "29a5b797f840d20e7b1c80958be78ce5e301045a667de05baac86305c20e6b95"
+}
