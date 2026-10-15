@@ -12,6 +12,7 @@ import sqlite3
 import subprocess
 import sys
 import time
+import click
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple
@@ -140,8 +141,12 @@ def export_bundle(
         raise ValueError("Daftar kueri pada testset kosong.")
 
     # 2. Muat korpus dan bangun indeks
+    click.echo("\n[1/5] Memuat korpus dan membangun indeks pencarian...")
+    t_start = time.perf_counter()
     corpus = load_corpus(db_path)
     index = SearchIndex.from_records(corpus)
+    t_idx = time.perf_counter() - t_start
+    click.echo(f"      -> {len(index.documents):,} dokumen berhasil diindeks ({t_idx:.2f} detik).")
 
     # 3. Muat bobot tuned
     tuned_weights: Dict[str, Dict[str, float]] = {}
@@ -173,66 +178,68 @@ def export_bundle(
     # 5. Jalankan evaluasi per kueri dan buat per_query_results.csv
     per_query_rows: List[Dict[str, Any]] = []
 
-    for q in queries:
-        q_id = str(q["query_id"])
-        q_text = str(q.get("query_text", ""))
-        split = str(q.get("split", "test"))
-        source = str(q.get("source", "sintetis"))
-        q_type = str(q.get("query_type", "umum"))
-        noise_type = str(q.get("noise_type", "tanpa_gangguan"))
+    click.echo(f"[2/5] Mengevaluasi {len(queries)} kueri uji pada {len(search_models)} model pencarian:")
+    with click.progressbar(queries, label="      Progress Evaluasi Kueri") as bar:
+        for q in bar:
+            q_id = str(q["query_id"])
+            q_text = str(q.get("query_text", ""))
+            split = str(q.get("split", "test"))
+            source = str(q.get("source", "sintetis"))
+            q_type = str(q.get("query_type", "umum"))
+            noise_type = str(q.get("noise_type", "tanpa_gangguan"))
 
-        # Penilaian relevansi
-        judged_map: Dict[int, int] = {
-            int(j["archive_id"]): int(j["is_relevant"])
-            for j in q.get("judgments", [])
-        }
-        relevant_ids = {aid for aid, rel in judged_map.items() if rel == 1}
-        n_relevant = len(relevant_ids)
-
-        for method, config, search_fn in search_models:
-            t0 = time.perf_counter()
-            hits = search_fn(q_text)
-            t1 = time.perf_counter()
-            latency_ms = (t1 - t0) * 1000.0
-
-            retrieved_ids = [h.id for h in hits]
-            unjudged = count_unjudged(retrieved_ids, set(judged_map.keys()), k=10)
-
-            if n_relevant == 0:
-                p5 = 0.0
-                r10 = 0.0
-                rr10 = 0.0
-                hit5 = 0
-                hit10 = 0
-                zero_res = 1 if len(retrieved_ids) == 0 else 0
-            else:
-                qm = evaluate_query(retrieved_ids, relevant_ids)
-                p5 = qm.precision_at_5
-                r10 = qm.recall_at_10
-                rr10 = qm.reciprocal_rank
-                hit5 = 1 if qm.hit_at_5 > 0 else 0
-                hit10 = 1 if qm.hit_at_10 > 0 else 0
-                zero_res = 1 if qm.zero_result else 0
-
-            row_data = {
-                "query_id": q_id,
-                "method": method,
-                "config": config,
-                "split": split,
-                "source": source,
-                "query_type": q_type,
-                "noise_type": noise_type,
-                "n_relevant": n_relevant,
-                "p5": round(p5, 4),
-                "r10": round(r10, 4),
-                "rr10": round(rr10, 4),
-                "hit5": hit5,
-                "hit10": hit10,
-                "zero_result": zero_res,
-                "latency_ms": round(latency_ms, 3),
-                "unjudged_in_top10": unjudged,
+            # Penilaian relevansi
+            judged_map: Dict[int, int] = {
+                int(j["archive_id"]): int(j["is_relevant"])
+                for j in q.get("judgments", [])
             }
-            per_query_rows.append(row_data)
+            relevant_ids = {aid for aid, rel in judged_map.items() if rel == 1}
+            n_relevant = len(relevant_ids)
+
+            for method, config, search_fn in search_models:
+                t0 = time.perf_counter()
+                hits = search_fn(q_text)
+                t1 = time.perf_counter()
+                latency_ms = (t1 - t0) * 1000.0
+
+                retrieved_ids = [h.id for h in hits]
+                unjudged = count_unjudged(retrieved_ids, set(judged_map.keys()), k=10)
+
+                if n_relevant == 0:
+                    p5 = 0.0
+                    r10 = 0.0
+                    rr10 = 0.0
+                    hit5 = 0
+                    hit10 = 0
+                    zero_res = 1 if len(retrieved_ids) == 0 else 0
+                else:
+                    qm = evaluate_query(retrieved_ids, relevant_ids)
+                    p5 = qm.precision_at_5
+                    r10 = qm.recall_at_10
+                    rr10 = qm.reciprocal_rank
+                    hit5 = 1 if qm.hit_at_5 > 0 else 0
+                    hit10 = 1 if qm.hit_at_10 > 0 else 0
+                    zero_res = 1 if qm.zero_result else 0
+
+                row_data = {
+                    "query_id": q_id,
+                    "method": method,
+                    "config": config,
+                    "split": split,
+                    "source": source,
+                    "query_type": q_type,
+                    "noise_type": noise_type,
+                    "n_relevant": n_relevant,
+                    "p5": round(p5, 4),
+                    "r10": round(r10, 4),
+                    "rr10": round(rr10, 4),
+                    "hit5": hit5,
+                    "hit10": hit10,
+                    "zero_result": zero_res,
+                    "latency_ms": round(latency_ms, 3),
+                    "unjudged_in_top10": unjudged,
+                }
+                per_query_rows.append(row_data)
 
     per_query_csv_path = output_dir / "per_query_results.csv"
     with open(per_query_csv_path, "w", newline="", encoding="utf-8") as f:
@@ -245,24 +252,27 @@ def export_bundle(
     tuning_rows: List[Dict[str, Any]] = []
     grid = generate_weight_grid(step=0.1)
 
+    click.echo(f"[3/5] Menjalankan grid search penyetelan bobot (4 matcher x {len(grid)} kombinasi):")
     for m_name in FUZZY_METHOD_NAMES:
         matcher = matchers[m_name]
-        for w in grid:
-            mrr, p5, unjudged = evaluate_weights_on_queries(
-                index=index,
-                matcher=matcher,
-                weights=w,
-                queries=tuning_queries,
-            )
-            tuning_rows.append({
-                "matcher": m_name,
-                "summary_weight": w["summary"],
-                "spm_weight": w["spm"],
-                "party_weight": w["party"],
-                "mrr_at_10": round(mrr, 4),
-                "precision_at_5": round(p5, 4),
-                "unjudged_top10": unjudged,
-            })
+        label_text = f"      - {m_name.replace('_', ' ').title():<14}"
+        with click.progressbar(grid, label=label_text) as bar:
+            for w in bar:
+                mrr, p5, unjudged = evaluate_weights_on_queries(
+                    index=index,
+                    matcher=matcher,
+                    weights=w,
+                    queries=tuning_queries,
+                )
+                tuning_rows.append({
+                    "matcher": m_name,
+                    "summary_weight": w["summary"],
+                    "spm_weight": w["spm"],
+                    "party_weight": w["party"],
+                    "mrr_at_10": round(mrr, 4),
+                    "precision_at_5": round(p5, 4),
+                    "unjudged_top10": unjudged,
+                })
 
     tuning_csv_path = output_dir / "tuning_results.csv"
     with open(tuning_csv_path, "w", newline="", encoding="utf-8") as f:
@@ -278,6 +288,8 @@ def export_bundle(
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(tuning_rows)
+
+    click.echo("[4/5] Mengumpulkan audit ekstraksi dan ringkasan kesepakatan reliabilitas...")
 
     # 7. Audit Summary
     audit_summary: Dict[str, Any] = {}
