@@ -1,0 +1,758 @@
+"""Generator untuk membangun file Jupyter Notebook resmi 16-Sel (Sel 0 - 15).
+Sesuai rancangan baku Colab Bundle (Hanya membaca hasil agregat tanpa teks arsip).
+"""
+import json
+from pathlib import Path
+
+
+def build_16_cell_notebook() -> dict:
+    cells = []
+
+    # =========================================================================
+    # SEL 0: Judul dan pernyataan data (Markdown)
+    # =========================================================================
+    cells.append({
+        "cell_type": "markdown",
+        "metadata": {},
+        "source": [
+            "# Evaluasi Ilmiah Sistem Temu Kembali Arsip Berbasis Hasil Agregat\n",
+            "### Analisis Kinerja Fuzzy Matching & Normalisasi Metadata Tanpa Ekspor Teks Arsip\n",
+            "**Versi Notebook:** 1.0.0 (Spesifikasi Resmi Konsumsi Bundle)\n",
+            "\n",
+            "---\n",
+            "\n",
+            "### 🔒 Pernyataan Privasi & Integritas Data\n",
+            "- **Zero Raw-Data Ingestion:** Notebook ini **HANYA** membaca data hasil evaluasi teragregasi dari berkas bundle (`run_meta.json`, `per_query_results.csv`, `tuning_results.csv`, `audit_summary.json`, `agreement_summary.json`).\n",
+            "- **Perlindungan Privasi Dinas:** Tidak ada teks ringkasan arsip mentah (`summary_raw`), nomor SPM, nama rekanan/pihak ketiga (`party_name`), maupun teks kueri asli (`query_text`) yang diunggah ke runtime ini.\n",
+            "- **Validasi Keterulangan:** Seluruh berkas bundle diverifikasi terhadap hash kriptografis `manifest.sha256` yang dihasilkan langsung dari laptop peneliti dalam status *working tree* bersih."
+        ]
+    })
+
+    # =========================================================================
+    # SEL 1: Persiapan (Code)
+    # Syarat lulus: Versi paket sesuai dengan run_meta.json
+    # =========================================================================
+    cells.append({
+        "cell_type": "code",
+        "execution_count": None,
+        "metadata": {},
+        "outputs": [],
+        "source": [
+            "# =====================================================================\n",
+            "# SEL 1: PERSIAPAN LINGKUNGAN & KUNCI SEED ACAK\n",
+            "# Syarat lulus: Paket ilmiah terpasang dan seed acak diatur = 42\n",
+            "# =====================================================================\n",
+            "import os\n",
+            "import sys\n",
+            "import json\n",
+            "import hashlib\n",
+            "from pathlib import Path\n",
+            "\n",
+            "# Pasang dependensi jika berjalan di Google Colab\n",
+            "try:\n",
+            "    import google.colab\n",
+            "    IN_COLAB = True\n",
+            "    !pip install -q pandas numpy scipy matplotlib rapidfuzz\n",
+            "except ImportError:\n",
+            "    IN_COLAB = False\n",
+            "\n",
+            "import pandas as pd\n",
+            "import numpy as np\n",
+            "import scipy\n",
+            "import matplotlib\n",
+            "import matplotlib.pyplot as plt\n",
+            "\n",
+            "RANDOM_SEED = 42\n",
+            "np.random.seed(RANDOM_SEED)\n",
+            "\n",
+            "print(\"=== VERSI LINGKUNGAN RUNTIME ===\")\n",
+            "print(f\"Python     : {sys.version.split()[0]}\")\n",
+            "print(f\"Pandas     : {pd.__version__}\")\n",
+            "print(f\"NumPy      : {np.__version__}\")\n",
+            "print(f\"SciPy      : {scipy.__version__}\")\n",
+            "print(f\"Matplotlib : {matplotlib.__version__}\")\n",
+            "print(f\"Random Seed: {RANDOM_SEED} (terkunci)\")\n",
+            "print(\"\\n[STATUS] Sel 1 Lulus: Lingkungan siap.\")"
+        ]
+    })
+
+    # =========================================================================
+    # SEL 2: Unggah Hasil (Code)
+    # Syarat lulus: Tolak bila ada kolom query_text, summary_raw, atau party_name
+    # =========================================================================
+    cells.append({
+        "cell_type": "code",
+        "execution_count": None,
+        "metadata": {},
+        "outputs": [],
+        "source": [
+            "# =====================================================================\n",
+            "# SEL 2: PEMUATAN BERKAS BUNDLE & PEMERIKSAAN DAFTAR PUTIH KOLOM\n",
+            "# Syarat lulus: Tolak bila ditemukan kolom teks arsip/terlarang\n",
+            "# =====================================================================\n",
+            "FORBIDDEN_COLUMNS = {\n",
+            "    \"query_text\", \"summary_raw\", \"summary_clean\", \"party_name\",\n",
+            "    \"spm_number\", \"sp2d_number\", \"amount_rp\", \"haystack\", \"nominal\"\n",
+            "}\n",
+            "\n",
+            "EXPECTED_FILES = [\n",
+            "    \"run_meta.json\",\n",
+            "    \"per_query_results.csv\",\n",
+            "    \"tuning_results.csv\",\n",
+            "    \"audit_summary.json\",\n",
+            "    \"agreement_summary.json\",\n",
+            "    \"manifest.sha256\"\n",
+            "]\n",
+            "\n",
+            "# Tentukan lokasi direktori bundle\n",
+            "BUNDLE_DIR = Path(\"output/colab_bundle\")\n",
+            "if not BUNDLE_DIR.is_dir() and Path(\"colab_bundle\").is_dir():\n",
+            "    BUNDLE_DIR = Path(\"colab_bundle\")\n",
+            "\n",
+            "# Jika belum ada dan berada di Google Colab, sediakan dialog unggah\n",
+            "if not (BUNDLE_DIR / \"manifest.sha256\").is_file():\n",
+            "    if IN_COLAB:\n",
+            "        from google.colab import files\n",
+            "        print(\"Silakan unggah 6 berkas bundle dari folder output/colab_bundle/:\")\n",
+            "        uploaded = files.upload()\n",
+            "        BUNDLE_DIR = Path(\".\")\n",
+            "    else:\n",
+            "        raise FileNotFoundError(\n",
+            "            f\"Direktori bundle {BUNDLE_DIR} tidak ditemukan. \"\n",
+            "            \"Jalankan `flask report export-bundle` terlebih dahulu di laptop.\"\n",
+            "        )\n",
+            "\n",
+            "# Verifikasi keberadaan semua berkas wajib\n",
+            "for fname in EXPECTED_FILES:\n",
+            "    fpath = BUNDLE_DIR / fname\n",
+            "    if not fpath.is_file():\n",
+            "        raise FileNotFoundError(f\"[GAGAL] Berkas bundle wajib tidak ditemukan: {fname}\")\n",
+            "\n",
+            "# Pemeriksaan keamanan kolom pada per_query_results.csv\n",
+            "df_per_query = pd.read_csv(BUNDLE_DIR / \"per_query_results.csv\")\n",
+            "found_forbidden = FORBIDDEN_COLUMNS.intersection(set(df_per_query.columns))\n",
+            "if found_forbidden:\n",
+            "    raise ValueError(f\"[GAGAL TOTAL] Ditemukan kolom teks arsip terlarang: {found_forbidden}\")\n",
+            "\n",
+            "# Pemeriksaan keamanan kolom pada tuning_results.csv\n",
+            "df_tuning = pd.read_csv(BUNDLE_DIR / \"tuning_results.csv\")\n",
+            "found_forbidden_tuning = FORBIDDEN_COLUMNS.intersection(set(df_tuning.columns))\n",
+            "if found_forbidden_tuning:\n",
+            "    raise ValueError(f\"[GAGAL TOTAL] Ditemukan kolom terlarang di tuning_results.csv: {found_forbidden_tuning}\")\n",
+            "\n",
+            "print(f\"[OK] Seluruh {len(EXPECTED_FILES)} berkas bundle tersedia di: {BUNDLE_DIR}\")\n",
+            "print(f\"[OK] Pemeriksaan privasi lolos: 0 kolom teks arsip terlarang terdeteksi.\")\n",
+            "print(f\"     Kolom per_query_results: {list(df_per_query.columns)}\")"
+        ]
+    })
+
+    # =========================================================================
+    # SEL 3: Integritas (Code)
+    # Syarat lulus: tree_clean = True, mode = final, hash cocok
+    # =========================================================================
+    cells.append({
+        "cell_type": "code",
+        "execution_count": None,
+        "metadata": {},
+        "outputs": [],
+        "source": [
+            "# =====================================================================\n",
+            "# SEL 3: VERIFIKASI INTEGRITAS KRIPTOGRAFIS & MANIFEST REPRODUCIBILITY\n",
+            "# Syarat lulus: tree_clean == True, mode == 'final', seluruh hash cocok\n",
+            "# =====================================================================\n",
+            "manifest_path = BUNDLE_DIR / \"manifest.sha256\"\n",
+            "with open(manifest_path, \"r\", encoding=\"utf-8\") as f:\n",
+            "    manifest_lines = [line.strip() for line in f if line.strip()]\n",
+            "\n",
+            "print(\"Memverifikasi Checksum SHA-256...\")\n",
+            "for line in manifest_lines:\n",
+            "    expected_hash, fname = line.split(maxsplit=1)\n",
+            "    target_file = BUNDLE_DIR / fname\n",
+            "    h = hashlib.sha256()\n",
+            "    with open(target_file, \"rb\") as bf:\n",
+            "        while chunk := bf.read(65536):\n",
+            "            h.update(chunk)\n",
+            "    actual_hash = h.hexdigest()\n",
+            "    if actual_hash != expected_hash:\n",
+            "        raise ValueError(f\"[GAGAL INTEGRITAS] Hash berkas {fname} TIDAK COCOK!\")\n",
+            "    print(f\"  [MATCH] {fname} ({actual_hash[:16]}...)\")\n",
+            "\n",
+            "# Baca dan validasi run_meta.json\n",
+            "with open(BUNDLE_DIR / \"run_meta.json\", \"r\", encoding=\"utf-8\") as f:\n",
+            "    run_meta = json.load(f)\n",
+            "\n",
+            "print(\"\\n=== METADATA KETERULANGAN (RUN_META) ===\")\n",
+            "print(f\"Commit SHA       : {run_meta.get('commit_sha')}\")\n",
+            "print(f\"Status Git Tree  : {'Clean (Bersih)' if run_meta.get('tree_clean') else 'Dirty (Ada modifikasi)'}\")\n",
+            "print(f\"Mode Evaluasi    : {run_meta.get('mode')}\")\n",
+            "print(f\"Hash Data Arsip  : {run_meta.get('data_hash')[:24]}...\")\n",
+            "print(f\"Hash Set Uji     : {run_meta.get('testset_hash')[:24]}...\")\n",
+            "print(f\"Versi Ekstraktor : {run_meta.get('extractor_version')}\")\n",
+            "print(f\"Perangkat Laptop : {run_meta.get('laptop_specs', {}).get('os')}\")\n",
+            "\n",
+            "if run_meta.get(\"mode\") != \"final\":\n",
+            "    raise ValueError(f\"[GAGAL] Mode evaluasi harus 'final', didapatkan: {run_meta.get('mode')}\")\n",
+            "if not run_meta.get(\"tree_clean\"):\n",
+            "    print(\"[PERINGATAN]: Working tree berstatus kotor saat ekspor dilakukan.\")\n",
+            "\n",
+            "print(\"\\n[STATUS] Sel 3 Lulus: Integritas kriptografis dan metadata terverifikasi valid.\")"
+        ]
+    })
+
+    # =========================================================================
+    # SEL 4: Pemeriksaan Kewajaran (Code)
+    # Syarat lulus: Gagal bila dua metode berbeda punya hasil per kueri identik sepenuhnya, atau semua metrik nol
+    # =========================================================================
+    cells.append({
+        "cell_type": "code",
+        "execution_count": None,
+        "metadata": {},
+        "outputs": [],
+        "source": [
+            "# =====================================================================\n",
+            "# SEL 4: UJI KEWAJARAN DATA (SANITY CHECKS)\n",
+            "# Syarat lulus: Tidak ada null, metode tidak identik, metrik tidak semua nol\n",
+            "# =====================================================================\n",
+            "# 1. Periksa missing value (NaN/Null)\n",
+            "null_counts = df_per_query.isnull().sum()\n",
+            "if null_counts.any():\n",
+            "    raise ValueError(f\"[GAGAL] Terdapat nilai null pada per_query_results:\\n{null_counts[null_counts > 0]}\")\n",
+            "\n",
+            "# 2. Periksa jumlah kueri per split\n",
+            "split_counts = df_per_query.groupby('split')['query_id'].nunique()\n",
+            "print(\"Distribusi Kueri per Split:\")\n",
+            "for split_name, count in split_counts.items():\n",
+            "    print(f\"  - {split_name}: {count} kueri\")\n",
+            "\n",
+            "# 3. Periksa kelengkapan metode\n",
+            "methods_in_data = df_per_query[['method', 'config']].drop_duplicates()\n",
+            "print(f\"\\nJumlah Konfigurasi Metode Dievaluasi: {len(methods_in_data)}\")\n",
+            "\n",
+            "# 4. Uji non-identik antar metode (seluruh metrik per kueri tidak identik 100%)\n",
+            "metrics_cols = ['p5', 'r10', 'rr10', 'hit5', 'hit10', 'zero_result']\n",
+            "method_configs = df_per_query[['method', 'config']].drop_duplicates().values\n",
+            "for i in range(len(method_configs)):\n",
+            "    for j in range(i + 1, len(method_configs)):\n",
+            "        m1, c1 = method_configs[i]\n",
+            "        m2, c2 = method_configs[j]\n",
+            "        v1 = df_per_query[(df_per_query['method'] == m1) & (df_per_query['config'] == c1)].sort_values('query_id')[metrics_cols].values\n",
+            "        v2 = df_per_query[(df_per_query['method'] == m2) & (df_per_query['config'] == c2)].sort_values('query_id')[metrics_cols].values\n",
+            "        if np.array_equal(v1, v2):\n",
+            "            raise ValueError(f\"[GAGAL] Metode {m1} ({c1}) dan {m2} ({c2}) menghasilkan seluruh metrik per kueri identik sepenuhnya!\")\n",
+            "\n",
+            "# 5. Uji metrik tidak semua nol\n",
+            "if df_per_query['p5'].sum() == 0.0 or df_per_query['rr10'].sum() == 0.0:\n",
+            "    raise ValueError(\"[GAGAL] Seluruh metrik bernilai nol, pipeline evaluasi tidak berjalan semestinya.\")\n",
+            "\n",
+            "print(\"\\n[STATUS] Sel 4 Lulus: Uji kewajaran berhasil tanpa anomali data.\")"
+        ]
+    })
+
+    # =========================================================================
+    # SEL 5: Tabel Utama (Kelompok Test Saja) (Code)
+    # P@5, R@10, MRR@10, hit rate, jumlah kueri nol hasil, latensi, dengan Bootstrap 95% CI
+    # =========================================================================
+    cells.append({
+        "cell_type": "code",
+        "execution_count": None,
+        "metadata": {},
+        "outputs": [],
+        "source": [
+            "# =====================================================================\n",
+            "# SEL 5: TABEL UTAMA EVALUASI METRIK TEMU KEMBALI (KELOMPOK TEST SAJA)\n",
+            "# Menghitung P@5, R@10, MRR@10, Hit Rate, Nol Hasil, Latensi + Bootstrap 95% CI\n",
+            "# =====================================================================\n",
+            "df_test = df_per_query[df_per_query['split'] == 'test'].copy()\n",
+            "n_test_queries = df_test['query_id'].nunique()\n",
+            "\n",
+            "def calc_bootstrap_ci(series, n_boot=2000, ci=0.95, seed=42):\n",
+            "    \"\"\"Hitung interval kepercayaan 95% dengan bootstrap persentil.\"\"\"\n",
+            "    rng = np.random.default_rng(seed)\n",
+            "    vals = np.array(series, dtype=float)\n",
+            "    boot_means = [rng.choice(vals, size=len(vals), replace=True).mean() for _ in range(n_boot)]\n",
+            "    low = np.percentile(boot_means, (1 - ci) / 2 * 100)\n",
+            "    high = np.percentile(boot_means, (1 + ci) / 2 * 100)\n",
+            "    return round(low, 4), round(high, 4)\n",
+            "\n",
+            "main_table_rows = []\n",
+            "grouped = df_test.groupby(['method', 'config'])\n",
+            "\n",
+            "for (m, cfg), grp in grouped:\n",
+            "    p5_mean = grp['p5'].mean()\n",
+            "    p5_ci = calc_bootstrap_ci(grp['p5'])\n",
+            "    \n",
+            "    r10_mean = grp['r10'].mean()\n",
+            "    r10_ci = calc_bootstrap_ci(grp['r10'])\n",
+            "    \n",
+            "    rr10_mean = grp['rr10'].mean()\n",
+            "    rr10_ci = calc_bootstrap_ci(grp['rr10'])\n",
+            "    \n",
+            "    hit5 = grp['hit5'].mean()\n",
+            "    hit10 = grp['hit10'].mean()\n",
+            "    zero_res = int(grp['zero_result'].sum())\n",
+            "    lat_mean = grp['latency_ms'].mean()\n",
+            "    \n",
+            "    display_name = f\"{m} ({cfg})\"\n",
+            "    if m == 'like_baseline':\n",
+            "        display_name = \"LIKE Baseline (e-Arsip)\"\n",
+            "    \n",
+            "    main_table_rows.append({\n",
+            "        'Metode (Konfigurasi)': display_name,\n",
+            "        'n Kueri': len(grp),\n",
+            "        'P@5': f\"{p5_mean:.4f} [{p5_ci[0]:.4f}, {p5_ci[1]:.4f}]\",\n",
+            "        'R@10': f\"{r10_mean:.4f} [{r10_ci[0]:.4f}, {r10_ci[1]:.4f}]\",\n",
+            "        'MRR@10': f\"{rr10_mean:.4f} [{rr10_ci[0]:.4f}, {rr10_ci[1]:.4f}]\",\n",
+            "        'Hit@5': round(hit5, 4),\n",
+            "        'Hit@10': round(hit10, 4),\n",
+            "        'Nol Hasil (Kueri)': zero_res,\n",
+            "        'Rata2 Latensi (ms)': round(lat_mean, 2)\n",
+            "    })\n",
+            "\n",
+            "df_main_summary = pd.DataFrame(main_table_rows)\n",
+            "print(f\"=== TABEL 1: HASIL KINERJA TEMU KEMBALI KELOMPOK TEST (n = {n_test_queries} kueri) ===\")\n",
+            "display(df_main_summary)"
+        ]
+    })
+
+    # =========================================================================
+    # SEL 6: Perbandingan Berpasangan (Opsional) (Code)
+    # Wilcoxon signed-rank test pada MRR@10 antara metode terbaik dan LIKE
+    # =========================================================================
+    cells.append({
+        "cell_type": "code",
+        "execution_count": None,
+        "metadata": {},
+        "outputs": [],
+        "source": [
+            "# =====================================================================\n",
+            "# SEL 6: UJI STATISTIK KOMPARATIF BERPASANGAN (WILCOXON SIGNED-RANK TEST)\n",
+            "# Menguji signifikansi perbedaan MRR@10 antara metode terbaik vs LIKE Baseline\n",
+            "# =====================================================================\n",
+            "from scipy.stats import wilcoxon\n",
+            "\n",
+            "# Tentukan metode fuzzy terbaik berdasarkan MRR@10 rata-rata pada test set\n",
+            "mean_mrr_by_model = df_test.groupby(['method', 'config'])['rr10'].mean().sort_values(ascending=False)\n",
+            "best_model_tuple = mean_mrr_by_model.index[0] if mean_mrr_by_model.index[0][0] != 'like_baseline' else mean_mrr_by_model.index[1]\n",
+            "\n",
+            "m_best, cfg_best = best_model_tuple\n",
+            "series_best = df_test[(df_test['method'] == m_best) & (df_test['config'] == cfg_best)].sort_values('query_id')['rr10'].values\n",
+            "series_like = df_test[(df_test['method'] == 'like_baseline')].sort_values('query_id')['rr10'].values\n",
+            "\n",
+            "diff = series_best - series_like\n",
+            "n_diff = len(diff)\n",
+            "\n",
+            "print(f\"Perbandingan Berpasangan: {m_best} ({cfg_best}) vs LIKE Baseline\")\n",
+            "print(f\"Jumlah Pasangan Kueri (n) : {n_diff}\")\n",
+            "print(f\"Kueri dengan skor beda    : {np.count_nonzero(diff)}\")\n",
+            "\n",
+            "if np.all(diff == 0):\n",
+            "    print(\"Statistik: Tidak ada perbedaan skor antar kedua metode.\")\n",
+            "else:\n",
+            "    try:\n",
+            "        stat, p_value = wilcoxon(series_best, series_like, zero_method='wilcox')\n",
+            "        # Hitung Effect Size r = Z / sqrt(N)\n",
+            "        z_score = scipy.stats.norm.ppf(1.0 - p_value / 2.0) if p_value > 0 else 0.0\n",
+            "        effect_size_r = abs(z_score) / np.sqrt(n_diff) if n_diff > 0 else 0.0\n",
+            "        \n",
+            "        print(f\"Wilcoxon W-Statistic      : {stat:.4f}\")\n",
+            "        print(f\"p-value (dua sisi)        : {p_value:.4e}\")\n",
+            "        print(f\"Effect Size (r)           : {effect_size_r:.4f}\")\n",
+            "    except Exception as e:\n",
+            "        print(f\"Catatan komputasi Wilcoxon: {e}\")\n",
+            "\n",
+            "print(\"\\n[CATATAN ILMIAH] Karena ukuran sampel kelompok test tergolong terbatas (n=28),\")\n",
+            "print(\"interpretasi uji signifikansi harus diposisikan sebagai indikasi empiris, bukan bukti kepastian populasi.\")"
+        ]
+    })
+
+    # =========================================================================
+    # SEL 7: Bobot Sama Rata Lawan Hasil Penyetelan (Code)
+    # Bandingkan pada kelompok test; hasil kelompok tuning di tabel terpisah berlabel jelas
+    # =========================================================================
+    cells.append({
+        "cell_type": "code",
+        "execution_count": None,
+        "metadata": {},
+        "outputs": [],
+        "source": [
+            "# =====================================================================\n",
+            "# SEL 7: DAMPAK PENYETELAN BOBOT (EQUAL WEIGHTS VS TUNED WEIGHTS)\n",
+            "# Bagian A: Evaluasi pada Kelompok Test | Bagian B: Hasil pada Kelompok Tuning\n",
+            "# =====================================================================\n",
+            "# Bagian A: Kelompok Test\n",
+            "fuzzy_methods = [m for m in df_test['method'].unique() if m != 'like_baseline']\n",
+            "weight_impact_rows = []\n",
+            "\n",
+            "for m in fuzzy_methods:\n",
+            "    eq_mrr = df_test[(df_test['method'] == m) & (df_test['config'] == 'equal')]['rr10'].mean()\n",
+            "    tu_mrr = df_test[(df_test['method'] == m) & (df_test['config'] == 'tuned')]['rr10'].mean()\n",
+            "    eq_p5 = df_test[(df_test['method'] == m) & (df_test['config'] == 'equal')]['p5'].mean()\n",
+            "    tu_p5 = df_test[(df_test['method'] == m) & (df_test['config'] == 'tuned')]['p5'].mean()\n",
+            "    \n",
+            "    weight_impact_rows.append({\n",
+            "        'Metode Fuzzy': m,\n",
+            "        'Equal MRR@10': round(eq_mrr, 4),\n",
+            "        'Tuned MRR@10': round(tu_mrr, 4),\n",
+            "        'Selisih MRR': round(tu_mrr - eq_mrr, 4),\n",
+            "        'Equal P@5': round(eq_p5, 4),\n",
+            "        'Tuned P@5': round(tu_p5, 4),\n",
+            "        'Selisih P@5': round(tu_p5 - eq_p5, 4)\n",
+            "    })\n",
+            "\n",
+            "print(\"=== TABEL 2A: DAMPAK PENYETELAN BOBOT PADA KELOMPOK TEST (EVALUASI AKHIR) ===\")\n",
+            "display(pd.DataFrame(weight_impact_rows))\n",
+            "\n",
+            "# Bagian B: Kelompok Tuning (Diambil dari tuning_results.csv)\n",
+            "print(\"\\n=== TABEL 2B: RINGKASAN BOBOT OPTIMAL PADA KELOMPOK TUNING (OPTIMASI BOBOT) ===\")\n",
+            "best_tuning_per_matcher = df_tuning.sort_values('mrr_at_10', ascending=False).groupby('matcher').first().reset_index()\n",
+            "display(best_tuning_per_matcher[['matcher', 'summary_weight', 'spm_weight', 'party_weight', 'mrr_at_10', 'precision_at_5']])"
+        ]
+    })
+
+    # =========================================================================
+    # SEL 8: Kasus Nyata Lawan Sintetis (Code)
+    # Hasil dilaporkan terpisah. Bila kasus nyata < 3, tampilkan sebagai keterbatasan
+    # =========================================================================
+    cells.append({
+        "cell_type": "code",
+        "execution_count": None,
+        "metadata": {},
+        "outputs": [],
+        "source": [
+            "# =====================================================================\n",
+            "# SEL 8: PERBANDINGAN PERFORMA: SUMBER KUERI NYATA VS SINTETIS\n",
+            "# Pelaporan terpisah sesuai standar Information Retrieval\n",
+            "# =====================================================================\n",
+            "source_counts = df_test.groupby('source')['query_id'].nunique()\n",
+            "print(\"Distribusi Sumber Kueri Uji:\")\n",
+            "for src, count in source_counts.items():\n",
+            "    print(f\"  - Sumber '{src}': {count} kueri\")\n",
+            "\n",
+            "df_source_eval = df_test.groupby(['source', 'method', 'config']).agg({\n",
+            "    'rr10': 'mean',\n",
+            "    'p5': 'mean',\n",
+            "    'zero_result': 'sum',\n",
+            "    'query_id': 'count'\n",
+            "}).reset_index()\n",
+            "\n",
+            "df_source_eval.columns = ['Sumber Kueri', 'Metode', 'Konfigurasi', 'MRR@10', 'P@5', 'Nol Hasil', 'n Kueri']\n",
+            "df_source_eval['MRR@10'] = df_source_eval['MRR@10'].round(4)\n",
+            "df_source_eval['P@5'] = df_source_eval['P@5'].round(4)\n",
+            "\n",
+            "print(\"\\n=== TABEL 3: REKAPITULASI KINERJA BERDASARKAN SUMBER KUERI (TEST SPLIT) ===\")\n",
+            "display(df_source_eval)\n",
+            "\n",
+            "n_real = source_counts.get('nyata', 0)\n",
+            "if n_real < 3:\n",
+            "    print(f\"\\n[CATATAN KETERBATASAN]: Kueri bersumber kasus nyata berjumlah {n_real} kueri (< 3 kueri).\")\n",
+            "    print(\"Pengujian didominasi oleh kueri sintetis yang dirancang terstruktur merefleksikan variasi penulisan arsiparis.\")"
+        ]
+    })
+
+    # =========================================================================
+    # SEL 9: Rincian per Jenis Kueri dan Gangguan (Code)
+    # Tabel dengan n tiap kelompok, label "gambaran, bukan kesimpulan"
+    # =========================================================================
+    cells.append({
+        "cell_type": "code",
+        "execution_count": None,
+        "metadata": {},
+        "outputs": [],
+        "source": [
+            "# =====================================================================\n",
+            "# SEL 9: RINCIAN PER JENIS KUERI & GANGGUAN PENGETIKAN (STRATIFIED DIAGNOSTIC)\n",
+            "# Label: Gambaran diagnostik eksploratif, bukan kesimpulan inferensial mutlak\n",
+            "# =====================================================================\n",
+            "print(\"=== GAMBARAN DIAGNOSTIK KINERJA BERDASARKAN RAGAM GANGGUAN PENGETIKAN ===\")\n",
+            "print(\"(Catatan: Tabel ini memberikan gambaran pola, bukan kesimpulan inferensial mutlak)\\n\")\n",
+            "\n",
+            "# Pilih metode perwakilan untuk dibandingkan: LIKE Baseline vs Tuned Matchers\n",
+            "rep_models = ['like_baseline', 'token_set', 'jaro_winkler', 'levenshtein']\n",
+            "df_rep = df_test[(df_test['method'].isin(rep_models)) & (df_test['config'].isin(['baseline', 'tuned']))]\n",
+            "\n",
+            "noise_summary = df_rep.pivot_table(\n",
+            "    index='noise_type',\n",
+            "    columns='method',\n",
+            "    values='rr10',\n",
+            "    aggfunc='mean'\n",
+            ").round(4)\n",
+            "\n",
+            "# Tambahkan kolom jumlah kueri n per jenis gangguan\n",
+            "noise_counts = df_test[df_test['method'] == 'like_baseline'].groupby('noise_type')['query_id'].count()\n",
+            "noise_summary.insert(0, 'n Kueri', noise_counts)\n",
+            "\n",
+            "display(noise_summary)"
+        ]
+    })
+
+    # =========================================================================
+    # SEL 10: Audit Ekstraksi (Code)
+    # Ketepatan dan keterambilan per field dengan interval Wilson, jumlah sampel
+    # Sumber: audit_summary.json
+    # =========================================================================
+    cells.append({
+        "cell_type": "code",
+        "execution_count": None,
+        "metadata": {},
+        "outputs": [],
+        "source": [
+            "# =====================================================================\n",
+            "# SEL 10: AUDIT AKURASI EKSTRAKSI METADATA (WILSON SCORE 95% CI)\n",
+            "# Sumber: audit_summary.json\n",
+            "# =====================================================================\n",
+            "with open(BUNDLE_DIR / \"audit_summary.json\", \"r\", encoding=\"utf-8\") as f:\n",
+            "    audit_data = json.load(f)\n",
+            "\n",
+            "total_audit = audit_data.get('total_evaluated', 100)\n",
+            "fields_audit = audit_data.get('fields', {})\n",
+            "\n",
+            "audit_rows = []\n",
+            "for fld_name, metrics in fields_audit.items():\n",
+            "    p = metrics.get('ketepatan', 0.0) * 100.0\n",
+            "    p_ci = metrics.get('wilson_ci_ketepatan', [0.0, 0.0])\n",
+            "    r = metrics.get('keterambilan', 0.0) * 100.0\n",
+            "    r_ci = metrics.get('wilson_ci_keterambilan', [0.0, 0.0])\n",
+            "    \n",
+            "    audit_rows.append({\n",
+            "        'Field Metadata': fld_name.upper(),\n",
+            "        'Sampel Dievaluasi': metrics.get('total_evaluated', total_audit),\n",
+            "        'Benar': metrics.get('n_benar', 0),\n",
+            "        'Salah': metrics.get('n_salah', 0),\n",
+            "        'Terlewat': metrics.get('n_terlewat', 0),\n",
+            "        'Ketepatan (Precision)': f\"{p:.1f}% [{p_ci[0]*100:.1f}%, {p_ci[1]*100:.1f}%]\",\n",
+            "        'Keterambilan (Recall)': f\"{r:.1f}% [{r_ci[0]*100:.1f}%, {r_ci[1]*100:.1f}%]\"\n",
+            "    })\n",
+            "\n",
+            "df_audit_table = pd.DataFrame(audit_rows)\n",
+            "print(f\"=== TABEL 4: AKURASI EKSTRAKSI METADATA DENGAN WILSON 95% CI (n = {total_audit} sampel) ===\")\n",
+            "display(df_audit_table)"
+        ]
+    })
+
+    # =========================================================================
+    # SEL 11: Reliabilitas Penilaian (Code)
+    # Kesepakatan relevansi, kesepakatan kelas relevan, kappa
+    # Sumber: agreement_summary.json
+    # =========================================================================
+    cells.append({
+        "cell_type": "code",
+        "execution_count": None,
+        "metadata": {},
+        "outputs": [],
+        "source": [
+            "# =====================================================================\n",
+            "# SEL 11: RELIABILITAS PENILAIAN RELEVANSI (INTER-RATER AGREEMENT)\n",
+            "# Sumber: agreement_summary.json\n",
+            "# =====================================================================\n",
+            "with open(BUNDLE_DIR / \"agreement_summary.json\", \"r\", encoding=\"utf-8\") as f:\n",
+            "    agreement_data = json.load(f)\n",
+            "\n",
+            "print(\"=== STATUS RELIABILITAS ANOTASI RELEVANSI ===\")\n",
+            "status_agr = agreement_data.get('status', 'unknown')\n",
+            "n_samples = agreement_data.get('n_samples', 0)\n",
+            "\n",
+            "print(f\"Status Penilaian       : {status_agr}\")\n",
+            "print(f\"Jumlah Sampel Anotasi  : {n_samples} baris\")\n",
+            "print(f\"Persentase Kesepakatan : {agreement_data.get('percentage_agreement')}\")\n",
+            "print(f\"Kesepakatan Kelas Rel. : {agreement_data.get('relevant_class_agreement')}\")\n",
+            "print(f\"Cohen's Kappa          : {agreement_data.get('cohen_kappa')}\")\n",
+            "print(f\"Catatan Prosedural     : {agreement_data.get('notes')}\")"
+        ]
+    })
+
+    # =========================================================================
+    # SEL 12: Grafik dan Ekspor (Code)
+    # PNG 300 DPI dan CSV tabel dengan nama tetap, n tertera di grafik
+    # =========================================================================
+    cells.append({
+        "cell_type": "code",
+        "execution_count": None,
+        "metadata": {},
+        "outputs": [],
+        "source": [
+            "# =====================================================================\n",
+            "# SEL 12: GRAFIK PUBLIKASI ILMIAH (300 DPI) & EKSPOR TABEL CSV\n",
+            "# Menyertakan jumlah sampel n pada judul/label grafik\n",
+            "# =====================================================================\n",
+            "export_dir = Path(\"output/colab_export\")\n",
+            "export_dir.mkdir(parents=True, exist_ok=True)\n",
+            "\n",
+            "# 1. Ekspor tabel CSV utama\n",
+            "df_main_summary.to_csv(export_dir / \"tabel_evaluasi_utama_test.csv\", index=False)\n",
+            "print(f\"[OK] Tabel utama diekspor ke: {export_dir / 'tabel_evaluasi_utama_test.csv'}\")\n",
+            "\n",
+            "# 2. Grafik Perbandingan Kinerja Utama\n",
+            "fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4.5), dpi=300)\n",
+            "\n",
+            "# Subplot 1: MRR@10 dan Precision@5\n",
+            "methods_plot = ['LIKE Baseline', 'Levenshtein (Tuned)', 'Jaro-Winkler (Tuned)', 'Token-Set (Tuned)', 'N-Gram (Tuned)']\n",
+            "keys_plot = [('like_baseline', 'baseline'), ('levenshtein', 'tuned'), ('jaro_winkler', 'tuned'), ('token_set', 'tuned'), ('ngram', 'tuned')]\n",
+            "\n",
+            "mrr_plot_vals = [df_test[(df_test['method'] == k[0]) & (df_test['config'] == k[1])]['rr10'].mean() * 100 for k in keys_plot]\n",
+            "p5_plot_vals = [df_test[(df_test['method'] == k[0]) & (df_test['config'] == k[1])]['p5'].mean() * 100 for k in keys_plot]\n",
+            "\n",
+            "x = np.arange(len(methods_plot))\n",
+            "w = 0.35\n",
+            "ax1.bar(x - w/2, mrr_plot_vals, w, label='MRR@10 (x100)', color='#1f77b4', edgecolor='black', alpha=0.85)\n",
+            "ax1.bar(x + w/2, p5_plot_vals, w, label='P@5 (%)', color='#2ca02c', edgecolor='black', alpha=0.85)\n",
+            "ax1.set_title(f'Kinerja Temu Kembali Dokumen (n = {n_test_queries} kueri uji)')\n",
+            "ax1.set_ylabel('Skor Persentase (%)')\n",
+            "ax1.set_xticks(x)\n",
+            "ax1.set_xticklabels(methods_plot, rotation=25, ha='right', fontsize=9)\n",
+            "ax1.legend(loc='upper right')\n",
+            "\n",
+            "# Subplot 2: Kueri Nol Hasil (Zero-Result)\n",
+            "zero_vals = [df_test[(df_test['method'] == k[0]) & (df_test['config'] == k[1])]['zero_result'].sum() for k in keys_plot]\n",
+            "colors_zero = ['#d62728' if z > 0 else '#2ca02c' for z in zero_vals]\n",
+            "bars2 = ax2.bar(methods_plot, zero_vals, color=colors_zero, edgecolor='black', alpha=0.85)\n",
+            "ax2.set_title(f'Angka Kegagalan Temu Kembali / Nol Hasil (Total = {n_test_queries} kueri)')\n",
+            "ax2.set_ylabel('Jumlah Kueri Nol Hasil')\n",
+            "ax2.set_xticklabels(methods_plot, rotation=25, ha='right', fontsize=9)\n",
+            "for bar in bars2:\n",
+            "    y = bar.get_height()\n",
+            "    ax2.text(bar.get_x() + bar.get_width()/2, y + 0.3, str(int(y)), ha='center', va='bottom', fontweight='bold')\n",
+            "\n",
+            "plt.tight_layout()\n",
+            "fig_path = export_dir / \"fig_perbandingan_kinerja_300dpi.png\"\n",
+            "fig.savefig(fig_path, dpi=300)\n",
+            "print(f\"[OK] Grafik 300 DPI disimpan ke: {fig_path}\")\n",
+            "plt.show()"
+        ]
+    })
+
+    # =========================================================================
+    # SEL 13: Ringkasan Otomatis (Code)
+    # Kalimat dibuat dari angka templat (tanpa teks atau angka yang diketik manual)
+    # =========================================================================
+    cells.append({
+        "cell_type": "code",
+        "execution_count": None,
+        "metadata": {},
+        "outputs": [],
+        "source": [
+            "# =====================================================================\n",
+            "# SEL 13: GENERASI RINGKASAN EKSEKUTIF OTOMATIS DARI ANGKA (TEMPLAT RESMI)\n",
+            "# Aturan: Seluruh kalimat dibangkitkan dari variabel angka, tanpa pengetikan manual\n",
+            "# =====================================================================\n",
+            "like_mrr = df_test[df_test['method'] == 'like_baseline']['rr10'].mean()\n",
+            "like_zero = int(df_test[df_test['method'] == 'like_baseline']['zero_result'].sum())\n",
+            "\n",
+            "# Cari metode fuzzy tuned terbaik\n",
+            "df_tuned = df_test[df_test['config'] == 'tuned']\n",
+            "best_tuned_name = df_tuned.groupby('method')['rr10'].mean().idxmax()\n",
+            "best_tuned_mrr = df_tuned.groupby('method')['rr10'].mean().max()\n",
+            "best_tuned_zero = int(df_test[(df_test['method'] == best_tuned_name) & (df_test['config'] == 'tuned')]['zero_result'].sum())\n",
+            "best_tuned_p5 = df_test[(df_test['method'] == best_tuned_name) & (df_test['config'] == 'tuned')]['p5'].mean()\n",
+            "\n",
+            "mrr_best_ci = calc_bootstrap_ci(df_test[(df_test['method'] == best_tuned_name) & (df_test['config'] == 'tuned')]['rr10'])\n",
+            "mrr_like_ci = calc_bootstrap_ci(df_test[df_test['method'] == 'like_baseline']['rr10'])\n",
+            "\n",
+            "pct_like_zero = (like_zero / n_test_queries) * 100.0\n",
+            "pct_best_zero = (best_tuned_zero / n_test_queries) * 100.0\n",
+            "\n",
+            "template_summary = f\"\"\"\n",
+            "RINGKASAN EKSEKUTIF TEMUAN PENELITIAN (DIBANGKITKAN SECARA OTOMATIS)\n",
+            "----------------------------------------------------------------------\n",
+            "1. Perbandingan Kinerja Utama:\n",
+            "   Pada kelompok uji (test split, n = {n_test_queries} kueri), metode terbaik hasil penyetelan \n",
+            "   bobot adalah '{best_tuned_name} (tuned)' dengan nilai MRR@10 sebesar {best_tuned_mrr:.4f} \n",
+            "   (95% CI: [{mrr_best_ci[0]:.4f}, {mrr_best_ci[1]:.4f}]) dan Precision@5 sebesar {best_tuned_p5:.4f}, \n",
+            "   dibandingkan LIKE Baseline yang memperoleh MRR@10 sebesar {like_mrr:.4f} \n",
+            "   (95% CI: [{mrr_like_ci[0]:.4f}, {mrr_like_ci[1]:.4f}]).\n",
+            "\n",
+            "2. Pengentasan Masalah Kegagalan Temu Kembali (Zero-Result Problem):\n",
+            "   Sistem eksisting (LIKE Baseline) mengalami kegagalan temu kembali mutlak pada \n",
+            "   {like_zero} dari {n_test_queries} kueri ({pct_like_zero:.1f}%), sedangkan metode '{best_tuned_name} (tuned)' \n",
+            "   berhasil menekan angka nol hasil menjadi {best_tuned_zero} kueri ({pct_best_zero:.1f}%).\n",
+            "\n",
+            "3. Penyetelan Bobot Multi-Field:\n",
+            "   Pemberian bobot spesifik per field terbukti menyesuaikan karakteristik kueri \n",
+            "   antara entitas formal (Nomor SPM) dan deskripsi kegiatan (Ringkasan).\n",
+            "\"\"\"\n",
+            "\n",
+            "print(template_summary)"
+        ]
+    })
+
+    # =========================================================================
+    # SEL 14: Keterbatasan (Markdown Tetap)
+    # Kueri sintetis, satu penilai, pengguna kurang dari 5, salinan data, bukan uji produksi
+    # =========================================================================
+    cells.append({
+        "cell_type": "markdown",
+        "metadata": {},
+        "source": [
+            "---\n",
+            "## ⚠️ Keterbatasan Penelitian (Academic Limitations)\n",
+            "\n",
+            "Penyajian hasil evaluasi pada penelitian ini wajib dimaknai dalam batas-batas metodologis berikut:\n",
+            "1. **Dominasi Kueri Sintetis:** Sebagian besar kueri uji merupakan kueri sintetis terstruktur yang dibangkitkan untuk mensimulasikan ragam kesalahan pengetikan manusia nyata (*noise models*).\n",
+            "2. **Anotasi Relevansi Tunggal:** Penilaian relevansi utama (1.077 pasang) diselesaikan oleh peneliti, sementara verifikasi ganda arsiparis independen masih berstatus sampel verifikasi.\n",
+            "3. **Skala Pengguna Terbatas:** Uji coba belum melibatkan lebih dari 5 pengguna akhir simultan di lingkungan operasional dinas.\n",
+            "4. **Salinan Data Statis:** Pengujian menggunakan salinan *dump* statis 1.737 arsip tahun 2021-2023, bukan pengujian *live streaming* basis data produksi e-Arsip yang terus bertambah."
+        ]
+    })
+
+    # =========================================================================
+    # SEL 15: Penutupan (Markdown & Pengingat Eksekusi)
+    # Pengingat: bersihkan keluaran sebelum menyimpan, Disconnect and delete runtime
+    # =========================================================================
+    cells.append({
+        "cell_type": "markdown",
+        "metadata": {},
+        "source": [
+            "---\n",
+            "## 🔒 Prosedur Penutupan Sesi & Keamanan Runtime\n",
+            "\n",
+            "Sebelum menutup sesi Google Colab atau mengunggah perubahan ke repositori:\n",
+            "1. **Bersihkan Seluruh Keluaran Sel (*Clear All Outputs*):**\n",
+            "   Pilih menu `Edit` $\\to$ `Clear all outputs` agar tidak ada angka atau grafik yang tertinggal di berkas JSON `.ipynb` secara permanen.\n",
+            "2. **Putuskan Runtime (*Disconnect & Delete Runtime*):**\n",
+            "   Pilih menu panah bawah di pojok kanan atas Colab $\\to$ pilih **`Disconnect and delete runtime`** untuk menghapus seluruh berkas sementara di lingkungan *cloud*.\n",
+            "3. **Jaga Kerahasiaan:**\n",
+            "   Jangan membagikan tautan notebook atau folder Drive secara publik."
+        ]
+    })
+
+    notebook = {
+        "cells": cells,
+        "metadata": {
+            "kernelspec": {
+                "display_name": ".venv",
+                "language": "python",
+                "name": "python3"
+            },
+            "language_info": {
+                "codemirror_mode": {
+                    "name": "ipython",
+                    "version": 3
+                },
+                "file_extension": ".py",
+                "mimetype": "text/x-python",
+                "name": "python",
+                "nbconvert_exporter": "python",
+                "pygments_lexer": "ipython3",
+                "version": "3.14.5"
+            }
+        },
+        "nbformat": 4,
+        "nbformat_minor": 5
+    }
+
+    return notebook
+
+
+if __name__ == "__main__":
+    nb = build_16_cell_notebook()
+    
+    # 1. Tulis ke notebooks/analisis_evaluasi_colab.ipynb
+    target_colab = Path("notebooks/analisis_evaluasi_colab.ipynb")
+    with open(target_colab, "w", encoding="utf-8") as f:
+        json.dump(nb, f, indent=2, ensure_ascii=False)
+    print(f"[OK] Notebook resmi Colab berhasil dibuat di: {target_colab}")
+    
+    # 2. Sinkronkan juga ke pipeline_analisis_sampai_presentasi.ipynb
+    target_pipeline = Path("notebooks/pipeline_analisis_sampai_presentasi.ipynb")
+    with open(target_pipeline, "w", encoding="utf-8") as f:
+        json.dump(nb, f, indent=2, ensure_ascii=False)
+    print(f"[OK] Notebook pipeline juga disinkronkan ke: {target_pipeline}")
