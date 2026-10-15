@@ -9,6 +9,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
 from core.evaluation.evaluator import run_comparative_evaluation
 from core.search.index import SearchIndex
 from core.search.matchers import FUZZY_METHOD_NAMES, create_matcher

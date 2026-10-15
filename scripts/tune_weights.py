@@ -6,6 +6,10 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Optional
 
+ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
 from core.evaluation.tuning import tune_weights_grid_search
 from core.search.index import SearchIndex
 from core.search.matchers import FUZZY_METHOD_NAMES, create_matcher
