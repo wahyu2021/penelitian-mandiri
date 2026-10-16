@@ -86,3 +86,16 @@ def test_normalize_weights():
 def test_invalid_weights_raise(weights):
     with pytest.raises(ValueError):
         normalize_weights(weights)
+
+
+def test_query_aware_weighting():
+    # Bobot SPM 0.5 dan Summary 0.5
+    weights = {"summary": 0.5, "spm": 0.5, "party": 0.0}
+    # Tanpa query_aware: 'pasr' kena beban spm -> 0.8 * 0.5 = 0.4
+    r_static = FieldRanker(build_index(), create_matcher("levenshtein"), weights, query_aware=False)
+    assert r_static.search("pasr")[0].score == pytest.approx(0.4)
+
+    # Dengan query_aware: 'pasr' tanpa nomor SPM -> bobot spm dinolkan, summary jadi 1.0 -> 0.8 * 1.0 = 0.8
+    r_qa = FieldRanker(build_index(), create_matcher("levenshtein"), weights, query_aware=True)
+    assert r_qa.search("pasr")[0].score == pytest.approx(0.8)
+

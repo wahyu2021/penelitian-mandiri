@@ -172,6 +172,20 @@ def build_testset_from_pool(
                 if is_ragu:
                     total_ragu += 1
 
+    # Pastikan origin_archive_id selalu tercatat relevan (is_relevant=1) sebagai ground truth kueri sintetis
+    for q_id, q_data in query_map.items():
+        orig_id = q_data.get("origin_archive_id")
+        if orig_id is not None:
+            existing = next((j for j in judgments_by_query[q_id] if j["archive_id"] == orig_id), None)
+            if existing:
+                existing["is_relevant"] = 1
+            else:
+                judgments_by_query[q_id].append({
+                    "archive_id": orig_id,
+                    "is_relevant": 1,
+                    "ragu": 0,
+                })
+
     queries_list = list(query_map.values())
 
     # Lakukan stratified split anti-leak

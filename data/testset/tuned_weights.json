@@ -1,6 +1,6 @@
 {
   "testset_version": "v1.0.0",
-  "testset_hash": "1d0c63b7ec405a89b30176ac288f0c72c78a7a40ff806558f0b778da4bb22bbd",
+  "testset_hash": "20a1adb8804d95665a78731d11edb44a840010f2e9b7bff1c6cbb5d815e88b8e",
   "grid_step": 0.1,
   "n_tuning_queries": 12,
   "results_by_matcher": {
@@ -30,13 +30,13 @@
       "matcher_name": "jaro_winkler",
       "n_tuning_queries": 12,
       "best_weights": {
-        "summary": 0.9,
+        "summary": 1.0,
         "spm": 0.0,
-        "party": 0.1
+        "party": 0.0
       },
       "best_mrr_at_10": 0.0417,
-      "best_precision_at_5": 0.0167,
-      "best_unjudged_top10": 101,
+      "best_precision_at_5": 0.0333,
+      "best_unjudged_top10": 100,
       "equal_weights": {
         "summary": 0.3333333333333333,
         "spm": 0.3333333333333333,
@@ -52,13 +52,13 @@
       "matcher_name": "token_set",
       "n_tuning_queries": 12,
       "best_weights": {
-        "summary": 0.2,
-        "spm": 0.5,
-        "party": 0.3
+        "summary": 1.0,
+        "spm": 0.0,
+        "party": 0.0
       },
-      "best_mrr_at_10": 0.0833,
-      "best_precision_at_5": 0.0167,
-      "best_unjudged_top10": 86,
+      "best_mrr_at_10": 0.125,
+      "best_precision_at_5": 0.05,
+      "best_unjudged_top10": 96,
       "equal_weights": {
         "summary": 0.3333333333333333,
         "spm": 0.3333333333333333,

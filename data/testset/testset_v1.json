@@ -7,7 +7,7 @@
   "n_test": 28,
   "unjudged_rows_count": 0,
   "total_ragu_count": 0,
-  "created_at": "2026-10-16T07:42:47.751912+00:00",
+  "created_at": "2026-10-16T08:19:26.673903+00:00",
   "queries": [
     {
       "query_id": "Q001",
@@ -591,7 +591,7 @@
         },
         {
           "archive_id": 1617,
-          "is_relevant": 0,
+          "is_relevant": 1,
           "ragu": 0
         },
         {
@@ -723,7 +723,7 @@
         },
         {
           "archive_id": 895,
-          "is_relevant": 0,
+          "is_relevant": 1,
           "ragu": 0
         },
         {
@@ -1109,7 +1109,7 @@
         },
         {
           "archive_id": 578,
-          "is_relevant": 0,
+          "is_relevant": 1,
           "ragu": 0
         },
         {
@@ -1316,7 +1316,7 @@
         },
         {
           "archive_id": 1696,
-          "is_relevant": 0,
+          "is_relevant": 1,
           "ragu": 0
         },
         {
@@ -1907,7 +1907,7 @@
         },
         {
           "archive_id": 779,
-          "is_relevant": 0,
+          "is_relevant": 1,
           "ragu": 0
         },
         {
@@ -2054,7 +2054,7 @@
         },
         {
           "archive_id": 1272,
-          "is_relevant": 0,
+          "is_relevant": 1,
           "ragu": 0
         },
         {
@@ -2400,7 +2400,7 @@
         },
         {
           "archive_id": 430,
-          "is_relevant": 0,
+          "is_relevant": 1,
           "ragu": 0
         },
         {
@@ -2632,7 +2632,7 @@
         },
         {
           "archive_id": 320,
-          "is_relevant": 0,
+          "is_relevant": 1,
           "ragu": 0
         },
         {
@@ -2933,7 +2933,7 @@
         },
         {
           "archive_id": 93,
-          "is_relevant": 0,
+          "is_relevant": 1,
           "ragu": 0
         },
         {
@@ -3090,7 +3090,7 @@
         },
         {
           "archive_id": 999,
-          "is_relevant": 0,
+          "is_relevant": 1,
           "ragu": 0
         },
         {
@@ -3364,7 +3364,7 @@
         },
         {
           "archive_id": 642,
-          "is_relevant": 0,
+          "is_relevant": 1,
           "ragu": 0
         },
         {
@@ -3536,7 +3536,7 @@
         },
         {
           "archive_id": 1680,
-          "is_relevant": 0,
+          "is_relevant": 1,
           "ragu": 0
         },
         {
@@ -3678,7 +3678,7 @@
         },
         {
           "archive_id": 991,
-          "is_relevant": 0,
+          "is_relevant": 1,
           "ragu": 0
         },
         {
@@ -4124,7 +4124,7 @@
         },
         {
           "archive_id": 1730,
-          "is_relevant": 0,
+          "is_relevant": 1,
           "ragu": 0
         },
         {
@@ -4281,7 +4281,7 @@
         },
         {
           "archive_id": 1507,
-          "is_relevant": 0,
+          "is_relevant": 1,
           "ragu": 0
         },
         {
@@ -4672,7 +4672,7 @@
         },
         {
           "archive_id": 1706,
-          "is_relevant": 0,
+          "is_relevant": 1,
           "ragu": 0
         },
         {
@@ -4714,7 +4714,7 @@
       "judgments": [
         {
           "archive_id": 714,
-          "is_relevant": 0,
+          "is_relevant": 1,
           "ragu": 0
         },
         {
@@ -5265,7 +5265,7 @@
         },
         {
           "archive_id": 1558,
-          "is_relevant": 0,
+          "is_relevant": 1,
           "ragu": 0
         },
         {
@@ -5412,7 +5412,7 @@
         },
         {
           "archive_id": 1281,
-          "is_relevant": 0,
+          "is_relevant": 1,
           "ragu": 0
         },
         {
@@ -5843,7 +5843,7 @@
         },
         {
           "archive_id": 375,
-          "is_relevant": 0,
+          "is_relevant": 1,
           "ragu": 0
         },
         {
@@ -5875,5 +5875,5 @@
       "ragu_count": 0
     }
   ],
-  "content_sha256": "1d0c63b7ec405a89b30176ac288f0c72c78a7a40ff806558f0b778da4bb22bbd"
+  "content_sha256": "20a1adb8804d95665a78731d11edb44a840010f2e9b7bff1c6cbb5d815e88b8e"
 }

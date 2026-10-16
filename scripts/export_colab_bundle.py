@@ -172,7 +172,7 @@ def export_bundle(
         search_models.append((m_name, "equal", lambda q, r=ranker_eq: r.search(q, top_n=10)))
         # Tuned weights
         tw = tuned_weights.get(m_name, equal_weights())
-        ranker_tuned = FieldRanker(index, matcher, weights=tw)
+        ranker_tuned = FieldRanker(index, matcher, weights=tw, query_aware=True)
         search_models.append((m_name, "tuned", lambda q, r=ranker_tuned: r.search(q, top_n=10)))
 
     # 5. Jalankan evaluasi per kueri dan buat per_query_results.csv
