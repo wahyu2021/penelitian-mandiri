@@ -584,6 +584,8 @@ def build_16_cell_notebook() -> dict:
             ").round(4)\n",
             "qtype_counts = df_test[df_test['method'] == 'like_baseline'].groupby('query_type')['query_id'].count()\n",
             "qtype_summary.insert(0, 'n Kueri', qtype_counts)\n",
+            "qtype_summary = qtype_summary.reset_index().rename(columns={'query_type': 'Jenis Kueri'})\n",
+            "qtype_summary.columns.name = None\n",
             "display(qtype_summary)\n",
             "\n",
             "print(\"\\n--- B. Rincian MRR@10 berdasarkan Jenis Gangguan (Noise Type) ---\")\n",
@@ -595,6 +597,8 @@ def build_16_cell_notebook() -> dict:
             ").round(4)\n",
             "noise_counts = df_test[df_test['method'] == 'like_baseline'].groupby('noise_type')['query_id'].count()\n",
             "noise_summary.insert(0, 'n Kueri', noise_counts)\n",
+            "noise_summary = noise_summary.reset_index().rename(columns={'noise_type': 'Jenis Gangguan'})\n",
+            "noise_summary.columns.name = None\n",
             "display(noise_summary)"
         ]
     })
