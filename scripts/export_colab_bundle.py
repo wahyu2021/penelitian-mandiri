@@ -123,6 +123,7 @@ def export_bundle(
     audit_report_path: Path = Path("output/extraction_audit_report.json"),
     agreement_report_path: Path = Path("output/relevance_agreement_report.json"),
     verification_sample_path: Path = Path("output/relevance_verification_sample.csv"),
+    reuse_tuning_csv: bool = False,
 ) -> Path:
     """Ekspor seluruh berkas bundle evaluasi untuk konsumsi Colab/analisis eksternal."""
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -172,7 +173,7 @@ def export_bundle(
         search_models.append((m_name, "equal", lambda q, r=ranker_eq: r.search(q, top_n=10)))
         # Tuned weights
         tw = tuned_weights.get(m_name, equal_weights())
-        ranker_tuned = FieldRanker(index, matcher, weights=tw, query_aware=True)
+        ranker_tuned = FieldRanker(index, matcher, weights=tw)
         search_models.append((m_name, "tuned", lambda q, r=ranker_tuned: r.search(q, top_n=10)))
 
     # 5. Jalankan evaluasi per kueri dan buat per_query_results.csv
@@ -248,46 +249,49 @@ def export_bundle(
         writer.writerows(per_query_rows)
 
     # 6. Bangun tuning_results.csv
-    tuning_queries = [q for q in queries if q.get("split") == "tuning"]
-    tuning_rows: List[Dict[str, Any]] = []
-    grid = generate_weight_grid(step=0.1)
-
-    click.echo(f"[3/5] Menjalankan grid search penyetelan bobot (4 matcher x {len(grid)} kombinasi):")
-    for m_name in FUZZY_METHOD_NAMES:
-        matcher = matchers[m_name]
-        label_text = f"      - {m_name.replace('_', ' ').title():<14}"
-        with click.progressbar(grid, label=label_text) as bar:
-            for w in bar:
-                mrr, p5, unjudged = evaluate_weights_on_queries(
-                    index=index,
-                    matcher=matcher,
-                    weights=w,
-                    queries=tuning_queries,
-                )
-                tuning_rows.append({
-                    "matcher": m_name,
-                    "summary_weight": w["summary"],
-                    "spm_weight": w["spm"],
-                    "party_weight": w["party"],
-                    "mrr_at_10": round(mrr, 4),
-                    "precision_at_5": round(p5, 4),
-                    "unjudged_top10": unjudged,
-                })
-
     tuning_csv_path = output_dir / "tuning_results.csv"
-    with open(tuning_csv_path, "w", newline="", encoding="utf-8") as f:
-        fieldnames = [
-            "matcher",
-            "summary_weight",
-            "spm_weight",
-            "party_weight",
-            "mrr_at_10",
-            "precision_at_5",
-            "unjudged_top10",
-        ]
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(tuning_rows)
+    if reuse_tuning_csv and tuning_csv_path.is_file():
+        click.echo("[3/5] Menggunakan berkas tuning_results.csv yang sudah ada (reuse_tuning_csv=True).")
+    else:
+        tuning_queries = [q for q in queries if q.get("split") == "tuning"]
+        tuning_rows: List[Dict[str, Any]] = []
+        grid = generate_weight_grid(step=0.1)
+
+        click.echo(f"[3/5] Menjalankan grid search penyetelan bobot (4 matcher x {len(grid)} kombinasi):")
+        for m_name in FUZZY_METHOD_NAMES:
+            matcher = matchers[m_name]
+            label_text = f"      - {m_name.replace('_', ' ').title():<14}"
+            with click.progressbar(grid, label=label_text) as bar:
+                for w in bar:
+                    mrr, p5, unjudged = evaluate_weights_on_queries(
+                        index=index,
+                        matcher=matcher,
+                        weights=w,
+                        queries=tuning_queries,
+                    )
+                    tuning_rows.append({
+                        "matcher": m_name,
+                        "summary_weight": w["summary"],
+                        "spm_weight": w["spm"],
+                        "party_weight": w["party"],
+                        "mrr_at_10": round(mrr, 4),
+                        "precision_at_5": round(p5, 4),
+                        "unjudged_top10": unjudged,
+                    })
+
+        with open(tuning_csv_path, "w", newline="", encoding="utf-8") as f:
+            fieldnames = [
+                "matcher",
+                "summary_weight",
+                "spm_weight",
+                "party_weight",
+                "mrr_at_10",
+                "precision_at_5",
+                "unjudged_top10",
+            ]
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(tuning_rows)
 
     click.echo("[4/5] Mengumpulkan audit ekstraksi dan ringkasan kesepakatan reliabilitas...")
 
