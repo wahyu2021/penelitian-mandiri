@@ -116,7 +116,7 @@ def build_testset_from_pool(
         if q_id not in query_map:
             meta = candidate_meta_map.get(q_id, {})
             orig_id = meta.get("origin_archive_id") or r.get("origin_archive_id")
-            spm = meta.get("spm_number") or r.get("spm_number")
+            spm = meta.get("spm_number")
 
             query_map[q_id] = {
                 "query_id": q_id,

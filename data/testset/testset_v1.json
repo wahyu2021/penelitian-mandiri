@@ -7,7 +7,7 @@
   "n_test": 28,
   "unjudged_rows_count": 0,
   "total_ragu_count": 0,
-  "created_at": "2026-10-16T08:19:26.673903+00:00",
+  "created_at": "2026-10-31T02:28:28.980691+00:00",
   "queries": [
     {
       "query_id": "Q001",
@@ -223,7 +223,7 @@
     },
     {
       "query_id": "Q002",
-      "query_text": "290/LS/Dinaa/2000",
+      "query_text": "121/2/O",
       "query_type": "nomor_spm",
       "source": "sintetis",
       "noise_type": "typo",
@@ -395,7 +395,7 @@
     },
     {
       "query_id": "Q003",
-      "query_text": "CV Con. Mandiri 6",
+      "query_text": "CV.LADANG MAK.",
       "query_type": "pihak",
       "source": "sintetis",
       "noise_type": "singkatan",
@@ -527,7 +527,7 @@
     },
     {
       "query_id": "Q004",
-      "query_text": "100%  atas pengadaan unit 2008",
+      "query_text": "100% atas pengadaan unit 2008, ",
       "query_type": "campuran",
       "source": "sintetis",
       "noise_type": "spasi_tanda_baca",
@@ -629,7 +629,7 @@
     },
     {
       "query_id": "Q005",
-      "query_text": "2009 Pembangunan SPM term",
+      "query_text": "Pembangunan SPM 2009 term",
       "query_type": "topik",
       "source": "sintetis",
       "noise_type": "urutan_kata",
@@ -811,7 +811,7 @@
     },
     {
       "query_id": "Q006",
-      "query_text": "414/LS/2002",
+      "query_text": "90/LS/2011",
       "query_type": "nomor_spm",
       "source": "sintetis",
       "noise_type": "kata_hilang",
@@ -943,7 +943,7 @@
     },
     {
       "query_id": "Q007",
-      "query_text": "CV cuntoh Mandiri 8",
+      "query_text": "cv.prufil Studio Arch",
       "query_type": "pihak",
       "source": "sintetis",
       "noise_type": "ejaan_varian",
@@ -1090,7 +1090,7 @@
       "source": "sintetis",
       "noise_type": "tanpa_gangguan",
       "origin_archive_id": 578,
-      "split": "tuning",
+      "split": "test",
       "judgments": [
         {
           "archive_id": 526,
@@ -1272,7 +1272,7 @@
     },
     {
       "query_id": "Q009",
-      "query_text": "Uang untu dipertanggung jawabkan",
+      "query_text": "Uang untuk dipertanggung jawaban",
       "query_type": "topik",
       "source": "sintetis",
       "noise_type": "typo",
@@ -1469,12 +1469,12 @@
     },
     {
       "query_id": "Q010",
-      "query_text": "924/BT/dis/2002",
+      "query_text": "2407/BT/17/1",
       "query_type": "nomor_spm",
       "source": "sintetis",
       "noise_type": "singkatan",
       "origin_archive_id": 632,
-      "split": "test",
+      "split": "tuning",
       "judgments": [
         {
           "archive_id": 622,
@@ -1606,7 +1606,7 @@
     },
     {
       "query_id": "Q011",
-      "query_text": "PT  Rekanan Contoh 17",
+      "query_text": "CV  . Thamrin Brothers Kota Palembang",
       "query_type": "pihak",
       "source": "sintetis",
       "noise_type": "spasi_tanda_baca",
@@ -1748,7 +1748,7 @@
     },
     {
       "query_id": "Q012",
-      "query_text": "SPM termin 2004 Pembangunan 2004",
+      "query_text": "SPM 2004 2004 termin Pembangunan",
       "query_type": "campuran",
       "source": "sintetis",
       "noise_type": "urutan_kata",
@@ -1950,7 +1950,7 @@
     },
     {
       "query_id": "Q013",
-      "query_text": "fasilitas umum",
+      "query_text": "Kuto Besak",
       "query_type": "topik",
       "source": "sintetis",
       "noise_type": "kata_hilang",
@@ -2082,7 +2082,7 @@
     },
     {
       "query_id": "Q014",
-      "query_text": "332/B.T/Dinas/2006",
+      "query_text": "1663/B.T/02/01",
       "query_type": "nomor_spm",
       "source": "sintetis",
       "noise_type": "ejaan_varian",
@@ -2229,7 +2229,7 @@
     },
     {
       "query_id": "Q015",
-      "query_text": "PT Rekanan Contoh 11",
+      "query_text": "CV. Ganesha",
       "query_type": "pihak",
       "source": "sintetis",
       "noise_type": "tanpa_gangguan",
@@ -2376,12 +2376,12 @@
     },
     {
       "query_id": "Q016",
-      "query_text": "SPM Pembangunan 2003 tahap 2030",
+      "query_text": "PSM Pembangunan 2003 tahap 2003",
       "query_type": "campuran",
       "source": "sintetis",
       "noise_type": "typo",
       "origin_archive_id": 430,
-      "split": "test",
+      "split": "tuning",
       "judgments": [
         {
           "archive_id": 113,
@@ -2695,7 +2695,7 @@
     },
     {
       "query_id": "Q018",
-      "query_text": "728-BT-Dinas-2004",
+      "query_text": "2115 / BT / 17 / 01",
       "query_type": "nomor_spm",
       "source": "sintetis",
       "noise_type": "spasi_tanda_baca",
@@ -2812,12 +2812,12 @@
     },
     {
       "query_id": "Q019",
-      "query_text": "10 Contoh Mandiri CV",
+      "query_text": "CV. SARI KURNIA",
       "query_type": "pihak",
       "source": "sintetis",
       "noise_type": "urutan_kata",
       "origin_archive_id": 609,
-      "split": "tuning",
+      "split": "test",
       "judgments": [
         {
           "archive_id": 610,
@@ -2919,7 +2919,7 @@
     },
     {
       "query_id": "Q020",
-      "query_text": "atas pekerjaan pembuatan pagar",
+      "query_text": "atas pekerjaan pembuatan 2023",
       "query_type": "campuran",
       "source": "sintetis",
       "noise_type": "kata_hilang",
@@ -3218,7 +3218,7 @@
     },
     {
       "query_id": "Q022",
-      "query_text": "487/PK/Dinas/2001",
+      "query_text": "600/PK/01/06",
       "query_type": "nomor_spm",
       "source": "sintetis",
       "noise_type": "tanpa_gangguan",
@@ -3340,7 +3340,7 @@
     },
     {
       "query_id": "Q023",
-      "query_text": "PT Rekanan Contoh 1",
+      "query_text": "CV. SAPAOYNA",
       "query_type": "pihak",
       "source": "sintetis",
       "noise_type": "typo",
@@ -3716,12 +3716,12 @@
     },
     {
       "query_id": "Q026",
-      "query_text": "534/LS/2002/Dinas",
+      "query_text": "2011/LS/SPM/SETWAN/503",
       "query_type": "nomor_spm",
       "source": "sintetis",
       "noise_type": "urutan_kata",
       "origin_archive_id": 62,
-      "split": "tuning",
+      "split": "test",
       "judgments": [
         {
           "archive_id": 926,
@@ -3878,7 +3878,7 @@
     },
     {
       "query_id": "Q027",
-      "query_text": "Contoh Mandiri 2",
+      "query_text": "CV Bina Cipta Selaras Kota",
       "query_type": "pihak",
       "source": "sintetis",
       "noise_type": "kata_hilang",
@@ -4354,7 +4354,7 @@
     },
     {
       "query_id": "Q030",
-      "query_text": "773/KS/Dinas/2009",
+      "query_text": "133/PERTQ/2008",
       "query_type": "nomor_spm",
       "source": "sintetis",
       "noise_type": "typo",
@@ -4461,7 +4461,7 @@
     },
     {
       "query_id": "Q031",
-      "query_text": "CV Con. Mandiri 21",
+      "query_text": "CV.",
       "query_type": "pihak",
       "source": "sintetis",
       "noise_type": "singkatan",
@@ -4528,12 +4528,12 @@
     },
     {
       "query_id": "Q032",
-      "query_text": "termin  dan atas pekerjaan 2004",
+      "query_text": "termin dan atas pekerjaan 2004, ",
       "query_type": "campuran",
       "source": "sintetis",
       "noise_type": "spasi_tanda_baca",
       "origin_archive_id": 1706,
-      "split": "test",
+      "split": "tuning",
       "judgments": [
         {
           "archive_id": 730,
@@ -4705,7 +4705,7 @@
     },
     {
       "query_id": "Q033",
-      "query_text": "SPM Pembangunan terminj 2007",
+      "query_text": "Pembangunan SPM 2007 terminj",
       "query_type": "topik",
       "source": "sintetis",
       "noise_type": "urutan_kata",
@@ -4872,7 +4872,7 @@
     },
     {
       "query_id": "Q034",
-      "query_text": "515/BT/2005",
+      "query_text": "2059/BT/01",
       "query_type": "nomor_spm",
       "source": "sintetis",
       "noise_type": "kata_hilang",
@@ -5064,7 +5064,7 @@
     },
     {
       "query_id": "Q035",
-      "query_text": "CV cuntoh Mandiri 4",
+      "query_text": "cv.agong Burai Indah",
       "query_type": "pihak",
       "source": "sintetis",
       "noise_type": "ejaan_varian",
@@ -5343,7 +5343,7 @@
     },
     {
       "query_id": "Q037",
-      "query_text": "Penyerahan Paila Adipura oleh",
+      "query_text": "Penyerahan Pilaa Adipura oleh",
       "query_type": "topik",
       "source": "sintetis",
       "noise_type": "typo",
@@ -5485,7 +5485,7 @@
     },
     {
       "query_id": "Q038",
-      "query_text": "689/LS/dis/2007",
+      "query_text": "82/LS/PERTA/2008",
       "query_type": "nomor_spm",
       "source": "sintetis",
       "noise_type": "singkatan",
@@ -5592,7 +5592,7 @@
     },
     {
       "query_id": "Q039",
-      "query_text": "CV  Contoh Mandiri 8",
+      "query_text": "CV. Proad Media Pratama Kota Palembang, ",
       "query_type": "pihak",
       "source": "sintetis",
       "noise_type": "spasi_tanda_baca",
@@ -5689,7 +5689,7 @@
     },
     {
       "query_id": "Q040",
-      "query_text": "SPM termin 2002 Pembangunan 2002",
+      "query_text": "SPM Pembangunan 2002 2002 termin",
       "query_type": "campuran",
       "source": "sintetis",
       "noise_type": "urutan_kata",
@@ -5875,5 +5875,5 @@
       "ragu_count": 0
     }
   ],
-  "content_sha256": "20a1adb8804d95665a78731d11edb44a840010f2e9b7bff1c6cbb5d815e88b8e"
+  "content_sha256": "674c3ddefdb0b83c371d858a3d94664db343119c02c8e1a75ef89e0143daa690"
 }
