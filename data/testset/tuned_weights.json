@@ -1,93 +1,93 @@
 {
   "testset_version": "v1.0.0",
-  "testset_hash": "674c3ddefdb0b83c371d858a3d94664db343119c02c8e1a75ef89e0143daa690",
+  "testset_hash": "5755d017a390456c991f9fa8d8dccd5331ddefc5c225568fd031931e631aa510",
   "grid_step": 0.1,
-  "n_tuning_queries": 12,
+  "n_tuning_queries": 32,
   "results_by_matcher": {
     "levenshtein": {
       "matcher_name": "levenshtein",
-      "n_tuning_queries": 12,
+      "n_tuning_queries": 32,
       "best_weights": {
         "summary": 0.7,
-        "spm": 0.3,
-        "party": 0.0
+        "spm": 0.1,
+        "party": 0.2
       },
-      "best_mrr_at_10": 0.4688,
-      "best_precision_at_5": 0.1167,
-      "best_unjudged_top10": 35,
+      "best_mrr_at_10": 0.9635,
+      "best_precision_at_5": 0.3875,
+      "best_unjudged_top10": 0,
       "equal_weights": {
         "summary": 0.3333333333333333,
         "spm": 0.3333333333333333,
         "party": 0.3333333333333333
       },
-      "equal_weights_mrr_at_10": 0.3787,
-      "equal_weights_precision_at_5": 0.1,
+      "equal_weights_mrr_at_10": 0.6519,
+      "equal_weights_precision_at_5": 0.225,
       "equal_weights_unjudged_top10": 0,
       "grid_step": 0.1,
       "total_combinations": 66
     },
     "jaro_winkler": {
       "matcher_name": "jaro_winkler",
-      "n_tuning_queries": 12,
+      "n_tuning_queries": 32,
       "best_weights": {
-        "summary": 0.5,
-        "spm": 0.4,
+        "summary": 0.8,
+        "spm": 0.1,
         "party": 0.1
       },
-      "best_mrr_at_10": 0.3854,
-      "best_precision_at_5": 0.0833,
-      "best_unjudged_top10": 18,
+      "best_mrr_at_10": 1.0,
+      "best_precision_at_5": 0.3875,
+      "best_unjudged_top10": 0,
       "equal_weights": {
         "summary": 0.3333333333333333,
         "spm": 0.3333333333333333,
         "party": 0.3333333333333333
       },
-      "equal_weights_mrr_at_10": 0.175,
-      "equal_weights_precision_at_5": 0.05,
+      "equal_weights_mrr_at_10": 0.6476,
+      "equal_weights_precision_at_5": 0.2,
       "equal_weights_unjudged_top10": 0,
       "grid_step": 0.1,
       "total_combinations": 66
     },
     "token_set": {
       "matcher_name": "token_set",
-      "n_tuning_queries": 12,
+      "n_tuning_queries": 32,
       "best_weights": {
         "summary": 0.6,
-        "spm": 0.3,
-        "party": 0.1
+        "spm": 0.2,
+        "party": 0.2
       },
-      "best_mrr_at_10": 0.4826,
-      "best_precision_at_5": 0.1333,
-      "best_unjudged_top10": 37,
+      "best_mrr_at_10": 1.0,
+      "best_precision_at_5": 0.3875,
+      "best_unjudged_top10": 0,
       "equal_weights": {
         "summary": 0.3333333333333333,
         "spm": 0.3333333333333333,
         "party": 0.3333333333333333
       },
-      "equal_weights_mrr_at_10": 0.375,
-      "equal_weights_precision_at_5": 0.1167,
+      "equal_weights_mrr_at_10": 0.7875,
+      "equal_weights_precision_at_5": 0.2563,
       "equal_weights_unjudged_top10": 0,
       "grid_step": 0.1,
       "total_combinations": 66
     },
     "ngram": {
       "matcher_name": "ngram",
-      "n_tuning_queries": 12,
+      "n_tuning_queries": 32,
       "best_weights": {
-        "summary": 0.4,
+        "summary": 0.6,
         "spm": 0.3,
-        "party": 0.3
+        "party": 0.1
       },
-      "best_mrr_at_10": 0.4688,
-      "best_precision_at_5": 0.1667,
-      "best_unjudged_top10": 8,
+      "best_mrr_at_10": 1.0,
+      "best_precision_at_5": 0.3875,
+      "best_unjudged_top10": 0,
       "equal_weights": {
         "summary": 0.3333333333333333,
         "spm": 0.3333333333333333,
         "party": 0.3333333333333333
       },
-      "equal_weights_mrr_at_10": 0.4583,
-      "equal_weights_precision_at_5": 0.1667,
+      "equal_weights_mrr_at_10": 0.8318,
+      "equal_weights_precision_at_5": 0.275,
       "equal_weights_unjudged_top10": 0,
       "grid_step": 0.1,
       "total_combinations": 66

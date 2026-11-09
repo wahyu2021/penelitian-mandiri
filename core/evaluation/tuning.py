@@ -3,6 +3,7 @@ import math
 from typing import Dict, List, Optional, Sequence, Tuple
 
 from core.evaluation.metrics import precision_at_k, reciprocal_rank
+from core.normalization import tokenize
 from core.search.index import SearchIndex
 from core.search.matchers.base import BaseMatcher
 from core.search.ranker import (
@@ -12,6 +13,7 @@ from core.search.ranker import (
     FIELDS,
     FieldRanker,
     equal_weights,
+    normalize_weights,
 )
 
 
@@ -55,19 +57,7 @@ def evaluate_weights_on_queries(
     top_n: int = 10,
     additional_judgments: Optional[Dict[str, Dict[int, int]]] = None,
 ) -> Tuple[float, float, int]:
-    """Evaluasi satu konfigurasi bobot pada himpunan kueri.
-
-    Args:
-        index: SearchIndex dokumen arsip.
-        matcher: Pencocok kemiripan string.
-        weights: Konfigurasi bobot field.
-        queries: Daftar kamus kueri set uji.
-        top_n: Kedalaman perangkingan (default: 10).
-        additional_judgments: Kamus opsional {query_id: {archive_id: is_relevant}}.
-
-    Returns:
-        Triplet (macro_mrr_at_10, macro_p_at_5, total_unjudged_in_top10).
-    """
+    """Evaluasi satu konfigurasi bobot pada himpunan kueri."""
     if not queries:
         return 0.0, 0.0, 0
 
@@ -82,7 +72,6 @@ def evaluate_weights_on_queries(
         hits = ranker.search(q_text, top_n=top_n)
         retrieved_ids = [h.id for h in hits]
 
-        # Gabungkan penilaian dari berkas utama dan penilaian tambahan jika ada
         judgments = q.get("judgments", [])
         judged_map: Dict[int, int] = {
             int(j["archive_id"]): int(j["is_relevant"]) for j in judgments
@@ -90,24 +79,17 @@ def evaluate_weights_on_queries(
         if additional_judgments and q_id in additional_judgments:
             judged_map.update(additional_judgments[q_id])
 
-        # Dokumen relevan
         relevant_ids = {aid for aid, rel in judged_map.items() if rel == 1}
-
-        # Hitung dokumen belum dinilai di Top-10
         unjudged_count = sum(1 for aid in retrieved_ids[:top_n] if aid not in judged_map)
         total_unjudged += unjudged_count
 
         if not relevant_ids:
-            # Bila kueri tidak memiliki dokumen relevan yang dinilai
             mrr_list.append(0.0)
             p5_list.append(0.0)
             continue
 
-        # Precision@5
         p5 = precision_at_k(retrieved_ids, relevant_ids, k=min(5, top_n))
         p5_list.append(p5)
-
-        # Reciprocal Rank@10
         rr = reciprocal_rank(retrieved_ids, relevant_ids, k=top_n)
         mrr_list.append(rr)
 
@@ -126,15 +108,12 @@ def tune_weights_grid_search(
 ) -> Dict[str, object]:
     """Jalankan grid search penyetelan bobot field hanya pada kueri tuning.
 
-    Aturan Ilmiah:
-    - Kriteria utama: MRR@10 tertinggi.
-    - Pemutus seri (tie-breaker): Precision@5 tertinggi.
-    - Pemutus seri kedua: Jarak Euclidean terkecil ke bobot sama rata.
+    Skor per field (summary, spm, party) dihitung sekali per pasangan (kueri, dokumen),
+    lalu dikombinasikan secara linier untuk seluruh kandidat bobot di grid (66x lebih cepat).
     """
     if not tuning_queries:
         raise ValueError("Daftar kueri tuning kosong.")
 
-    # Validasi bahwa seluruh kueri benar berlabel tuning
     invalid_splits = [
         q.get("query_id") for q in tuning_queries if q.get("split") != "tuning"
     ]
@@ -143,15 +122,61 @@ def tune_weights_grid_search(
             f"Terdapat kueri bukan kelompok tuning yang disertakan: {invalid_splits}"
         )
 
+    # Pra-komputasi skor 3 field untuk setiap kueri tuning (1x saja, bukan 66x)
+    docs = list(index.filtered(None, None, None))
+    precomputed_queries = []
+    for q in tuning_queries:
+        q_id = str(q.get("query_id", ""))
+        q_text = str(q.get("query_text", ""))
+        q_tokens = tokenize(q_text)
+        judgments = q.get("judgments", [])
+        judged_map: Dict[int, int] = {
+            int(j["archive_id"]): int(j["is_relevant"]) for j in judgments
+        }
+        if additional_judgments and q_id in additional_judgments:
+            judged_map.update(additional_judgments[q_id])
+        relevant_ids = {aid for aid, rel in judged_map.items() if rel == 1}
+
+        doc_scores: List[Tuple[int, float, float, float]] = []
+        if q_tokens:
+            for d in docs:
+                s_sum = matcher.score_field(q_tokens, d.summary_tokens)
+                s_spm = matcher.score_field(q_tokens, d.spm_tokens)
+                s_pty = matcher.score_field(q_tokens, d.party_tokens)
+                doc_scores.append((d.id, s_sum, s_spm, s_pty))
+        precomputed_queries.append((doc_scores, judged_map, relevant_ids))
+
+    def eval_fast(w_raw: Dict[str, float], top_n: int = 10) -> Tuple[float, float, int]:
+        w = normalize_weights(w_raw)
+        w_sum, w_spm, w_pty = w[FIELD_SUMMARY], w[FIELD_SPM], w[FIELD_PARTY]
+        mrr_list: List[float] = []
+        p5_list: List[float] = []
+        total_unjudged = 0
+
+        for doc_scores, judged_map, relevant_ids in precomputed_queries:
+            scored = []
+            for doc_id, s_sum, s_spm, s_pty in doc_scores:
+                sc = w_sum * s_sum + w_spm * s_spm + w_pty * s_pty
+                if sc > 0.0:
+                    scored.append((-sc, doc_id))
+            scored.sort()
+            retrieved_ids = [doc_id for _, doc_id in scored[:top_n]]
+
+            total_unjudged += sum(1 for aid in retrieved_ids if aid not in judged_map)
+            if not relevant_ids:
+                mrr_list.append(0.0)
+                p5_list.append(0.0)
+                continue
+            p5_list.append(precision_at_k(retrieved_ids, relevant_ids, k=min(5, top_n)))
+            mrr_list.append(reciprocal_rank(retrieved_ids, relevant_ids, k=top_n))
+
+        macro_mrr = sum(mrr_list) / len(mrr_list) if mrr_list else 0.0
+        macro_p5 = sum(p5_list) / len(p5_list) if p5_list else 0.0
+        return macro_mrr, macro_p5, total_unjudged
+
     # 1. Evaluasi bobot dasar (equal weights)
     eq_w = equal_weights()
-    eq_mrr, eq_p5, eq_unjudged = evaluate_weights_on_queries(
-        index=index,
-        matcher=matcher,
-        weights=eq_w,
-        queries=tuning_queries,
-        additional_judgments=additional_judgments,
-    )
+    eq_mrr, eq_p5, eq_unjudged = eval_fast(eq_w)
 
     # 2. Grid search
     grid = generate_weight_grid(step=step)
@@ -166,13 +191,7 @@ def tune_weights_grid_search(
         return sum((w[f] - (1.0 / 3.0)) ** 2 for f in FIELDS)
 
     for candidate in grid:
-        mrr, p5, unjudged = evaluate_weights_on_queries(
-            index=index,
-            matcher=matcher,
-            weights=candidate,
-            queries=tuning_queries,
-            additional_judgments=additional_judgments,
-        )
+        mrr, p5, unjudged = eval_fast(candidate)
         record = {
             "weights": candidate,
             "mrr_at_10": round(mrr, 4),
@@ -181,7 +200,10 @@ def tune_weights_grid_search(
         }
         all_results.append(record)
 
-        # Seleksi kandidat terbaik
+        # Seleksi kandidat terbaik (wajib mempertahankan seluruh 3 field aktif > 0.0)
+        if any(v <= 0.0 for v in candidate.values()):
+            continue
+
         is_better = False
         if mrr > best_mrr + 1e-6:
             is_better = True
@@ -189,9 +211,14 @@ def tune_weights_grid_search(
             if p5 > best_p5 + 1e-6:
                 is_better = True
             elif math.isclose(p5, best_p5, abs_tol=1e-6):
-                # Seri: pilih yang paling dekat dengan equal weights
                 if dist_to_equal(candidate) < dist_to_equal(best_w) - 1e-6:
                     is_better = True
+                elif math.isclose(dist_to_equal(candidate), dist_to_equal(best_w), abs_tol=1e-6):
+                    if (candidate[FIELD_SUMMARY], candidate[FIELD_SPM]) > (
+                        best_w[FIELD_SUMMARY],
+                        best_w[FIELD_SPM],
+                    ):
+                        is_better = True
 
         if is_better:
             best_w = candidate
@@ -212,4 +239,5 @@ def tune_weights_grid_search(
         "equal_weights_unjudged_top10": eq_unjudged,
         "grid_step": step,
         "total_combinations": len(grid),
+        "grid_results": all_results,
     }

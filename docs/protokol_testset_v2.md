@@ -16,10 +16,12 @@
 
 | Parameter | Nilai |
 |---|---|
-| Jumlah kueri dasar | 40 (10 per jenis: `topik`, `nomor_spm`, `pihak`, `campuran`) |
-| Varian per kueri dasar | 7: `tanpa_gangguan`, `typo`, `singkatan`, `spasi_tanda_baca`, `urutan_kata`, `kata_hilang`, `ejaan_varian` |
-| Pengecualian | `urutan_kata` **tidak berlaku** untuk `nomor_spm` (menukar bagian nomor surat tidak realistis), sehingga total varian = 40 × 7 − 10 = **270** |
-| Split | Per kueri dasar, berstrata jenis: **3 tuning + 7 test per jenis** (12 tuning / 28 test) |
+| Jumlah kueri dasar independen | **56 kueri dasar (`B001`–`B056`)** — 14 kueri dasar per jenis kueri (`topik`, `nomor_spm`, `pihak`, `campuran`), masing-masing berasal dari dokumen arsip target yang berbeda |
+| Varian per kueri dasar | **2 varian *noise* berbeda** per kueri dasar $\to$ total **112 kueri (`Q001`–`Q112`)** |
+| Keseimbangan per jenis kueri | **28 kueri per jenis kueri** ($4 \times 28 = 112$) |
+| Keseimbangan per jenis gangguan | **16 kueri per jenis gangguan** ($7 \times 16 = 112$, memenuhi batas $\ge 15$ kueri per kategori gangguan, termasuk 16 kueri `tanpa_gangguan` sebagai kontrol). Setiap sel `(query_type, noise_type)` pada matriks $4 \times 7$ memiliki tepat **4 kueri** |
+| Pembagian Group Split Anti-Leak | Di level kueri dasar (`base_query_id` & `origin_archive_id`): **16 kueri dasar tuning (32 varian)** dan **40 kueri dasar test (80 varian)** — tepat 4 kueri dasar tuning & 10 kueri dasar test per jenis kueri |
+| Validasi Realisme Kueri | Sampel acak berstrata ~20% (**24 kueri**) dinilai oleh 2 penilai independen apakah wajar diketik pengguna (`output/query_realism_validation_sample.csv`) |
 | Seed | 42 |
 
 ## 3. Aturan pembentukan kueri dasar
@@ -63,10 +65,9 @@ Varian yang gagal dibangkitkan ulang dengan seed berikutnya (maksimal 25 kali). 
 
 ## 6. Analisis yang direncanakan
 
-1. **Kinerja utama (test, n = 28 kueri dasar):** MRR@10, P@5, R@10, Hit@10, latensi, dengan bootstrap 95% CI (2.000 iterasi).
-2. **Hipotesis utama:** model terbaik dipilih **hanya dari split tuning**, lalu dibandingkan dengan LIKE memakai Wilcoxon signed-rank dua sisi (α = 0,05). Pembanding eksploratori 4 metode dikoreksi Holm.
-3. **Ketahanan terhadap gangguan:** ΔMRR@10 = MRR(varian) − MRR(tanpa_gangguan) dari kueri dasar yang sama, per metode × gangguan, dengan bootstrap 95% CI. Analisis ini deskriptif dan tidak dikoreksi untuk inferensi.
-4. **Rincian jenis kueri × gangguan:** setiap sel n = 7 kueri dasar (deskriptif).
+1. **Kinerja utama (Test Split, $n = 80$ varian kueri dari $n_{\text{base}} = 40$ kueri dasar independen):** MRR@10, P@5, R@10, Hit@10, latensi, dengan *Cluster Bootstrap* 95% CI (2.000 iterasi, di-resample pada level 40 kueri dasar independen).
+2. **Hipotesis utama:** model terbaik dipilih **hanya dari split tuning ($n = 32$ varian dari $n_{\text{base}} = 16$ kueri dasar)**, lalu dibandingkan dengan LIKE memakai Wilcoxon signed-rank dua sisi ($\alpha = 0,05$) pada skor rata-rata per kueri dasar ($n_{\text{base}} = 40$). Pembanding eksploratori 4 metode dikoreksi Holm-Bonferroni.
+3. **Ketahanan terhadap gangguan & jenis kueri:** evaluasi diagnostik per jenis kueri ($n = 20$ varian atau $10$ kueri dasar per jenis kueri pada Test Split) dan per jenis gangguan ($n = 11\text{--}12$ varian pada Test Split, atau $n = 16$ pada keseluruhan set uji).
 
 ## 7. Alasan penggantian v1
 

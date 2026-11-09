@@ -63,11 +63,13 @@ def test_evaluate_weights_and_tuning():
     assert mrr_good > 0.0
     assert p5_good > 0.0
 
-    # Grid search tuning
+    # Grid search tuning (wajib menghasilkan bobot positif pada seluruh 3 field)
     res = tune_weights_grid_search(index, matcher, queries, step=0.2)
     assert res["matcher_name"] == "token_set"
     assert res["n_tuning_queries"] == 1
     assert "best_weights" in res
+    assert all(v > 0.0 for v in res["best_weights"].values())
+    assert "grid_results" in res
     assert res["best_mrr_at_10"] >= res["equal_weights_mrr_at_10"]
 
 

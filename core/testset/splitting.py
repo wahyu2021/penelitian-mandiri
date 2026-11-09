@@ -13,13 +13,14 @@ def compute_content_sha256(content: str) -> str:
 def find_connected_query_clusters(
     queries: List[Dict[str, object]],
 ) -> List[List[Dict[str, object]]]:
-    """Kelompokkan kueri yang berbagi SPM sama, arsip asal sama, atau kemiripan identik.
+    """Kelompokkan kueri yang berbagi SPM sama, arsip asal sama, atau base_query_id sama.
 
     Semua kueri dalam satu klaster wajib masuk kelompok (split) yang sama
     agar tidak terjadi kebocoran informasi antar kelompok tuning dan test.
     """
     spm_to_qidx: Dict[str, Set[int]] = defaultdict(set)
     arch_to_qidx: Dict[int, Set[int]] = defaultdict(set)
+    base_to_qidx: Dict[str, Set[int]] = defaultdict(set)
 
     for idx, q in enumerate(queries):
         spm = str(q.get("spm_number") or "").strip().upper()
@@ -28,22 +29,19 @@ def find_connected_query_clusters(
         orig_id = q.get("origin_archive_id")
         if orig_id is not None:
             arch_to_qidx[int(orig_id)].add(idx)
+        base_id = str(q.get("base_query_id") or "").strip().upper()
+        if base_id:
+            base_to_qidx[base_id].add(idx)
 
     # Buat adjacency graph antar indeks kueri
     adj: Dict[int, Set[int]] = defaultdict(set)
-    for qindices in spm_to_qidx.values():
-        q_list = list(qindices)
-        for i in range(len(q_list)):
-            for j in range(i + 1, len(q_list)):
-                adj[q_list[i]].add(q_list[j])
-                adj[q_list[j]].add(q_list[i])
-
-    for qindices in arch_to_qidx.values():
-        q_list = list(qindices)
-        for i in range(len(q_list)):
-            for j in range(i + 1, len(q_list)):
-                adj[q_list[i]].add(q_list[j])
-                adj[q_list[j]].add(q_list[i])
+    for group_map in (spm_to_qidx.values(), arch_to_qidx.values(), base_to_qidx.values()):
+        for qindices in group_map:
+            q_list = list(qindices)
+            for i in range(len(q_list)):
+                for j in range(i + 1, len(q_list)):
+                    adj[q_list[i]].add(q_list[j])
+                    adj[q_list[j]].add(q_list[i])
 
     visited: Set[int] = set()
     clusters: List[List[Dict[str, object]]] = []

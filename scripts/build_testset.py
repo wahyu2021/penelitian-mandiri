@@ -6,7 +6,7 @@ import sys
 from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(ROOT_DIR) not in sys.path:
@@ -98,7 +98,7 @@ def build_testset_from_pool(
     # Validasi dan sinkronkan penilaian dari berkas pilot (jika pilot diisi)
     _, synced_count = sync_and_validate_pilot(rows, pilot_csv_path)
 
-    # Muat metadata kueri internal jika ada (untuk origin_archive_id dan spm)
+    # Muat metadata kueri internal jika ada (untuk origin_archive_id, base_query_id, dan spm)
     candidate_meta_map: Dict[str, Dict[str, object]] = {}
     if candidate_meta_path and candidate_meta_path.is_file():
         meta_list = json.loads(candidate_meta_path.read_text(encoding="utf-8"))
@@ -117,9 +117,11 @@ def build_testset_from_pool(
             meta = candidate_meta_map.get(q_id, {})
             orig_id = meta.get("origin_archive_id") or r.get("origin_archive_id")
             spm = meta.get("spm_number")
+            base_qid = meta.get("base_query_id") or r.get("base_query_id") or q_id
 
             query_map[q_id] = {
                 "query_id": q_id,
+                "base_query_id": str(base_qid),
                 "query_text": r["query_text"],
                 "query_type": r.get("query_type", "umum"),
                 "source": r.get("source", "sintetis"),
@@ -128,10 +130,15 @@ def build_testset_from_pool(
                 "spm_number": str(spm) if spm else None,
             }
 
-        rel_raw = r.get("is_relevant", "").strip()
-        is_rel = 1 if rel_raw in {"1", "true", "ya", "relevan"} else 0
+        rel_raw = (r.get("is_relevant") or "").strip().lower()
         if rel_raw == "":
-            unjudged_count += 1
+            raise ValueError(
+                f"Penilaian relevansi kosong pada kueri {q_id}, arsip {r['archive_id']}. "
+                "Lengkapi pool sebelum membangun set uji."
+            )
+        if rel_raw not in {"0", "1", "true", "false", "ya", "tidak", "relevan", "tidak relevan"}:
+            raise ValueError(f"Label relevansi tidak sah pada kueri {q_id}, arsip {r['archive_id']}: {rel_raw!r}")
+        is_rel = 1 if rel_raw in {"1", "true", "ya", "relevan"} else 0
 
         ragu_raw = r.get("ragu", "").strip()
         is_ragu = 1 if ragu_raw in {"1", "ya", "true"} else 0
@@ -153,9 +160,13 @@ def build_testset_from_pool(
             q_id = ar.get("query_id")
             if not q_id or q_id not in query_map:
                 continue
-            rel_raw = ar.get("is_relevant", "").strip()
+            rel_raw = (ar.get("is_relevant") or "").strip().lower()
             if rel_raw == "":
-                continue
+                raise ValueError(
+                    f"Penilaian tambahan kosong pada kueri {q_id}, arsip {ar['archive_id']}."
+                )
+            if rel_raw not in {"0", "1", "true", "false", "ya", "tidak", "relevan", "tidak relevan"}:
+                raise ValueError(f"Label relevansi tambahan tidak sah pada kueri {q_id}, arsip {ar['archive_id']}: {rel_raw!r}")
             is_rel = 1 if rel_raw in {"1", "true", "ya", "relevan"} else 0
             ragu_raw = ar.get("ragu", "").strip()
             is_ragu = 1 if ragu_raw in {"1", "ya", "true"} else 0
@@ -178,13 +189,41 @@ def build_testset_from_pool(
         if orig_id is not None:
             existing = next((j for j in judgments_by_query[q_id] if j["archive_id"] == orig_id), None)
             if existing:
-                existing["is_relevant"] = 1
+                if existing["is_relevant"] != 1:
+                    raise ValueError(
+                        f"Arsip asal {orig_id} pada kueri {q_id} dinilai tidak relevan; "
+                        "periksa penilaian manual sebelum membangun set uji."
+                    )
             else:
                 judgments_by_query[q_id].append({
                     "archive_id": orig_id,
                     "is_relevant": 1,
                     "ragu": 0,
                 })
+
+    # Dua varian dari kebutuhan informasi yang sama harus memakai qrels yang sama.
+    # Gabungkan seluruh dokumen yang dinilai pada level kueri dasar dan tolak konflik label.
+    judgments_by_base: Dict[str, Dict[int, Dict[str, int]]] = defaultdict(dict)
+    for q_id, q_data in query_map.items():
+        base_id = str(q_data["base_query_id"])
+        for judgment in judgments_by_query[q_id]:
+            archive_id = judgment["archive_id"]
+            existing = judgments_by_base[base_id].get(archive_id)
+            if existing is not None:
+                if existing["is_relevant"] != judgment["is_relevant"]:
+                    raise ValueError(
+                        f"Konflik label pada kueri dasar {base_id}, arsip {archive_id}."
+                    )
+                existing["ragu"] = max(existing["ragu"], judgment["ragu"])
+            else:
+                judgments_by_base[base_id][archive_id] = dict(judgment)
+
+    for q_id, q_data in query_map.items():
+        base_id = str(q_data["base_query_id"])
+        judgments_by_query[q_id] = [
+            dict(judgments_by_base[base_id][archive_id])
+            for archive_id in sorted(judgments_by_base[base_id])
+        ]
 
     queries_list = list(query_map.values())
 
@@ -205,6 +244,10 @@ def build_testset_from_pool(
         q_entry.pop("spm_number", None)
         all_queries.append(q_entry)
 
+    n_base_queries = len({q["base_query_id"] for q in all_queries})
+    n_tuning_base = len({q["base_query_id"] for q in all_queries if q["split"] == "tuning"})
+    n_test_base = len({q["base_query_id"] for q in all_queries if q["split"] == "test"})
+
     testset_data = {
         "version": TESTSET_VERSION,
         "seed": seed,
@@ -212,6 +255,9 @@ def build_testset_from_pool(
         "n_queries": len(all_queries),
         "n_tuning": len(tuning_q),
         "n_test": len(test_q),
+        "n_base_queries": n_base_queries,
+        "n_tuning_base_queries": n_tuning_base,
+        "n_test_base_queries": n_test_base,
         "unjudged_rows_count": unjudged_count,
         "total_ragu_count": total_ragu,
         "created_at": datetime.now(timezone.utc).isoformat(),
@@ -233,6 +279,9 @@ def build_testset_from_pool(
         "n_queries": len(all_queries),
         "n_tuning": len(tuning_q),
         "n_test": len(test_q),
+        "n_base_queries": n_base_queries,
+        "n_tuning_base": n_tuning_base,
+        "n_test_base": n_test_base,
         "unjudged_rows": unjudged_count,
         "total_ragu": total_ragu,
         "synced_from_pilot": synced_count,
@@ -306,9 +355,9 @@ def main() -> None:
     print("[+] Berkas set uji berhasil dibangun:")
     print(f"    - Berkas Tujuan    : {res['output_path']}")
     print(f"    - Hash SHA-256     : {res['content_sha256']}")
-    print(f"    - Total Kueri      : {res['n_queries']}")
-    print(f"    - Kueri Tuning     : {res['n_tuning']} (~30%)")
-    print(f"    - Kueri Test       : {res['n_test']} (~70%)")
+    print(f"    - Total Kueri      : {res['n_queries']} ({res['n_base_queries']} kueri dasar independen)")
+    print(f"    - Kueri Tuning     : {res['n_tuning']} ({res['n_tuning_base']} kueri dasar)")
+    print(f"    - Kueri Test       : {res['n_test']} ({res['n_test_base']} kueri dasar)")
     print(f"    - Baris Ragu       : {res['total_ragu']}")
     if res.get("synced_from_pilot", 0) > 0:
         print(f"    - Dari Pilot       : {res['synced_from_pilot']} baris tersinkron otomatis")
@@ -324,4 +373,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

@@ -285,3 +285,68 @@ def test_sync_pilot_and_additional_pool_integration(tmp_path: Path):
     assert aid_map[10] == 1  # Tersinkron dari pilot
     assert aid_map[99] == 1  # Terintegrasi dari additional pool
 
+
+def test_base_query_variants_share_all_judgments(tmp_path: Path):
+    import csv
+    import json
+
+    pool = tmp_path / "pool.csv"
+    meta = tmp_path / "candidates.json"
+    output = tmp_path / "testset.json"
+    rows = [
+        {"query_id": "Q001", "query_text": "gedung", "query_type": "topik", "source": "sintetis", "noise_type": "typo", "archive_id": "10", "is_relevant": "1"},
+        {"query_id": "Q001", "query_text": "gedung", "query_type": "topik", "source": "sintetis", "noise_type": "typo", "archive_id": "11", "is_relevant": "0"},
+        {"query_id": "Q002", "query_text": "gedun", "query_type": "topik", "source": "sintetis", "noise_type": "kata_hilang", "archive_id": "10", "is_relevant": "1"},
+        {"query_id": "Q002", "query_text": "gedun", "query_type": "topik", "source": "sintetis", "noise_type": "kata_hilang", "archive_id": "12", "is_relevant": "1"},
+    ]
+    with pool.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=list(rows[0]))
+        writer.writeheader()
+        writer.writerows(rows)
+    meta.write_text(json.dumps([
+        {"query_id": "Q001", "base_query_id": "B001", "origin_archive_id": 10},
+        {"query_id": "Q002", "base_query_id": "B001", "origin_archive_id": 10},
+    ]), encoding="utf-8")
+
+    build_testset_from_pool(pool, output, candidate_meta_path=meta)
+    queries = json.loads(output.read_text(encoding="utf-8"))["queries"]
+    assert [q["judgments"] for q in queries] == [
+        [
+            {"archive_id": 10, "is_relevant": 1, "ragu": 0},
+            {"archive_id": 11, "is_relevant": 0, "ragu": 0},
+            {"archive_id": 12, "is_relevant": 1, "ragu": 0},
+        ]
+    ] * 2
+
+
+def test_build_testset_rejects_blank_and_conflicting_labels(tmp_path: Path):
+    import csv
+    import json
+
+    pool = tmp_path / "pool.csv"
+    meta = tmp_path / "candidates.json"
+    output = tmp_path / "testset.json"
+    rows = [
+        {"query_id": "Q001", "query_text": "gedung", "archive_id": "10", "is_relevant": "1"},
+        {"query_id": "Q002", "query_text": "gedun", "archive_id": "10", "is_relevant": ""},
+    ]
+    meta.write_text(json.dumps([
+        {"query_id": "Q001", "base_query_id": "B001", "origin_archive_id": 10},
+        {"query_id": "Q002", "base_query_id": "B001", "origin_archive_id": 10},
+    ]), encoding="utf-8")
+
+    def save_rows():
+        with pool.open("w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=list(rows[0]))
+            writer.writeheader()
+            writer.writerows(rows)
+
+    save_rows()
+    with pytest.raises(ValueError, match="Penilaian relevansi kosong"):
+        build_testset_from_pool(pool, output, candidate_meta_path=meta)
+
+    rows[1]["is_relevant"] = "0"
+    save_rows()
+    with pytest.raises(ValueError, match="Konflik label|Arsip asal"):
+        build_testset_from_pool(pool, output, candidate_meta_path=meta)
+

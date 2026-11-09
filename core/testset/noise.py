@@ -48,7 +48,7 @@ SPELLING_VARIANTS = {
     "gedung": "gedong",
     "piala": "pialaa",
     "adipura": "adipoora",
-    "kuto": "kuto",
+    "kuto": "kuta",
     "besak": "bessak",
 }
 
@@ -248,7 +248,10 @@ def apply_abbreviation(text: str, rng: Optional[random.Random] = None) -> str:
     if is_spm_number(text):
         return apply_spm_abbreviation(text, r)
 
+    # Pisahkan singkatan badan usaha yang menempel pada titik jika hanya terdiri atas 1 token (mis. CV.FATRIA -> CV. FATRIA)
     words = text.split()
+    if len(words) == 1:
+        words = re.sub(r"(?i)\b(cv|pt|ud)\.([A-Za-z])", r"\1. \2", text).split()
     changed = False
     for i, w in enumerate(words):
         w_low = w.lower().strip(".,")
@@ -259,14 +262,15 @@ def apply_abbreviation(text: str, rng: Optional[random.Random] = None) -> str:
 
     if not changed and words:
         for i, w in enumerate(words):
-            if len(w) >= 5 and w.isalpha():
-                words[i] = w[:3] + "."
+            w_clean = w.strip(".,")
+            if len(w_clean) >= 5 and w_clean.isalpha() and w_clean.lower() not in {"cv", "pt", "ud"}:
+                words[i] = w_clean[:3] + "."
                 changed = True
                 break
 
     if not changed and words:
         for i, w in enumerate(words):
-            if len(w) >= 3:
+            if len(w) >= 3 and w.lower().strip(".,") not in {"cv", "pt", "ud"}:
                 words[i] = w[:2] + "."
                 changed = True
                 break
@@ -295,7 +299,7 @@ def apply_punctuation_spacing(text: str, rng: Optional[random.Random] = None) ->
 
 
 def apply_word_order(text: str, rng: Optional[random.Random] = None) -> str:
-    """Tukar posisi dua kata dalam kueri."""
+    """Tukar posisi dua kata dalam kueri (dengan gaya indeks terbalik berkoma pada kata pertama)."""
     r = rng or random.Random()
     if is_spm_number(text):
         return apply_spm_word_order(text, r)
@@ -305,11 +309,13 @@ def apply_word_order(text: str, rng: Optional[random.Random] = None) -> str:
         return text
     idx1, idx2 = r.sample(range(len(words)), 2)
     words[idx1], words[idx2] = words[idx2], words[idx1]
+    if not words[0].endswith(","):
+        words[0] = words[0] + ","
     return " ".join(words)
 
 
 def apply_missing_word(text: str, rng: Optional[random.Random] = None) -> str:
-    """Hilangkan satu kata dari kueri."""
+    """Hilangkan satu kata dari kueri (prioritaskan kata generik awal)."""
     r = rng or random.Random()
     if is_spm_number(text):
         return apply_spm_missing_component(text, r)
@@ -317,8 +323,10 @@ def apply_missing_word(text: str, rng: Optional[random.Random] = None) -> str:
     words = text.split()
     if len(words) <= 1:
         return text
-    idx = r.randint(0, len(words) - 1)
-    words.pop(idx)
+    if len(words) >= 3 and words[1].isupper():
+        words.pop(1)
+    else:
+        words.pop(0)
     return " ".join(words)
 
 

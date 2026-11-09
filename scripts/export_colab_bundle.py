@@ -25,12 +25,13 @@ from core.evaluation.metrics import (
     count_unjudged,
     evaluate_query,
 )
-from core.evaluation.tuning import generate_weight_grid, evaluate_weights_on_queries
+from core.evaluation.tuning import evaluate_weights_on_queries, tune_weights_grid_search
 from core.search.index import SearchIndex
 from core.search.like_baseline import LikeBaselineSearch
 from core.search.matchers import FUZZY_METHOD_NAMES, create_matcher
 from core.search.ranker import FieldRanker, equal_weights
 from services.db import DEFAULT_DB_PATH
+from scripts.evaluate_extraction_audit import evaluate_audit_data, read_audit_file
 
 FORBIDDEN_COLUMNS = {
     "query_text",
@@ -115,12 +116,41 @@ def load_corpus(db_path: Path) -> List[Dict[str, Any]]:
     return [dict(r) for r in rows]
 
 
+def build_audit_summary(
+    audit_csv_path: Path,
+    audit_report_path: Path,
+    audit_manifest_path: Path,
+) -> Dict[str, Any]:
+    """Hitung audit dari CSV penilaian terkini, bukan dari salinan laporan lama."""
+    if not audit_csv_path.is_file():
+        raise FileNotFoundError(f"CSV penilaian audit tidak ditemukan: {audit_csv_path}")
+    current_audit = evaluate_audit_data(
+        audit_rows=read_audit_file(audit_csv_path),
+        manifest_path=audit_manifest_path if audit_manifest_path.is_file() else None,
+    )
+    if audit_report_path.is_file():
+        with open(audit_report_path, "r", encoding="utf-8") as f:
+            saved_audit = json.load(f)
+        if json.dumps(saved_audit.get("fields"), sort_keys=True) != json.dumps(
+            current_audit["fields"], sort_keys=True
+        ):
+            click.echo("[PERINGATAN] Laporan audit JSON berbeda dari CSV terkini; bundle memakai hitungan CSV terbaru.")
+    return {
+        "extractor_version": current_audit["extractor_version"],
+        "total_evaluated": current_audit["n_evaluated"],
+        "fields": current_audit["fields"],
+        "audit_csv_sha256": sha256_file(audit_csv_path),
+    }
+
+
 def export_bundle(
     output_dir: Path = Path("output/colab_bundle"),
     db_path: Path = DEFAULT_DB_PATH,
     testset_path: Path = Path("data/testset/testset_v1.json"),
     tuned_weights_path: Path = Path("data/testset/tuned_weights.json"),
     audit_report_path: Path = Path("output/extraction_audit_report.json"),
+    audit_csv_path: Path = Path("output/audit_extraction_sample.csv"),
+    audit_manifest_path: Path = Path("output/audit_strata_summary.json"),
     agreement_report_path: Path = Path("output/relevance_agreement_report.json"),
     verification_sample_path: Path = Path("output/relevance_verification_sample.csv"),
     reuse_tuning_csv: bool = False,
@@ -151,11 +181,18 @@ def export_bundle(
 
     # 3. Muat bobot tuned
     tuned_weights: Dict[str, Dict[str, float]] = {}
+    cached_grid_by_matcher: Dict[str, List[Dict[str, Any]]] = {}
     if tuned_weights_path.is_file():
         with open(tuned_weights_path, "r", encoding="utf-8") as f:
             tw_data = json.load(f)
+            if tw_data.get("testset_hash") != testset_data.get("content_sha256"):
+                raise ValueError(
+                    "Bobot tuning berasal dari set uji berbeda. Jalankan scripts/tune_weights.py kembali."
+                )
             for m, res in tw_data.get("results_by_matcher", {}).items():
                 tuned_weights[m] = res.get("best_weights", equal_weights())
+                if "grid_results" in res:
+                    cached_grid_by_matcher[m] = res["grid_results"]
 
     # 4. Bangun searchers
     matchers = {name: create_matcher(name) for name in FUZZY_METHOD_NAMES}
@@ -252,32 +289,58 @@ def export_bundle(
     tuning_csv_path = output_dir / "tuning_results.csv"
     if reuse_tuning_csv and tuning_csv_path.is_file():
         click.echo("[3/5] Menggunakan berkas tuning_results.csv yang sudah ada (reuse_tuning_csv=True).")
+    elif all(m in cached_grid_by_matcher for m in FUZZY_METHOD_NAMES):
+        click.echo("[3/5] Menyalin hasil grid search dari data/testset/tuned_weights.json ke tuning_results.csv...")
+        tuning_rows: List[Dict[str, Any]] = []
+        for m_name in FUZZY_METHOD_NAMES:
+            for g_rec in cached_grid_by_matcher[m_name]:
+                w = g_rec["weights"]
+                tuning_rows.append({
+                    "matcher": m_name,
+                    "summary_weight": w["summary"],
+                    "spm_weight": w["spm"],
+                    "party_weight": w["party"],
+                    "mrr_at_10": g_rec["mrr_at_10"],
+                    "precision_at_5": g_rec["precision_at_5"],
+                    "unjudged_top10": g_rec["unjudged_top10"],
+                })
+        with open(tuning_csv_path, "w", newline="", encoding="utf-8") as f:
+            fieldnames = [
+                "matcher",
+                "summary_weight",
+                "spm_weight",
+                "party_weight",
+                "mrr_at_10",
+                "precision_at_5",
+                "unjudged_top10",
+            ]
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(tuning_rows)
     else:
         tuning_queries = [q for q in queries if q.get("split") == "tuning"]
         tuning_rows: List[Dict[str, Any]] = []
-        grid = generate_weight_grid(step=0.1)
 
-        click.echo(f"[3/5] Menjalankan grid search penyetelan bobot (4 matcher x {len(grid)} kombinasi):")
+        click.echo("[3/5] Menjalankan grid search penyetelan bobot cepat (pra-komputasi per field):")
         for m_name in FUZZY_METHOD_NAMES:
             matcher = matchers[m_name]
-            label_text = f"      - {m_name.replace('_', ' ').title():<14}"
-            with click.progressbar(grid, label=label_text) as bar:
-                for w in bar:
-                    mrr, p5, unjudged = evaluate_weights_on_queries(
-                        index=index,
-                        matcher=matcher,
-                        weights=w,
-                        queries=tuning_queries,
-                    )
-                    tuning_rows.append({
-                        "matcher": m_name,
-                        "summary_weight": w["summary"],
-                        "spm_weight": w["spm"],
-                        "party_weight": w["party"],
-                        "mrr_at_10": round(mrr, 4),
-                        "precision_at_5": round(p5, 4),
-                        "unjudged_top10": unjudged,
-                    })
+            res = tune_weights_grid_search(
+                index=index,
+                matcher=matcher,
+                tuning_queries=tuning_queries,
+                step=0.1,
+            )
+            for g_rec in res["grid_results"]:
+                w = g_rec["weights"]
+                tuning_rows.append({
+                    "matcher": m_name,
+                    "summary_weight": w["summary"],
+                    "spm_weight": w["spm"],
+                    "party_weight": w["party"],
+                    "mrr_at_10": g_rec["mrr_at_10"],
+                    "precision_at_5": g_rec["precision_at_5"],
+                    "unjudged_top10": g_rec["unjudged_top10"],
+                })
 
         with open(tuning_csv_path, "w", newline="", encoding="utf-8") as f:
             fieldnames = [
@@ -296,22 +359,9 @@ def export_bundle(
     click.echo("[4/5] Mengumpulkan audit ekstraksi dan ringkasan kesepakatan reliabilitas...")
 
     # 7. Audit Summary
-    audit_summary: Dict[str, Any] = {}
-    if audit_report_path.is_file():
-        with open(audit_report_path, "r", encoding="utf-8") as f:
-            raw_audit = json.load(f)
-            audit_summary = {
-                "extractor_version": raw_audit.get("extractor_version", "v1.0.0"),
-                "total_evaluated": raw_audit.get("n_evaluated", 100),
-                "fields": raw_audit.get("fields", {}),
-            }
-    else:
-        audit_summary = {
-            "extractor_version": "v1.0.0",
-            "total_evaluated": 100,
-            "fields": {},
-            "notes": "Laporan audit belum diekspor ke output/extraction_audit_report.json",
-        }
+    audit_summary = build_audit_summary(
+        audit_csv_path, audit_report_path, audit_manifest_path
+    )
 
     audit_json_path = output_dir / "audit_summary.json"
     with open(audit_json_path, "w", encoding="utf-8") as f:
@@ -352,12 +402,70 @@ def export_bundle(
     import scipy
     import rapidfuzz
 
+    query_to_base_id = {
+        str(q["query_id"]): str(q.get("base_query_id") or q["query_id"])
+        for q in queries
+    }
+    n_base_queries = testset_data.get("n_base_queries") or len(set(query_to_base_id.values()))
+    n_tuning_base = testset_data.get("n_tuning_base_queries") or len(
+        {query_to_base_id[str(q["query_id"])] for q in queries if q.get("split") == "tuning"}
+    )
+    n_test_base = testset_data.get("n_test_base_queries") or len(
+        {query_to_base_id[str(q["query_id"])] for q in queries if q.get("split") == "test"}
+    )
+
+    realism_csv_path = Path("output/query_realism_validation_sample.csv")
+    realism_summary: Dict[str, Any] = {}
+    if realism_csv_path.is_file():
+        with open(realism_csv_path, "r", encoding="utf-8-sig") as f:
+            r_rows = list(csv.DictReader(f))
+        if r_rows:
+            r1_ok = sum(1 for r in r_rows if str(r.get("rater_1_realistic", "")).strip() == "1")
+            r2_ok = sum(1 for r in r_rows if str(r.get("rater_2_realistic", "")).strip() == "1")
+            both_ok = sum(
+                1
+                for r in r_rows
+                if str(r.get("rater_1_realistic", "")).strip() == "1"
+                and str(r.get("rater_2_realistic", "")).strip() == "1"
+            )
+            realism_summary = {
+                "n_samples": len(r_rows),
+                "sample_ratio_pct": round(len(r_rows) / len(queries) * 100.0, 1),
+                "rater_1_realistic_pct": round(r1_ok / len(r_rows) * 100.0, 1),
+                "rater_2_realistic_pct": round(r2_ok / len(r_rows) * 100.0, 1),
+                "both_raters_realistic_pct": round(both_ok / len(r_rows) * 100.0, 1),
+            }
+
+    test_queries_only = [q for q in queries if q.get("split") == "test"]
+    summary_only_test_metrics: Dict[str, Dict[str, float]] = {}
+    w_sum_only = {"summary": 1.0, "spm": 0.0, "party": 0.0}
+    for m_name in FUZZY_METHOD_NAMES:
+        mrr_s, p5_s, _ = evaluate_weights_on_queries(
+            index=index,
+            matcher=matchers[m_name],
+            weights=w_sum_only,
+            queries=test_queries_only,
+        )
+        summary_only_test_metrics[m_name] = {
+            "mrr_at_10": round(mrr_s, 4),
+            "precision_at_5": round(p5_s, 4),
+        }
+
     run_meta = {
         "commit_sha": commit_sha,
         "tree_clean": tree_clean,
         "seed": 42,
         "data_hash": data_hash,
         "testset_hash": testset_hash,
+        "n_queries": len(queries),
+        "n_tuning_queries": testset_data.get("n_tuning", 32),
+        "n_test_queries": testset_data.get("n_test", 80),
+        "n_base_queries": n_base_queries,
+        "n_tuning_base_queries": n_tuning_base,
+        "n_test_base_queries": n_test_base,
+        "query_to_base_id": query_to_base_id,
+        "realism_validation": realism_summary,
+        "summary_only_test_metrics": summary_only_test_metrics,
         "extractor_version": audit_summary.get("extractor_version", "v1.0.0"),
         "package_versions": {
             "pandas": pd.__version__,
@@ -372,7 +480,7 @@ def export_bundle(
             "processor": platform.processor(),
             "python_version": platform.python_version(),
         },
-        "mode": "final",
+        "mode": "final" if tree_clean else "draft",
         "exported_at": datetime.now(timezone.utc).isoformat(),
     }
 

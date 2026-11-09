@@ -3,8 +3,18 @@ from tests.conftest import make_record
 
 
 def test_spm_tokens_include_whole_code_and_parts():
-    assert spm_search_tokens("123/LS/DISKOMINFO/2021") == (
-        "123/ls/diskominfo/2021", "123", "ls", "diskominfo", "2021")
+    tokens = spm_search_tokens("123/LS/DISKOMINFO/2021")
+    for expected in (
+        "123/ls/diskominfo/2021",
+        "123",
+        "ls",
+        "diskominfo",
+        "2021",
+        "123/ls",
+        "ls/diskominfo",
+        "diskominfo/2021",
+    ):
+        assert expected in tokens
     assert spm_search_tokens(None) == ()
     assert spm_search_tokens("") == ()
 

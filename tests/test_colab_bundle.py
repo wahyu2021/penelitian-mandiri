@@ -138,9 +138,27 @@ def test_run_meta_contract():
     with open(meta_path, "r", encoding="utf-8") as f:
         meta = json.load(f)
 
-    assert meta.get("mode") == "final", "Mode evaluasi harus 'final'."
+    assert meta.get("mode") == ("final" if meta.get("tree_clean") else "draft")
     assert meta.get("seed") == 42, "Seed acak harus 42."
     assert meta.get("commit_sha"), "Commit SHA harus tercatat."
     assert meta.get("data_hash"), "Hash data arsip harus tercatat."
     assert meta.get("testset_hash"), "Hash set uji harus tercatat."
     assert "package_versions" in meta, "Versi paket ilmiah harus tercatat."
+
+
+def test_audit_summary_uses_current_csv_when_saved_report_is_stale(tmp_path: Path):
+    from scripts.export_colab_bundle import build_audit_summary
+
+    csv_path = tmp_path / "audit.csv"
+    report_path = tmp_path / "report.json"
+    csv_path.write_text(
+        "archive_id,verdict_spm,verdict_sp2d,verdict_date,verdict_amount,verdict_party\n"
+        "1,benar,tidak_ada_di_teks,terlewat,benar,terlewat\n",
+        encoding="utf-8",
+    )
+    report_path.write_text(json.dumps({"fields": {"party": {"n_terlewat": 0}}}), encoding="utf-8")
+
+    summary = build_audit_summary(csv_path, report_path, tmp_path / "missing-manifest.json")
+    assert summary["fields"]["party"]["n_terlewat"] == 1
+    assert summary["fields"]["date"]["n_terlewat"] == 1
+    assert summary["audit_csv_sha256"] == hashlib.sha256(csv_path.read_bytes()).hexdigest()

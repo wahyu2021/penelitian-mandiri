@@ -161,7 +161,8 @@ def main() -> None:
             step=args.step,
             additional_judgments=additional_judgments,
         )
-        tuning_summary["results_by_matcher"][m_name] = res
+        res_clean = {k: v for k, v in res.items() if k != "grid_results"}
+        tuning_summary["results_by_matcher"][m_name] = res_clean
 
         bw = res["best_weights"]
         w_str = f"({bw['summary']:.1f}, {bw['spm']:.1f}, {bw['party']:.1f})"

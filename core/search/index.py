@@ -38,9 +38,19 @@ def spm_search_tokens(spm_number: Optional[str]) -> Tuple[str, ...]:
         return ()
     tokens: List[str] = []
     for token in tokenize(spm_number, expand_abbreviations=False):
-        for candidate in [token, *token.split("/")]:
+        parts = [p for p in token.split("/") if p]
+        sub_segments = [
+            "/".join(parts[i:j])
+            for i in range(len(parts))
+            for j in range(i + 1, len(parts) + 1)
+        ]
+        for candidate in [token, *parts, *sub_segments]:
             if candidate and candidate not in tokens:
                 tokens.append(candidate)
+            if candidate.isdigit() and candidate.startswith("0"):
+                stripped = candidate.lstrip("0") or "0"
+                if stripped not in tokens:
+                    tokens.append(stripped)
     return tuple(tokens)
 
 

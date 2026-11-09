@@ -23,7 +23,7 @@ notebook_content = {
                 "\n",
                 "### Ringkasan Notebook Google Colab\n",
                 "Notebook ini menjalankan **seluruh proses komputasi pencarian, perangkingan, dan evaluasi metrik temu kembali secara langsung (*live execution*)** di Google Colab:\n",
-                "1. **Pemuatan Korpus & Kueri Riil:** 1.737 dokumen arsip keuangan (SPM) dan 1.077 pasangan penilaian relevansi (*ground truth*).\n",
+                "1. **Pemuatan Korpus & Kueri Riil:** 1.737 dokumen arsip keuangan (SPM) dan 112 kueri uji (56 kueri dasar independen x 2 varian gangguan).\n",
                 "2. **Implementasi Algoritma:** SQL LIKE (baseline e-Arsip SIMANIS) serta 4 metode Fuzzy Matching (Levenshtein, Jaro-Winkler, Token-Set, dan N-Gram Dice).\n",
                 "3. **Eksekusi Perangkingan Multi-Field:** Perhitungan skor gabungan pada field Ringkasan, Nomor SPM, dan Nama Pihak.\n",
                 "4. **Kalkulasi Metrik IR Langsung:** Precision@5, Recall@10, MRR@10, Hit Rate, dan latensi pencarian (ms).\n",
@@ -209,12 +209,12 @@ notebook_content = {
             "source": [
                 "## 3. Eksekusi Komputasi Temu Kembali (*Retrieval Simulation*)\n",
                 "\n",
-                "Pada sel ini, sistem akan mengeksekusi langsung pencarian 40 kueri uji terhadap seluruh 1.737 dokumen korpus arsip menggunakan:\n",
+                "Pada sel ini, sistem akan mengeksekusi langsung pencarian 112 kueri uji (56 kueri dasar x 2 varian) terhadap seluruh 1.737 dokumen korpus arsip menggunakan:\n",
                 "- **LIKE Baseline** (Pencarian Eksak Bawaan)\n",
-                "- **Token-Set (Tuned)** dengan bobot optimal: `Ringkasan: 0.2, SPM: 0.5, Pihak: 0.3`\n",
-                "- **Levenshtein (Tuned)** dengan bobot optimal: `Ringkasan: 0.5, SPM: 0.5, Pihak: 0.0`\n",
-                "- **Jaro-Winkler (Tuned)** dengan bobot optimal: `Ringkasan: 0.9, SPM: 0.0, Pihak: 0.1`\n",
-                "- **N-Gram Dice (Equal)** dengan bobot sama rata: `Ringkasan: 0.33, SPM: 0.33, Pihak: 0.33`\n",
+                "- **Token-Set (Tuned)** dengan bobot optimal: `Ringkasan: 0.6, SPM: 0.2, Pihak: 0.2`\n",
+                "- **Levenshtein (Tuned)** dengan bobot optimal: `Ringkasan: 0.7, SPM: 0.1, Pihak: 0.2`\n",
+                "- **Jaro-Winkler (Tuned)** dengan bobot optimal: `Ringkasan: 0.8, SPM: 0.1, Pihak: 0.1`\n",
+                "- **N-Gram Dice (Tuned)** dengan bobot optimal: `Ringkasan: 0.6, SPM: 0.3, Pihak: 0.1`\n",
                 "\n",
                 "Seluruh latensi waktu komputasi (milidetik) dicatat secara nyata."
             ]
@@ -232,29 +232,29 @@ notebook_content = {
                 "    'Token-Set (Tuned)': {\n",
                 "        'type': 'fuzzy',\n",
                 "        'fn': sim_token_set,\n",
-                "        'w_sum': 0.2, 'w_spm': 0.5, 'w_pty': 0.3\n",
+                "        'w_sum': 0.6, 'w_spm': 0.2, 'w_pty': 0.2\n",
                 "    },\n",
                 "    'Levenshtein (Tuned)': {\n",
                 "        'type': 'fuzzy',\n",
                 "        'fn': sim_levenshtein,\n",
-                "        'w_sum': 0.5, 'w_spm': 0.5, 'w_pty': 0.0\n",
+                "        'w_sum': 0.7, 'w_spm': 0.1, 'w_pty': 0.2\n",
                 "    },\n",
                 "    'Jaro-Winkler (Tuned)': {\n",
                 "        'type': 'fuzzy',\n",
                 "        'fn': sim_jaro_winkler,\n",
-                "        'w_sum': 0.9, 'w_spm': 0.0, 'w_pty': 0.1\n",
+                "        'w_sum': 0.8, 'w_spm': 0.1, 'w_pty': 0.1\n",
                 "    },\n",
-                "    'N-Gram (Equal)': {\n",
+                "    'N-Gram (Tuned)': {\n",
                 "        'type': 'fuzzy',\n",
                 "        'fn': sim_ngram_dice,\n",
-                "        'w_sum': 0.3333, 'w_spm': 0.3333, 'w_pty': 0.3334\n",
+                "        'w_sum': 0.6, 'w_spm': 0.3, 'w_pty': 0.1\n",
                 "    },\n",
                 "}\n",
                 "\n",
                 "like_engine = LikeBaseline()\n",
                 "search_results = defaultdict(dict) # {config_name: {qid: {'retrieved': [doc_ids], 'latency_ms': float}}}\n",
                 "\n",
-                "print(\"[*] Menjalankan komputasi temu kembali pada seluruh 40 kueri uji...\")\n",
+                "print(\"[*] Menjalankan komputasi temu kembali pada seluruh 112 kueri uji...\")\n",
                 "start_all = time.time()\n",
                 "\n",
                 "for cfg_name, cfg in CONFIGURATIONS.items():\n",
@@ -505,7 +505,8 @@ notebook_content = {
     "nbformat_minor": 5
 }
 
-output_file = Path("notebooks/analisis_evaluasi.ipynb")
+output_file = Path("notebooks/Colab_Analisis_Komputasi_Presentasi.ipynb")
+output_file.parent.mkdir(parents=True, exist_ok=True)
 with open(output_file, "w", encoding="utf-8") as f:
     json.dump(notebook_content, f, indent=1, ensure_ascii=False)
 

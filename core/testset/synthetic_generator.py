@@ -1,20 +1,53 @@
 """Pembangkit kueri sintetis dari korpus arsip dengan variasi gangguan."""
-import random
 import re
 from typing import Dict, List, Optional
 
-from core.testset.noise import NOISE_FUNCTIONS, add_noise
+from core.testset.noise import add_noise
+
+SKIP_TOPIC_WORDS = {
+    "atas", "pekerjaan", "pekerjan", "pembayaran", "pembayaraan", "angsuran",
+    "dan", "ke", "di", "pada", "untuk", "biaya", "tahap",
+    "term", "termin", "terminj", "terminan", "oleh", "dalam", "deret",
+}
 
 
 def extract_topic_phrase(summary: str) -> Optional[str]:
     """Ekstrak frase inti pekerjaan dari teks ringkasan bebas."""
-    cleaned = re.sub(r"(?i)no\.?\s*spm.*", "", summary)
-    pattern_prefix = r"(?i)pembayaran\s+(?:termin\s+[^a-z]+|atas\s+pekerjaan\s+|untuk\s+)?"
-    cleaned = re.sub(pattern_prefix, "", cleaned)
-    cleaned = re.sub(r"\b(?:CV|PT)\.?\s+[A-Za-z0-9&.\- ]+", "", cleaned)
-    tokens = [w.strip(" .,-") for w in cleaned.split() if len(w.strip(" .,-")) >= 3]
+    text = summary or ""
+    text = re.sub(
+        r"(?i)\b(?:no\.?\s*spm|nospm|no\.?\s*sp2d|tgl\.?|tanggal|jumlah)\b.*",
+        " ",
+        text,
+    )
+    text = re.sub(r"(?i)\b(?:cv|pt|ud)\b\.?\s*[A-Za-z0-9&.,\- ]*", " ", text)
+    text = re.sub(
+        r"(?i)^\s*(?:spm\s+pembangunan\s+\d{4}\s*[-,:]?\s*)?(?:ls\s*[-,:]?\s*)?",
+        "",
+        text,
+    )
+    text = re.sub(
+        r"(?i)^\s*(?:pembayaran\s+)?(?:uang\s+muka\s+(?:kerja\s+)?|termin\w*\s+(?:ke\s+)?(?:(?:s/d|dan|[ivx0-9,/\-.\s])+)?|\(\s*\d+\s*%\s*\)\s*|tahap\s+[ivx0-9]+\s*)?(?:\(\s*\d+\s*%\s*\)\s*)?(?:atas\s+pekerjaan\s+|pekerjaan\s+|atas\s+biaya\s+|biaya\s+umum\s+|biaya\s+|untuk\s+)?",
+        "",
+        text,
+    )
+    text = re.sub(
+        r"(?i)^\s*(?:pembayaran\s+)?uang\s+untuk\s+di\s*pertanggung\s*jawabkan\s*(?:\(\s*uudp\s*\))?\s*[,.\-]?\s*(?:biaya\s+umum\s+|biaya\s+)?",
+        "",
+        text,
+    )
+    tokens: List[str] = []
+    for raw in text.split():
+        w = raw.strip(" .,-()/\"\\")
+        if len(w) < 2 or "%" in w:
+            continue
+        if w.lower() in {"jl", "jln"}:
+            continue
+        if len(w) < 3 or w.lower() in SKIP_TOPIC_WORDS:
+            continue
+        tokens.append(w)
     if len(tokens) >= 2:
-        return " ".join(tokens[:4])
+        take_n = 4 if "tiang" in [t.lower() for t in tokens[:3]] else 3
+        return " ".join(tokens[:take_n])
     return None
 
 
@@ -53,10 +86,15 @@ def generate_synthetic_query(
             base_text = str(party)
     elif query_type == "campuran":
         topic = extract_topic_phrase(summary)
-        if topic and year:
-            base_text = f"{topic} {year}"
-        elif party and year:
-            base_text = f"{party} {year}"
+        eff_year = year
+        if eff_year and int(eff_year) > 2020:
+            m_yr = re.search(r"\b(19\d{2}|20[01]\d)\b", f"{spm or ''} {summary}")
+            if m_yr:
+                eff_year = int(m_yr.group(1))
+        if topic and eff_year:
+            base_text = f"{topic} {eff_year}"
+        elif party and eff_year:
+            base_text = f"{party} {eff_year}"
         elif topic and spm:
             base_text = f"{topic} {spm}"
 

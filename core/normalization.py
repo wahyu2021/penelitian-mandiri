@@ -14,6 +14,7 @@ ABBREVIATIONS = {
     "nopember": "november",
 }
 
+_DOT_BETWEEN_SINGLE_LETTERS = re.compile(r"(?<=\b[a-z])\.(?=[a-z]\b)")
 _SLASH_BETWEEN_ALNUM = re.compile(r"(?<=[a-z0-9])\s*/\s*(?=[a-z0-9])")
 _TOKEN = re.compile(r"[a-z0-9]+(?:/[a-z0-9]+)*")
 
@@ -40,6 +41,7 @@ def normalize_text(text: str, expand_abbreviations: bool = True) -> str:
         Token dipisah satu spasi.
     """
     lowered = unicodedata.normalize("NFKC", text or "").lower()
+    lowered = _DOT_BETWEEN_SINGLE_LETTERS.sub("", lowered)
     joined = _SLASH_BETWEEN_ALNUM.sub("/", lowered)
     raw_tokens = _TOKEN.findall(joined)
     tokens: List[str] = []
