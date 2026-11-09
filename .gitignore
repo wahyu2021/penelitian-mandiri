@@ -17,6 +17,8 @@ instance/
 # Set uji dilacak sebagai JSON di data/testset/, bukan CSV.
 *.csv
 output/
+# Salinan kerja yang diekstrak dari ZIP distribusi notebook.
+notebooks/paket_pipeline_analisis_sampai_presentasi/
 
 # ===== Rahasia & konfigurasi lokal =====
 .env

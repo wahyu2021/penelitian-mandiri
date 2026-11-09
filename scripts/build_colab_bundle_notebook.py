@@ -1198,15 +1198,9 @@ def build_16_cell_notebook() -> dict:
 
 if __name__ == "__main__":
     nb = build_16_cell_notebook()
-    
-    # 1. Tulis ke notebooks/analisis_evaluasi_colab.ipynb
-    target_colab = Path("notebooks/analisis_evaluasi_colab.ipynb")
-    with open(target_colab, "w", encoding="utf-8") as f:
-        json.dump(nb, f, indent=2, ensure_ascii=False)
-    print(f"[OK] Notebook resmi Colab berhasil dibuat di: {target_colab}")
-    
-    # 2. Sinkronkan juga ke pipeline_analisis_sampai_presentasi.ipynb
+
+    # Satu notebook aktif; salinan bersih untuk distribusi dibuat saat ekspor paket.
     target_pipeline = Path("notebooks/pipeline_analisis_sampai_presentasi.ipynb")
     with open(target_pipeline, "w", encoding="utf-8") as f:
         json.dump(nb, f, indent=2, ensure_ascii=False)
-    print(f"[OK] Notebook pipeline juga disinkronkan ke: {target_pipeline}")
+    print(f"[OK] Notebook pipeline berhasil dibuat di: {target_pipeline}")
