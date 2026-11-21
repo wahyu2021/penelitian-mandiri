@@ -192,7 +192,7 @@ tampilan atau klaim dokumen saja.
 - **Uji:** data penuh/sebagian kosong, 404, 401, tampilan ponsel/tablet,
   keyboard, lint, tipe, build.
 - **Commit:** `feat(frontend): tampilkan detail dan lokasi arsip [PM-11]`.
-- **Jejak:** Status: selesai (21 November 2026) | Uji: 20 uji frontend lulus; lint, tipe, format, build lulus; 5 uji API detail lulus; browser desktop/tablet 768 px/ponsel 390 px tanpa gulir horizontal, navigasi cari–detail–kembali berhasil | Commit: commit frontend PM-11 pada riwayat Git | Catatan: teks asli dirender aman, field kosong jelas, status dugaan diberi penjelasan, dan parameter pencarian tetap ada pada tautan kembali.
+- **Jejak:** Status: selesai (21 November 2026) | Uji: 20 uji frontend lulus; lint, tipe, format, build lulus; 5 uji API detail lulus; browser desktop/tablet 768 px/ponsel 390 px tanpa gulir horizontal, navigasi cari–detail–kembali berhasil | Commit: `6ae9dc2` | Catatan: teks asli dirender aman, field kosong jelas, status dugaan diberi penjelasan, dan parameter pencarian tetap ada pada tautan kembali.
 
 ### PM-12 — Perbandingan metode React
 
