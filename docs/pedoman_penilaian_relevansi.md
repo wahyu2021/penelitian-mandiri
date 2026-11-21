@@ -51,6 +51,8 @@ Penilaian wajib mengikuti kriteria ketat berikut sesuai jenis kueri:
   - Arsip yang hanya memenuhi salah satu unsur tetapi bertentangan pada unsur lainnya.
 
 ### 2.5 Aturan Khusus Kueri Bergangguan Kata Hilang (`kata_hilang`)
+**Catatan untuk set uji v2:** aturan *wildcard* di bagian ini hanya menjelaskan skema penilaian lama. Pada set uji v2 yang dipakai evaluasi akhir, relevansi mengikuti kebutuhan informasi kueri dasar; kata yang hilang pada varian tidak otomatis menjadi *wildcard*. Lihat `docs/protokol_testset_v2.md` Bagian 5.
+
 - **Kesesuaian Komponen Tertulis:**
   - Semua komponen atau kata yang **masih tertulis** dalam teks kueri wajib cocok (*match*) dengan data pada arsip. Komponen yang hilang dianggap *wildcard* (tidak dibatasi).
   - Contoh pada nomor SPM: kueri `414/LS/2002` (komponen dinas hilang) mensyaratkan nomor urut `414`, kode jenis `LS`, dan tahun `2002` cocok seluruhnya.
@@ -83,7 +85,7 @@ Penilaian wajib mengikuti kriteria ketat berikut sesuai jenis kueri:
 2. **Penilaian Independen Buta:**
    - Arsiparis mengisi kolom `is_relevant` secara independen tanpa melihat jawaban peneliti.
 3. **Perhitungan Persentase Kesepakatan (*Percentage Agreement*):**
-   - Skrip `evaluate_relevance_agreement.py` menghitung persentase kesepakatan:
+   - Skrip `evaluate_relevance_agreement.py` menghitung persentase kesepakatan. Ringkasan evaluasi akhir juga melaporkan Cohen's kappa untuk dua penilai:
      $$\text{Agreement} = \frac{\text{Jumlah kesepakatan identik}}{\text{Total baris verifikasi}} \times 100\%$$
    - Hasil kesepakatan dicatat sebagai bukti reliabilitas set uji dalam publikasi/laporan ilmiah.
 

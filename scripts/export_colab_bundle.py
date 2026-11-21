@@ -32,6 +32,7 @@ from core.search.matchers import FUZZY_METHOD_NAMES, create_matcher
 from core.search.ranker import FieldRanker, equal_weights
 from services.db import DEFAULT_DB_PATH
 from scripts.evaluate_extraction_audit import evaluate_audit_data, read_audit_file
+from scripts.evaluate_relevance_agreement import evaluate_relevance_agreement
 
 FORBIDDEN_COLUMNS = {
     "query_text",
@@ -143,6 +144,42 @@ def build_audit_summary(
     }
 
 
+def build_agreement_summary(
+    main_csv_path: Path,
+    verification_sample_path: Path,
+    saved_report_path: Optional[Path] = None,
+) -> Dict[str, Any]:
+    """Pakai CSV penilaian terkini; laporan JSON lama hanya untuk cek selisih."""
+    if not verification_sample_path.is_file():
+        return {
+            "status": "pending_second_rater", "n_samples": 0, "n_completed": 0,
+            "percentage_agreement": None, "relevant_class_agreement": None,
+            "cohen_kappa": None, "notes": "Sampel verifikasi belum tersedia.",
+        }
+    with open(verification_sample_path, "r", encoding="utf-8-sig", newline="") as f:
+        rows = list(csv.DictReader(f))
+    n_completed = sum((row.get("is_relevant") or "").strip() in {"0", "1"} for row in rows)
+    if any((row.get("is_relevant") or "").strip() not in {"", "0", "1"} for row in rows):
+        raise ValueError("Sampel verifikasi memuat nilai relevansi selain 0/1")
+    if not rows or n_completed < len(rows):
+        return {
+            "status": "pending_second_rater", "n_samples": len(rows),
+            "n_completed": n_completed, "percentage_agreement": None,
+            "relevant_class_agreement": None, "cohen_kappa": None,
+            "notes": "Menunggu seluruh penilaian independen pada sampel verifikasi.",
+        }
+    current = evaluate_relevance_agreement(main_csv_path, verification_sample_path)
+    current["n_completed"] = n_completed
+    if saved_report_path and saved_report_path.is_file():
+        with open(saved_report_path, "r", encoding="utf-8") as f:
+            saved = json.load(f)
+        if any(saved.get(key) != current.get(key) for key in (
+            "percentage_agreement", "relevant_class_agreement", "cohen_kappa"
+        )):
+            click.echo("[PERINGATAN] Laporan kesepakatan JSON berbeda dari CSV terkini; bundle memakai hitungan CSV terbaru.")
+    return current
+
+
 def export_bundle(
     output_dir: Path = Path("output/colab_bundle"),
     db_path: Path = DEFAULT_DB_PATH,
@@ -153,6 +190,7 @@ def export_bundle(
     audit_manifest_path: Path = Path("output/audit_strata_summary.json"),
     agreement_report_path: Path = Path("output/relevance_agreement_report.json"),
     verification_sample_path: Path = Path("output/relevance_verification_sample.csv"),
+    main_judgment_path: Path = Path("output/relevance_pool.csv"),
     reuse_tuning_csv: bool = False,
 ) -> Path:
     """Ekspor seluruh berkas bundle evaluasi untuk konsumsi Colab/analisis eksternal."""
@@ -368,24 +406,9 @@ def export_bundle(
         json.dump(audit_summary, f, indent=2)
 
     # 8. Agreement Summary
-    agreement_summary: Dict[str, Any] = {}
-    if agreement_report_path.is_file():
-        with open(agreement_report_path, "r", encoding="utf-8") as f:
-            agreement_summary = json.load(f)
-    else:
-        # Periksa sampel verifikasi
-        sample_count = 0
-        if verification_sample_path.is_file():
-            with open(verification_sample_path, "r", encoding="utf-8-sig") as f:
-                sample_count = sum(1 for _ in csv.DictReader(f))
-        agreement_summary = {
-            "status": "pending_second_rater",
-            "n_samples": sample_count or 120,
-            "percentage_agreement": None,
-            "relevant_class_agreement": None,
-            "cohen_kappa": None,
-            "notes": "Menunggu pengisian penilaian independen oleh arsiparis kedua pada berkas sampel verifikasi.",
-        }
+    agreement_summary = build_agreement_summary(
+        main_judgment_path, verification_sample_path, agreement_report_path
+    )
 
     agreement_json_path = output_dir / "agreement_summary.json"
     with open(agreement_json_path, "w", encoding="utf-8") as f:

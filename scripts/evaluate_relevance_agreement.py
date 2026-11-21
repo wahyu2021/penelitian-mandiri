@@ -1,4 +1,4 @@
-"""Hitung persentase kesepakatan (percentage agreement) relevansi antara peneliti dan arsiparis."""
+"""Hitung kesepakatan relevansi peneliti dan petugas pada pasangan yang sama."""
 import argparse
 import csv
 import json
@@ -28,10 +28,10 @@ def evaluate_relevance_agreement(
     if not verif_csv_path.is_file():
         raise FileNotFoundError(f"Berkas sampel verifikasi tidak ditemukan: {verif_csv_path}")
 
-    with open(main_csv_path, "r", encoding="utf-8-sig") as f:
+    with open(main_csv_path, "r", encoding="utf-8-sig", newline="") as f:
         main_rows = list(csv.DictReader(f))
 
-    with open(verif_csv_path, "r", encoding="utf-8-sig") as f:
+    with open(verif_csv_path, "r", encoding="utf-8-sig", newline="") as f:
         verif_rows = list(csv.DictReader(f))
 
     if not verif_rows:
@@ -41,8 +41,10 @@ def evaluate_relevance_agreement(
     researcher_map: Dict[str, Dict[str, str]] = {}
     for r in main_rows:
         key = f"{r['query_id']}_{r['archive_id']}"
+        if key in researcher_map:
+            raise ValueError(f"Pasangan kueri-arsip ganda pada berkas utama: {key}")
         researcher_map[key] = {
-            "is_relevant": r.get("is_relevant", "").strip(),
+            "is_relevant": (r.get("is_relevant") or "").strip(),
             "query_type": r.get("query_type", "umum"),
         }
 
@@ -51,12 +53,14 @@ def evaluate_relevance_agreement(
     by_type_researcher: Dict[str, List[str]] = defaultdict(list)
     by_type_archivist: Dict[str, List[str]] = defaultdict(list)
 
-    unfilled_count = 0
+    seen_verification = set()
     for idx, r in enumerate(verif_rows, start=1):
         key = f"{r['query_id']}_{r['archive_id']}"
-        val_arch = r.get("is_relevant", "").strip()
+        if key in seen_verification:
+            raise ValueError(f"Pasangan kueri-arsip ganda pada sampel verifikasi: {key}")
+        seen_verification.add(key)
+        val_arch = (r.get("is_relevant") or "").strip()
         if not val_arch:
-            unfilled_count += 1
             raise ValueError(
                 f"Baris verifikasi ke-{idx} (query={r['query_id']}, arsip={r['archive_id']}) "
                 f"belum dinilai oleh arsiparis. Seluruh baris wajib dinilai."
@@ -71,16 +75,32 @@ def evaluate_relevance_agreement(
         val_res = researcher_map[key]["is_relevant"]
         q_type = r.get("query_type", researcher_map[key]["query_type"])
 
-        # Standarkan nilai 1 atau 0
-        norm_res = "1" if val_res in {"1", "true", "ya", "relevan"} else "0"
-        norm_arch = "1" if val_arch in {"1", "true", "ya", "relevan"} else "0"
+        if val_res not in {"0", "1"} or val_arch not in {"0", "1"}:
+            raise ValueError(f"Nilai relevansi harus 0 atau 1 pada pasangan {key}")
 
-        ratings_researcher.append(norm_res)
-        ratings_archivist.append(norm_arch)
-        by_type_researcher[q_type].append(norm_res)
-        by_type_archivist[q_type].append(norm_arch)
+        ratings_researcher.append(val_res)
+        ratings_archivist.append(val_arch)
+        by_type_researcher[q_type].append(val_res)
+        by_type_archivist[q_type].append(val_arch)
 
     overall_agreement = calculate_percentage_agreement(ratings_researcher, ratings_archivist)
+    both_relevant = sum(a == b == "1" for a, b in zip(ratings_researcher, ratings_archivist))
+    researcher_only = sum(a == "1" and b == "0" for a, b in zip(ratings_researcher, ratings_archivist))
+    archivist_only = sum(a == "0" and b == "1" for a, b in zip(ratings_researcher, ratings_archivist))
+    both_irrelevant = len(ratings_researcher) - both_relevant - researcher_only - archivist_only
+    n = len(ratings_researcher)
+    positive_denominator = 2 * both_relevant + researcher_only + archivist_only
+    relevant_class_agreement = (
+        2 * both_relevant / positive_denominator if positive_denominator else None
+    )
+    expected_agreement = (
+        (both_relevant + researcher_only) * (both_relevant + archivist_only)
+        + (both_irrelevant + archivist_only) * (both_irrelevant + researcher_only)
+    ) / (n * n)
+    cohen_kappa = (
+        (overall_agreement - expected_agreement) / (1 - expected_agreement)
+        if expected_agreement < 1 else None
+    )
 
     agreement_by_type = {}
     for q_type, r_list in by_type_researcher.items():
@@ -91,8 +111,23 @@ def evaluate_relevance_agreement(
         }
 
     return {
-        "n_verification_samples": len(ratings_researcher),
+        "status": "complete" if cohen_kappa is not None else "complete_kappa_undefined",
+        "n_samples": n,
+        "n_verification_samples": n,
+        "percentage_agreement": overall_agreement,
         "overall_percentage_agreement": overall_agreement,
+        "relevant_class_agreement": relevant_class_agreement,
+        "cohen_kappa": cohen_kappa,
+        "confusion_matrix": {
+            "both_relevant": both_relevant,
+            "researcher_only_relevant": researcher_only,
+            "archivist_only_relevant": archivist_only,
+            "both_irrelevant": both_irrelevant,
+        },
+        "notes": (
+            "Kappa tidak terdefinisi karena kedua penilai hanya memakai satu kelas."
+            if cohen_kappa is None else "Dihitung dari penilaian biner 0/1 pada pasangan kueri-arsip yang sama."
+        ),
         "agreement_by_query_type": agreement_by_type,
     }
 
@@ -134,6 +169,8 @@ def main() -> None:
     ov_pct = report["overall_percentage_agreement"] * 100.0
     print(f"Total Sampel Diverifikasi : {total_samples} baris")
     print(f"Kesepakatan Keseluruhan   : {ov_pct:>6.2f} %")
+    print(f"Kesepakatan Kelas Relevan : {report['relevant_class_agreement']}")
+    print(f"Cohen's Kappa             : {report['cohen_kappa']}")
     print("-" * 70)
     print("Rincian per Jenis Kueri:")
     for q_type, detail in sorted(report["agreement_by_query_type"].items()):
