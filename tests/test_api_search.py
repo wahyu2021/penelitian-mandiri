@@ -6,7 +6,7 @@ import pytest
 from werkzeug.security import generate_password_hash
 
 from services.db import get_connection, init_db
-from services.web_search import search_archives
+from services.web_search import METHODS, compare_methods, search_archives
 from webapp import create_app
 
 
@@ -133,6 +133,87 @@ def test_search_database_error_is_safe_json(search_app):
         connection.execute("DROP TABLE archive")
     connection.close()
     response = client.get("/api/v1/search?q=arsip")
+    assert response.status_code == 500
+    assert response.get_json()["error"]["code"] == "server_error"
+    assert "no such table" not in response.get_data(as_text=True)
+
+
+def test_compare_requires_admin_and_never_redirects_to_html(search_app):
+    anonymous = search_app.test_client()
+    response = anonymous.get("/api/v1/search/compare?q=jembatan")
+    assert response.status_code == 401
+    assert response.is_json
+    assert "Location" not in response.headers
+
+    petugas = search_app.test_client()
+    login(petugas, "petugas")
+    denied = petugas.get("/api/v1/search/compare?q=jembatan")
+    assert denied.status_code == 403
+    assert denied.get_json()["error"]["code"] == "forbidden"
+
+
+def test_compare_uses_service_order_and_unmodified_scores(search_app):
+    client = search_app.test_client()
+    login(client)
+    response = client.get("/api/v1/search/compare?q=jembatan&limit=2")
+    assert response.status_code == 200
+    assert response.headers["Cache-Control"] == "no-store"
+    data = response.get_json()["data"]
+    assert data["query"] == "jembatan"
+    assert data["limit"] == 2
+    assert data["score_note"] == "Skor antarmetode tidak selalu sebanding."
+    assert [method["name"] for method in data["methods"]] == list(METHODS)
+    assert all(method["label"] for method in data["methods"])
+    expected = compare_methods(search_app.config["DATABASE"], "jembatan", limit=2)
+    for method in data["methods"]:
+        name = method["name"]
+        assert method["items"] == [
+            {"id": row["id"], "summary_raw": row["summary_raw"], "score": row["score"]}
+            for row in expected[name]
+        ]
+        assert len(method["items"]) <= 2
+
+
+def test_compare_applies_same_filter_to_every_method(search_app):
+    client = search_app.test_client()
+    login(client)
+    response = client.get("/api/v1/search/compare?q=arsip&opd_id=1&year=2020&status=1&limit=1")
+    assert response.status_code == 200
+    data = response.get_json()["data"]
+    assert data["filters"] == {"opd_id": 1, "year": 2020, "status": 1}
+    assert all([item["id"] for item in method["items"]] == [10] for method in data["methods"])
+
+
+def test_compare_no_hits_still_lists_every_method(search_app):
+    client = search_app.test_client()
+    login(client)
+    data = client.get("/api/v1/search/compare?q=arsip&opd_id=999").get_json()["data"]
+    assert len(data["methods"]) == len(METHODS)
+    assert all(method["items"] == [] for method in data["methods"])
+    assert data["limit"] == 10
+
+
+@pytest.mark.parametrize("params", [
+    "", "q=", "q=%20%20", "q=" + "a" * 201, "q=arsip&limit=0",
+    "q=arsip&limit=21", "q=arsip&limit=", "q=arsip&opd_id=abc",
+    "q=arsip&year=1800", "q=arsip&status=4", "q=arsip&q=dua",
+])
+def test_compare_rejects_invalid_query_and_filters(search_app, params):
+    client = search_app.test_client()
+    login(client)
+    response = client.get("/api/v1/search/compare?" + params)
+    assert response.status_code == 400
+    assert response.is_json
+
+
+def test_compare_database_error_is_safe_json(search_app):
+    client = search_app.test_client()
+    login(client)
+    connection = get_connection(search_app.config["DATABASE"])
+    with connection:
+        connection.execute("DROP TABLE archive")
+    connection.close()
+    response = client.get("/api/v1/search/compare?q=arsip")
     assert response.status_code == 500
     assert response.get_json()["error"]["code"] == "server_error"
     assert "no such table" not in response.get_data(as_text=True)

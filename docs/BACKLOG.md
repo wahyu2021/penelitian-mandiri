@@ -137,7 +137,7 @@ tampilan atau klaim dokumen saja.
 - **Uji:** hasil tiap metode dengan fixture tetap; 401/403; kueri tidak valid;
   angka skor tidak dihitung ulang di HTTP layer.
 - **Commit:** `feat(api): tambah perbandingan metode admin [PM-06]`.
-- **Jejak:** Status: belum dimulai | Uji: — | Commit: — | Catatan: —
+- **Jejak:** Status: selesai (21 November 2026) | Uji: 40 uji pencarian API/web lulus; `pytest -q` 211 lulus, 5 dilewati | Commit: commit PM-06 pada riwayat Git | Catatan: batas 1–20 hasil per metode; skor dikirim apa adanya dan tidak dibandingkan antar metode.
 
 ## Tiket frontend React
 

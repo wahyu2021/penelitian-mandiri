@@ -1,8 +1,7 @@
 # Kontrak HTTP API Flask untuk React
 
-**Status:** fondasi PM-01, sesi PM-02, dashboard PM-03, pencarian PM-04, dan
-detail arsip PM-05 diimplementasikan; perbandingan metode PM-06 masih target.
-Dokumen ini diperbarui bersama
+**Status:** fondasi PM-01 dan endpoint P0 PM-02 sampai PM-06 sudah
+diimplementasikan. Dokumen ini diperbarui bersama
 implementasi tiap tiket, bukan bukti bahwa endpoint target sudah tersedia.
 
 ## Versi, origin, dan bentuk respons
@@ -128,7 +127,25 @@ tidak dikirim. Respons memakai `Cache-Control: no-store` dan galat database
 500 JSON tanpa rincian SQL. Frontend harus merender teks asli sebagai teks,
 tanpa menyisipkannya sebagai HTML.
 
-## Endpoint target dan pemilik tiket
+### Perbandingan metode yang sudah tersedia (PM-06)
+
+`GET /api/v1/search/compare` hanya untuk admin; tanpa sesi memberi 401,
+petugas memberi 403. `q` wajib diisi setelah di-*trim* dan maksimal 200
+karakter. Filter opsional `opd_id` (positif), `year` (1900–2100), dan `status`
+(1–3) dipakai sama untuk seluruh metode. `limit` berlaku **per metode**,
+default 10 dan maksimum 20. Kueri/filter/batas tidak valid atau ganda memberi
+400 JSON.
+
+Respons `data` memuat `query`, `limit`, `filters`, `methods`, dan `score_note`.
+`methods` adalah daftar dalam urutan tetap: LIKE (pembanding), Levenshtein,
+Jaro-Winkler, Token Set, dan N-gram Dice. Setiap metode memuat `name`, `label`,
+serta `items` berisi `id`, `summary_raw`, dan `score` asli. Jika tidak ada
+hasil, kelima metode tetap muncul dengan `items: []`. Skor antar metode tidak
+selalu sebanding; bandingkan urutan dan arsip yang muncul, bukan nilai skor
+mentah lintas metode. Respons memakai `Cache-Control: no-store`; kegagalan
+database memberi 500 JSON tanpa rincian SQL.
+
+## Endpoint dan pemilik tiket
 
 | Metode dan path | Pemakai | Data yang diharapkan | Tiket |
 |---|---|---|---|
@@ -138,13 +155,13 @@ tanpa menyisipkannya sebagai HTML.
 | `GET /api/v1/dashboard` | admin, petugas | `counts` dan enam arsip ber-ID tertinggi; tersedia | PM-03 |
 | `GET /api/v1/search` | admin, petugas | `items`, `pagination`, metode yang dipakai; tersedia | PM-04 |
 | `GET /api/v1/archives/{id}` | admin, petugas | detail, metadata, status dugaan, lokasi; tersedia | PM-05 |
-| `GET /api/v1/search/compare` | admin | hasil per metode untuk kueri sama | PM-06 |
+| `GET /api/v1/search/compare` | admin | hasil per metode untuk kueri sama; tersedia | PM-06 |
 
-Penamaan field rinci ditambahkan ke dokumen ini dan diuji sebelum frontend
-fitur terkait dibangun. Endpoint yang belum ada tidak boleh dijadikan contoh
-respons berhasil dalam README atau laporan.
+Penamaan field rinci di atas diuji sebelum frontend fitur terkait dibangun.
+Endpoint lain yang belum ada tidak boleh dijadikan contoh respons berhasil
+dalam README atau laporan.
 
-## Parameter dan validasi target
+## Parameter dan validasi pencarian
 
 - `q`: teks kueri yang di-*trim*; maksimal 200 karakter. Permintaan tanpa
   kueri dapat menghasilkan daftar kosong dengan penjelasan, bukan pencarian
@@ -156,8 +173,8 @@ respons berhasil dalam README atau laporan.
   menghasilkan 400, pilihan tanpa hak menghasilkan 403.
 - Daftar memakai `limit` (default 20, maksimum 100) dan `offset` (default 0).
   `pagination` mencantumkan nilai efektif dan `total`; `limit`/`offset` yang
-  tidak valid menghasilkan 400. PM-04 harus memastikan penghitungan total
-  selaras dengan filter dan tidak mengubah urutan ranking.
+  tidak valid menghasilkan 400. Total dihitung dari hasil dengan filter yang
+  sama sebelum pagination, tanpa mengubah urutan ranking.
 - ID arsip harus berupa bilangan bulat positif; arsip yang tidak ada
   menghasilkan 404. Data kosong dikirim sebagai `null` atau string kosong
   sesuai kontrak field, tanpa nilai rekaan.

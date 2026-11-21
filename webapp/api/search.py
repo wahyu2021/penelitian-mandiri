@@ -7,31 +7,14 @@ from flask_login import current_user
 
 from services.web_search import DEFAULT_METHOD, METHODS, search_archives
 from webapp.api import api, success
+from webapp.api.query_params import optional_int, reject_duplicate_params
 from webapp.api.session import require_api_user
-
-
-def _optional_int(name, *, minimum, maximum=None, default=None):
-    raw = request.args.get(name)
-    if raw is None:
-        return default
-    if raw == "":
-        if name in ("limit", "offset"):
-            abort(400, description=f"Parameter {name} harus berupa angka.")
-        return default
-    if len(raw) > 10 or not raw.isascii() or not raw.isdecimal():
-        abort(400, description=f"Parameter {name} harus berupa angka.")
-    value = int(raw)
-    if value < minimum or (maximum is not None and value > maximum):
-        abort(400, description=f"Parameter {name} di luar batas yang diizinkan.")
-    return value
 
 
 @api.get("/search")
 @require_api_user
 def search():
-    for name in ("q", "method", "opd_id", "year", "status", "limit", "offset"):
-        if len(request.args.getlist(name)) > 1:
-            abort(400, description=f"Parameter {name} hanya boleh diisi sekali.")
+    reject_duplicate_params(("q", "method", "opd_id", "year", "status", "limit", "offset"))
     query = request.args.get("q", "").strip()
     if len(query) > 200:
         abort(400, description="Kueri maksimal 200 karakter.")
@@ -43,11 +26,11 @@ def search():
         abort(403, description="Pemilihan metode hanya tersedia untuk admin.")
     method = requested_method or DEFAULT_METHOD
 
-    opd_id = _optional_int("opd_id", minimum=1)
-    year = _optional_int("year", minimum=1900, maximum=2100)
-    status = _optional_int("status", minimum=1, maximum=3)
-    limit = _optional_int("limit", minimum=1, maximum=100, default=20)
-    offset = _optional_int("offset", minimum=0, default=0)
+    opd_id = optional_int("opd_id", minimum=1)
+    year = optional_int("year", minimum=1900, maximum=2100)
+    status = optional_int("status", minimum=1, maximum=3)
+    limit = optional_int("limit", minimum=1, maximum=100, default=20)
+    offset = optional_int("offset", minimum=0, default=0)
 
     try:
         # Mesin pencarian mengurutkan semua hasil sebelum dipotong. Hitung total

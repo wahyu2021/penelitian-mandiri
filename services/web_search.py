@@ -50,6 +50,7 @@ def search_archives(db_path: Path, query: str, method: str = DEFAULT_METHOD,
     return [{**record_by_id[hit.id], "score": hit.score} for hit in hits]
 
 
-def compare_methods(db_path: Path, query: str, opd_id=None, year=None, status=None):
-    return {method: search_archives(db_path, query, method, opd_id, year, status, 10)
+def compare_methods(db_path: Path, query: str, opd_id=None, year=None, status=None,
+                    limit: int = 10):
+    return {method: search_archives(db_path, query, method, opd_id, year, status, limit)
             for method in METHODS}
