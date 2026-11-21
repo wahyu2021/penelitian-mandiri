@@ -1,5 +1,10 @@
 # Implementation Plan: Testset & Scientific Evaluation
 
+> **Arsip pelaksanaan awal.** Tanda selesai di dokumen ini menunjukkan
+> pekerjaan kode pada saat itu, bukan validasi petugas yang sudah tuntas.
+> Acuan aktif: [`../../../docs/protokol_testset_v2.md`](../../../docs/protokol_testset_v2.md)
+> dan [`../../../docs/BACKLOG.md`](../../../docs/BACKLOG.md).
+
 Track: `testset-and-evaluation`  
 Metodologi: Berurutan Berbasis Gerbang Ilmiah (*Sequential Gated Execution*) — Cabang fitur: `feat/testset-and-evaluation`.
 

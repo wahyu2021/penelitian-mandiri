@@ -5,26 +5,25 @@
 - **Cabang Fitur Singkat (`feat/...` atau `fix/...`):**
   - Dibuat dari `main` untuk satu unit tugas spesifik (misal: `feat/metadata-extraction`, `feat/fuzzy-matchers`).
   - Penggabungan (*merge*) ke `main` hanya boleh dilakukan setelah rangkaian pengujian `pytest` lulus tanpa galat (100% green).
-- **Format Pesan Commit:** Mengikuti format Conventional Commits ringkas berbahasa Indonesia (`feat:`, `fix:`, `test:`, `docs:`, `refactor:`, `chore:`). Satu commit mewakili satu perubahan logis koheren (atomik).
+- **Format Pesan Commit:** `tipe(scope): hasil konkret [PM-XX]` sesuai [`../docs/BACKLOG.md`](../docs/BACKLOG.md). Satu commit memuat satu perubahan logis dan uji terkait; staging path tiket diperiksa sebelum commit.
 
 ## 2. Gerbang Mutu Perangkat Lunak (Quality Gates)
 - **Pengecekan Wajib Sebelum Merge:**
   - `pytest tests/` wajib berjalan dan berhasil tanpa peringatan kritis.
+  - Untuk fitur React setelah `frontend/` dibuat: lint, `tsc --noEmit`, uji frontend yang relevan, dan build produksi wajib lulus.
   - Setiap fungsi publik baru di lapisan `core/` wajib disertai berkas uji unit terkait.
   - Fungsi kalkulasi metrik temu kembali (*Precision@5, Recall@10, MRR@10, Hit Rate*) wajib diverifikasi menggunakan kasus uji dengan nilai acuan hitung tangan (*hand-calculated ground truth*).
 - **Definisi Selesai (Definition of Done - DoD):**
-  Sebuah fitur dinyatakan selesai jika memenuhi 5 kriteria:
-  1. Kode terimplementasi bersih sesuai pedoman gaya kode tanpa *placeholder*.
-  2. Seluruh uji unit otomatis `pytest` lulus.
-  3. Catatan keputusan desain/arsitektur terdokumentasi singkat di folder `docs/` sebagai bahan laporan penelitian mandiri.
-  4. Diagram pendukung (ERD, flowchart) dan tangkapan layar antarmuka tersimpan rapi.
-  5. Tidak ada angka metrik atau klaim yang diketik manual di kode, template, maupun dokumen; semua nilai harus dihasilkan oleh skrip.
+  Tiket dinyatakan selesai setelah kriteria penerimaannya terpenuhi, uji yang
+  tercantum pada tiket lulus, regresi terkait diperiksa, dan hash commit
+  dicatat. Diagram, screenshot, atau catatan desain ditambahkan bila perubahan
+  memerlukannya. Angka penelitian hanya berasal dari komputasi yang terlacak.
 
 ## 3. Pemetaan Tahapan Waterfall ke Laporan Penelitian Mandiri (Bab IV)
 Proses pengembangan mengikuti metodologi sekuensial yang terpetakan ke sub-bab laporan (penomoran sub-bab menyesuaikan template institusi dan arahan dosen pembimbing):
 - **Tahap 1: Analisis Kebutuhan & Data:** Profiling data `apptb_arsip`, identifikasi anomali data (orphan OPD, tanggal kosong, format teks bebas), perumusan batasan fungsional.
-- **Tahap 2: Perancangan Sistem & Algoritma:** Skema basis data SQLite, flowchart alur ekstraksi regex, formulasi matematis fungsi kemiripan (Levenshtein, Jaro-Winkler, Token Set, Dice N-gram), dan perancangan antarmuka Bootstrap 5.
-- **Tahap 3: Implementasi Modul:** Realisasi modul parser, pembersih data, ekstraktor metadata, modul fuzzy search, dan antarmuka web Flask.
+- **Tahap 2: Perancangan Sistem & Algoritma:** Skema basis data SQLite, flowchart ekstraksi regex, formulasi fungsi kemiripan, kontrak Flask API, dan rancangan antarmuka React.
+- **Tahap 3: Implementasi Modul:** Parser, pembersih data, ekstraktor metadata, fuzzy search, Flask API, dan React SPA yang dibangun menjadi aset statis.
 - **Tahap 4: Pengujian & Evaluasi Ilmiah:** Pelaksanaan audit ekstraksi, eksekusi set uji kueri, perbandingan metrik temu kembali terhadap baseline LIKE, dan pengujian pengguna (UAT/SUS).
 
 ## 4. Titik Pemeriksaan Administratif & Kolaborasi
@@ -35,7 +34,7 @@ Proses pengembangan mengikuti metodologi sekuensial yang terpetakan ke sub-bab l
 Untuk menjaga integritas metodologi penelitian, langkah evaluasi wajib mengikuti urutan ketat berikut:
 1. **Gerbang 1 - Audit Ekstraksi Metadata:** Sampel data teracak dinilai secara manual oleh peneliti/arsiparis. Persentase akurasi dihitung murni oleh skrip sebelum beralih ke modul evaluasi kueri.
 2. **Gerbang 2 - Penyusunan & Penguncian Set Uji:**
-   - Kueri kasus nyata dari arsiparis dikumpulkan, ditambah kueri sintetis bergangguan realistis (total target 30–50 kueri).
+   - Set uji aktif saat ini berisi 112 varian kueri sintetis (32 tuning, 80 test); kueri kasus nyata dari arsiparis belum terkumpul. Ikuti `docs/protokol_testset_v2.md` untuk prosedur dan batas klaim.
    - Dilakukan *blind pooling* (gabungan top kandidat tanpa label metode) dan penilaian relevansi berpanduan aturan tertulis (dokumen dengan SPM atau substansi isi sama dinilai setara relevan).
    - Set uji dibagi (*stratified split*) dengan proporsi sekitar **30% tuning** dan **70% test** dari total kueri yang terkumpul.
    - Versi set uji **dikunci permanen** (dihitung hash SHA-256 isinya) dan tidak boleh dimodifikasi lagi.

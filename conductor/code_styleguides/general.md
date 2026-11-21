@@ -19,8 +19,14 @@ Panduan umum rekayasa perangkat lunak, kebersihan kode, dan manajemen versi (Git
 - **Larangan Kode Placeholder:** Jangan pernah meninggalkan fungsi kosong, komentar `// TODO`, atau data tiruan tanpa implementasi fungsional nyata.
 
 ## 3. Manajemen Versi & Standar Git
+- **Tiket sebagai unit kerja:** Ikuti urutan, fase uji, dan pola commit pada
+  [`../../docs/BACKLOG.md`](../../docs/BACKLOG.md). Catat hash commit dan bukti
+  uji sebelum menandai tiket selesai.
 - **Commit Atomik:** Satu commit hanya memuat satu perubahan logis yang koheren.
 - **Format Conventional Commits (Bahasa Indonesia):**
+  - Gunakan subjek `tipe(scope): hasil konkret [PM-XX]`; scope menunjukkan
+    bagian kode yang berubah. Uji dan dokumentasi terkait ikut dalam commit
+    fitur yang sama bila membuktikan satu perubahan logis.
   - `feat:` penambahan fitur baru (misal: `feat: tambah modul ekstraksi metadata spm`)
   - `fix:` perbaikan bug/kesalahan (misal: `fix: perbaiki penanganan tanggal kosong 0000-00-00`)
   - `test:` penambahan atau pembaruan unit test (misal: `test: tambah uji hitung tangan mrr dan dice`)

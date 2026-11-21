@@ -4,6 +4,11 @@ Sistem Pencarian Arsip Menggunakan Fuzzy Matching dan Normalisasi Metadata Berba
 
 # Product Guide: Sistem Pencarian Arsip pada e-Arsip (SIMANIS)
 
+**PRD utama:** [`../docs/PRD.md`](../docs/PRD.md). Dokumen ini adalah
+ringkasan produk; kriteria penerimaan dan status implementasi mengikuti PRD.
+Fitur yang disebut di bawah adalah lingkup target kecuali statusnya telah
+dibuktikan dalam kode dan pengujian.
+
 ## 1. Visi dan Gambaran Umum
 Sistem Pencarian Arsip Berbasis Website yang dirancang untuk meneliti dan mengatasi permasalahan temu kembali informasi pada data e-Arsip (SIMANIS) Dinas Perpustakaan dan Kearsipan Kota Palembang. Sistem ini mengintegrasikan **ekstraksi & normalisasi metadata** dari teks ringkasan bebas serta **pencarian fuzzy matching multi-metode** (Levenshtein, Jaro-Winkler, Token Set, dan N-Gram) yang toleran terhadap salah ketik (typo), variasi ejaan, dan singkatan, dibandingkan terhadap metode pencarian eksak/LIKE bawaan sistem yang berjalan.
 
@@ -16,8 +21,8 @@ Sistem Pencarian Arsip Berbasis Website yang dirancang untuk meneliti dan mengat
    - Mengelola akun pengguna dan kamus referensi jenis SPM.
 2. **Petugas / Arsiparis:**
    - Memberikan target kasus nyata dari pengalaman temu kembali arsip di lapangan.
-   - Memverifikasi sampel penilaian relevansi (20-30% sampel) untuk menghitung persentase kesepakatan (*percentage agreement*).
-   - Melakukan pencarian arsip multi-metode dengan filter OPD dan Tahun.
+   - Memverifikasi sampel penilaian relevansi secara independen untuk menghitung persentase kesepakatan dan Cohen's kappa setelah sampel lengkap.
+   - Melakukan pencarian arsip dengan metode bawaan serta filter OPD dan Tahun; pemilihan metode untuk perbandingan menjadi hak admin.
    - Melihat detail arsip dan hasil ekstraksi metadata terstruktur.
    - Melakukan audit akurasi ekstraksi metadata pada sampel yang ditentukan.
    - Berpartisipasi dalam pengujian kegunaan sistem (UAT dan kuesioner SUS).
@@ -27,18 +32,18 @@ Sistem Pencarian Arsip Berbasis Website yang dirancang untuk meneliti dan mengat
 - **Impor & Normalisasi Data:** Parser SQL dump aman (tanpa membaca tabel `apptb_user` dan `apptb_log`), pembersihan format data, penanganan tanggal/tahun tidak valid, dan pemisahan kuantitas berkas fisik vs nominal rupiah.
 - **Ekstraksi Metadata Terstruktur:** Ekstraksi otomatis No. SPM, No. SP2D, Tanggal Dokumen, Nominal Rupiah, dan Pihak (CV/PT) dari teks ringkasan, dilengkapi modul audit manual berpenghitungan akurasi otomatis oleh skrip.
 - **Pencarian Multi-Metode:** Dukungan 4 algoritma fuzzy (Levenshtein, Jaro-Winkler, Token Set, Character N-Gram Dice) berbobot field dinamis serta pembanding LIKE (meniru DataTables SIMANIS).
-- **Modul Evaluasi Ilmiah:** Penyetelan bobot (rencana 15 kueri tuning) dan pengujian akhir (rencana 35 kueri test, total target 30–50 kueri) dengan metrik P@5, R@10, MRR@10, Hit Rate@5/10, dan jumlah kueri nol hasil, dilaporkan per jenis kueri dan per jenis gangguan. Uji signifikansi statistik (Wilcoxon) bersifat opsional setelah metrik utama selesai.
+- **Modul Evaluasi Ilmiah:** Penyetelan hanya pada split tuning dan pengujian akhir pada split test dari versi test set aktif. `data/testset/testset_v1.json` memuat 112 varian kueri sintetis (32 tuning, 80 test); protokol ilmiah rinci ada di `docs/protokol_testset_v2.md`. Metrik dan ketidakpastian dihitung oleh skrip, bukan angka target historis.
 - **Otentikasi & Keamanan:** Login dengan kata sandi ter-hash (scrypt/werkzeug), proteksi CSRF, dan kontrol akses berbasis peran.
 
 ### Fase 2 (Pengembangan Lanjutan):
 - **Deteksi Duplikasi Arsip:** Penandaan pasangan arsip kandidat duplikat (belum dicek, duplikat, bukan duplikat) tanpa operasi hapus.
-- **Dashboard Kualitas Data:** Visualisasi Chart.js untuk anomali data (orphan OPD, tanggal 0000-00-00, kelengkapan berkas fisik).
+- **Dashboard Kualitas Data:** Target visualisasi React/Recharts untuk anomali data (orphan OPD, tanggal 0000-00-00, kelengkapan berkas fisik), dengan tabel data alternatif.
 
 ## 4. Tolok Ukur Keberhasilan & Evaluasi
 1. **Terukurnya Efektivitas Temu Kembali:** Terukurnya perbedaan efektivitas pencarian fuzzy dibanding baseline LIKE pada kueri realistis dan kueri bergangguan, dilaporkan apa adanya (termasuk kasus di mana metode tidak lebih unggul).
 2. **Transparansi Hasil:** Seluruh metrik dilaporkan tanpa manipulasi dan dihitung murni secara komputasi oleh skrip.
 3. **Validasi Ekstraksi:** Akurasi ekstraksi tervalidasi melalui sampel audit teracak dengan pencatatan seed untuk replikasi.
-4. **Evaluasi Pengguna Deskriptif:** Evaluasi kegunaan sistem melibatkan seluruh petugas pengguna (kurang dari 5 orang) melalui UAT dan SUS, dilaporkan secara deskriptif tanpa generalisasi statistik luas.
+4. **Evaluasi Pengguna Deskriptif:** UAT dan SUS melibatkan petugas yang benar-benar menggunakan sistem dan bersedia ikut uji. Jumlah aktual dicatat setelah perekrutan, tanpa generalisasi statistik luas.
 
 ## 5. Batasan Operasional & Keamanan
 - **Arsitektur Mandiri (Standalone):** Menggunakan basis data SQLite lokal dari salinan dump, dan tidak melakukan koneksi atau penulisan ke MySQL produksi dinas.

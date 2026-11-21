@@ -39,6 +39,12 @@ htmlcov/
 .mypy_cache/
 .ruff_cache/
 
+# ===== Frontend React (target migrasi) =====
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/coverage/
+
 # ===== Log =====
 *.log
 logs/

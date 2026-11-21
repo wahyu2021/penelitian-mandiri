@@ -1,5 +1,11 @@
 # Specification: Testset & Scientific Evaluation (`testset-and-evaluation`)
 
+> **Arsip rencana awal.** Target jumlah kueri, komposisi, dan metode pooling di
+> bawah tidak lagi menjadi acuan evaluasi aktif. Gunakan
+> [`../../../docs/protokol_testset_v2.md`](../../../docs/protokol_testset_v2.md)
+> untuk protokol ilmiah dan [`../../../docs/PRD.md`](../../../docs/PRD.md)
+> untuk kebutuhan produk saat ini.
+
 ## 1. Overview
 Track ini membangun seluruh instrumen evaluasi temu kembali ilmiah dan keterulangan data untuk penelitian mandiri pada repositori lokal/privat:
 1. Impor dump SQL e-Arsip SIMANIS ke database SQLite lokal (`instance/app.sqlite`) dengan verifikasi kelima angka acuan cocok.

@@ -1,13 +1,21 @@
 # Rancangan Aplikasi Pencarian Arsip SIMANIS
 
-Tech stack: **Flask + SQLite (SQLAlchemy) + rapidfuzz + pandas + Bootstrap 5 + Chart.js**, dengan pengujian pytest dan dijalankan memakai waitress.
+Arsitektur target: **Flask JSON API + SQLite (`sqlite3`) + RapidFuzz + React/TypeScript + Vite + Tailwind CSS**, dengan pytest dan pengujian frontend. Aplikasi produksi dijalankan oleh Waitress. Rincian library serta batas implementasi ada di [docs/arsitektur_flask_react.md](docs/arsitektur_flask_react.md).
+
+**Status:** dokumen ini memuat rancangan fitur, bukan daftar fitur yang sudah selesai. Aplikasi web saat ini masih Flask/Jinja. Jumlah kueri dan hasil ilmiah mengikuti berkas test set/protokol aktif, bukan target historis dalam rancangan awal.
+
+Kebutuhan produk, prioritas, dan kriteria penerimaan yang berlaku ada di
+[docs/PRD.md](docs/PRD.md). Dokumen ini merinci rancangan teknisnya.
 
 ---
 
 ## 0. Temuan awal yang memengaruhi rancangan
 
 > [!IMPORTANT]
-> **File audit ekstraksi ternyata kosong.** Di [sampel_audit_100.csv](file:///D:/Coding/earsip/sampel_audit_100.csv) (100 baris), kolom `spm_benar?`, `sp2d_benar?`, `tanggal_benar?`, `jumlah_benar?`, `pihak_benar?`, dan `catatan` belum terisi satu pun. Begitu juga kolom `benar?` di [sampel_audit.csv](file:///D:/Coding/earsip/sampel_audit.csv) (40 baris). Artinya klaim **"100% (367/367)"** di prototype belum punya bukti. Audit perlu diulang lewat halaman Audit Ekstraksi, dan akurasinya dihitung oleh skrip.
+> Audit utama 100 sampel sudah diisi pada `output/audit_extraction_sample.csv`.
+> Sampel kesepakatan audit kedua dan verifikasi relevansi petugas masih perlu
+> dilengkapi. Angka akurasi dan kesepakatan hanya boleh diambil dari keluaran
+> skrip yang dihitung ulang, bukan dari klaim prototipe lama.
 
 - **Pembanding LIKE meniru cara SIMANIS mencari.** Daftar arsip di SIMANIS memakai pencarian DataTables di sisi klien dengan setelan bawaan ([custom.js](file:///D:/Coding/earsip/assets/js/custom.js#L2-L15)). Kueri dipecah per spasi, dan setiap kata harus muncul sebagai potongan teks (tanpa membedakan huruf besar-kecil) di kolom mana pun yang tampil. Hasil diurutkan `id_arsip ASC` ([Arsip_model.php](file:///D:/Coding/earsip/application/models/Arsip_model.php#L16)). Pembanding kita memakai aturan yang sama dengan SQL `LIKE '%kata%'` yang digabung AND. Dengan begitu, perbandingannya jujur terhadap sistem yang berjalan sekarang.
 - **Kolom `jumlah` di tabel sumber bukan nominal uang.** Isinya keterangan banyaknya berkas (misalnya "1 Berkas"). Nominal Rp berasal dari ekstraksi `ringkasan`. Di skema baru keduanya dipisah: `quantity_label` dan `amount_rp`.
@@ -17,65 +25,16 @@ Tech stack: **Flask + SQLite (SQLAlchemy) + rapidfuzz + pandas + Bootstrap 5 + C
 
 ## 1. Struktur folder
 
-```
-PM/
-├── app/                          # Lapisan web (Flask)
-│   ├── __init__.py               # create_app()
-│   ├── config.py                 # Konfigurasi dari .env
-│   ├── extensions.py             # db, login_manager, csrf
-│   ├── security.py               # Dekorator role_required('admin')
-│   ├── cli.py                    # Perintah `flask ...` (impor, set uji, evaluasi, laporan)
-│   ├── models/                   # Model SQLAlchemy
-│   │   ├── user.py               # User, ActivityLog
-│   │   ├── archive.py            # ImportBatch, Opd, Classification, ArchiveRaw, Archive, ArchiveMetadata, DataIssue
-│   │   ├── reference.py          # SpmType, AppSetting
-│   │   ├── audit.py              # ExtractionAudit
-│   │   ├── testset.py            # TestsetVersion, TestQuery, RelevanceJudgment
-│   │   ├── evaluation.py         # EvaluationRun, EvaluationQueryResult, EvaluationRanking
-│   │   └── duplicate.py          # DuplicateCandidate (fase 2)
-│   ├── services/                 # Penghubung core ↔ database (dipakai oleh UI dan CLI)
-│   │   ├── import_service.py
-│   │   ├── search_service.py     # Cache indeks per import_batch
-│   │   ├── audit_service.py
-│   │   ├── testset_service.py
-│   │   ├── evaluation_service.py
-│   │   ├── stats_service.py      # SATU-SATUNYA sumber angka untuk dashboard
-│   │   └── report_service.py     # Ekspor tabel laporan ke output/
-│   ├── blueprints/
-│   │   ├── auth/  main/  search/  archives/  admin/  testset/  evaluation/
-│   │   └── quality/  duplicates/ # fase 2
-│   ├── templates/                # base.html, partials/, satu folder per blueprint
-│   └── static/
-│       ├── css/app.css           # Design token (warna, spacing 4/8px, radius, shadow)
-│       ├── js/
-│       └── vendor/               # Bootstrap 5, Chart.js, font Inter (lokal, tanpa CDN)
-├── core/                         # Python murni, tanpa Flask, mudah diuji pytest
-│   ├── sql_dump_parser.py        # ← prototype data_loader.py
-│   ├── cleaning.py               # Validasi tanggal/tahun/status → daftar masalah data
-│   ├── normalization.py          # Normalisasi teks & kode nomor
-│   ├── extraction.py             # ← prototype ekstraksi.py
-│   ├── spm_types.py              # Kamus awal jenis SPM (status: dugaan)
-│   ├── search/
-│   │   ├── index.py              # SearchIndex: dokumen, token, kosakata
-│   │   ├── matchers/             # base.py, levenshtein.py, jaro_winkler.py, token_set.py, ngram.py
-│   │   ├── like_baseline.py      # Meniru pencarian DataTables SIMANIS
-│   │   └── ranker.py             # Skor gabungan per field berbobot
-│   ├── testset/                  # noise.py, sampling.py, pooling.py, splitting.py
-│   └── evaluation/               # metrics.py, tuning.py, significance.py
-├── tests/                        # Struktur mengikuti core/ (test_extraction.py, test_metrics.py, ...)
-├── data/
-│   ├── raw/                      # [diabaikan Git] dump .sql
-│   └── testset/                  # testset_vN.json, dilacak Git (lihat Keputusan #1)
-├── instance/                     # [diabaikan Git] app.sqlite
-├── output/                       # [diabaikan Git] CSV/Markdown hasil evaluasi & laporan
-├── docs/                         # ERD, use case, flowchart (draw.io)
-├── wsgi.py                       # Entry point waitress
-├── requirements.txt
-├── .env.example
-└── README.md
-```
+Struktur implementasi target mengikuti
+[docs/arsitektur_flask_react.md](docs/arsitektur_flask_react.md#struktur-target).
+Kode yang sudah ada berada di `webapp/`, `services/`, `core/`, dan
+`tests/`. Migrasi menambah `frontend/` untuk React, sedangkan Flask
+menyediakan API dan berkas build. Model data konseptual di bawah ini
+belum berarti seluruh tabel maupun endpoint sudah tersedia.
 
-**Prinsip:** `core/` tidak tahu soal Flask maupun database. Halaman web dan perintah CLI sama-sama memanggil `services/`, jadi angka di aplikasi dan angka di laporan berasal dari kode yang sama.
+**Prinsip:** `core/` tidak tahu soal Flask, React, maupun database.
+Flask API dan perintah CLI memakai `services/` yang sama; React hanya
+menampilkan data API.
 
 ---
 
@@ -161,18 +120,18 @@ flowchart TD
     G --> AU["Sampel audit ekstraksi (seed tetap) → penilaian manual → akurasi dihitung"]
     H --> T1["Kueri arsiparis (input manual)"]
     H --> T2["Kueri sintetis: sampling + gangguan (seed tetap)"]
-    T1 --> P["Pooling buta: gabungan top-20 dari 5 metode, diacak, tanpa label metode"]
+    T1 --> P["Pooling buta: gabungan top-10 tiap metode pada seluruh varian, tanpa label metode"]
     T2 --> P
     P --> J["Penilaian relevansi"]
-    J --> S["Split berstrata 15 tuning / 35 test (seed tetap)"]
+    J --> S["Split berkelompok pada kueri dasar (seed tetap)"]
     S --> L["Kunci testset_version (hash isi)"]
-    L --> TU["Penyetelan: grid search bobot per metode pada 15 kueri tuning"]
+    L --> TU["Penyetelan: hanya pada split tuning versi test set aktif"]
     TU --> CK{"Ada dokumen belum dinilai di top-10?"}
     CK -- Ya --> J2["Nilai dokumen tambahan (tanpa label metode)"] --> TU
     CK -- Tidak --> FR["Bekukan konfigurasi terbaik per metode"]
-    FR --> FE["Evaluasi akhir sekali pada 35 kueri test"]
+    FR --> FE["Evaluasi akhir pada split test versi test set aktif"]
     FE --> R["evaluation_run + per-kueri + peringkat"]
-    R --> UI["Halaman Evaluasi (Chart.js)"]
+    R --> UI["Halaman Evaluasi (React/Recharts)"]
     R --> RP["Ekspor laporan ke output/ (CSV + Markdown)"]
 ```
 
@@ -206,15 +165,15 @@ Setiap arsip punya tiga field yang dicari: **ringkasan**, **nomor SPM**, dan **p
 > rapidfuzz **tidak** menyediakan metrik n-gram. Fungsi Dice n-gram ditulis sendiri (pendek dan teruji). Hal ini perlu disebutkan di Bab III.
 
 - **Skor akhir** = `w_ringkasan·s(ringkasan) + w_spm·s(spm) + w_pihak·s(pihak)`, dengan total bobot = 1.
-- **Penyetelan** dilakukan dengan grid search bobot berlangkah 0,1 (66 kombinasi), ditambah `n ∈ {2, 3}` khusus n-gram. Penyetelan hanya memakai 15 kueri tuning dan berjalan terpisah untuk tiap metode. Tujuan utamanya MRR@10; jika seri, dipilih P@5 yang lebih tinggi.
+- **Penyetelan** memakai kelompok tuning dalam set uji aktif. Periksa `data/testset/testset_v1.json` dan `docs/protokol_testset_v2.md` untuk jumlah kueri, parameter, dan prosedur yang benar; angka rancangan awal tidak boleh dipakai sebagai hasil akhir.
 - **Evaluasi tidak memakai ambang skor**, cukup peringkat top-10. Ambang hanya untuk menyembunyikan hasil yang sangat rendah di UI, sehingga tidak ada parameter tambahan yang perlu disetel.
 - **Performa:** kemiripan token kueri dihitung terhadap seluruh kosakata sekaligus memakai `rapidfuzz.process.cdist`. Hasilnya lalu dicari per dokumen. Untuk sekitar 1.737 dokumen, ini jauh di bawah 1 detik.
 
 ### 3.4 Protokol set uji
-- **Komposisi:** 50 kueri, yaitu kasus nyata dari arsiparis ditambah kueri sintetis. Satu kueri sintetis diberi satu jenis gangguan yang tercatat di `noise_type`.
-- **Pooling buta:** untuk setiap kueri, top-20 dari kelima metode (dengan bobot awal yang sama) digabung, diacak dengan seed, dan ditampilkan tanpa nama metode. Arsip asal kueri sintetis dipastikan masuk ke kumpulan ini.
+- **Komposisi aktif:** `data/testset/testset_v1.json` memuat 112 varian kueri sintetis (32 tuning, 80 test; 56 kueri dasar). Kueri kasus nyata belum tersedia dan harus dilaporkan sebagai keterbatasan. Protokol rinci ada di `docs/protokol_testset_v2.md`.
+- **Pooling buta:** ikuti `docs/protokol_testset_v2.md`: top-10 tiap metode untuk seluruh varian kueri dasar digabung dengan arsip asal, lalu diacak tanpa nama metode maupun skor.
 - **Validasi sebelum dikunci:** setiap kueri wajib punya minimal 1 dokumen relevan, karena R@10 tidak terdefinisi jika tidak ada.
-- **Split berstrata** menurut `source × query_type` dengan seed tetap, sehingga kedua sumber kueri ada di kedua kelompok.
+- **Split berkelompok** pada `base_query_id` dan arsip asal, berstrata menurut `query_type`, dengan seed tetap agar dua varian dari kebutuhan informasi yang sama tidak bocor lintas kelompok.
 - **Setelah set uji dikunci**, penyetelan hanya membaca kelompok `tuning`. Evaluasi akhir membaca kelompok `test` dengan konfigurasi yang sudah dibekukan. Setiap pengulangan evaluasi akhir tetap tercatat di log.
 - **Jaga cakupan penilaian:** `unjudged_in_top10` dihitung per kueri. Jika setelah penyetelan ada dokumen baru di top-10 yang belum dinilai, dokumen itu dinilai dulu (tetap tanpa label metode) sebelum evaluasi akhir.
 
@@ -227,7 +186,7 @@ Setiap arsip punya tiga field yang dicari: **ringkasan**, **nomor SPM**, dan **p
 > [!WARNING]
 > Untuk kueri nomor SPM, biasanya hanya ada 1 dokumen relevan, sehingga **P@5 maksimal 0,2**. Ini perilaku standar metrik tersebut, bukan kesalahan. Laporan menampilkan metrik per `query_type` dan menjadikan MRR sebagai metrik utama untuk kueri yang mencari satu dokumen tertentu.
 
-- **Disarankan:** uji Wilcoxon *signed-rank* berpasangan atas RR per kueri, antara metode terbaik dan LIKE serta antara dua metode teratas (`scipy`). Dengan 35 kueri, uji ini membuat klaim "lebih baik" bisa dipertanggungjawabkan.
+- **Inferensi statistik:** ikuti `docs/protokol_testset_v2.md`; varian dari kueri dasar yang sama tidak boleh diperlakukan sebagai observasi independen. Jangan menyimpulkan metode lebih baik hanya dari angka rerata.
 
 ### 3.6 Aturan "tidak ada angka diketik manual"
 - Template tidak boleh berisi angka metrik. Semua angka diambil dari `stats_service` atau tabel `evaluation_*`.
@@ -238,6 +197,11 @@ Setiap arsip punya tiga field yang dicari: **ringkasan**, **nomor SPM**, dan **p
 ---
 
 ## 4. Daftar halaman
+
+Kolom route di bawah adalah URL **halaman React di browser**, bukan endpoint
+Flask API. Data halaman akan diambil dari `/api/v1/*` ketika modulnya sudah
+diimplementasikan. Daftar ini adalah target fitur dan harus dibandingkan dengan
+kode sebelum dipakai sebagai bukti implementasi.
 
 | # | Halaman | Route | Peran | Fase | Isi |
 |---|---|---|---|---|---|
@@ -255,14 +219,19 @@ Setiap arsip punya tiga field yang dicari: **ringkasan**, **nomor SPM**, dan **p
 | 12 | Rincian run | `/evaluation/runs/<id>` | admin | 1 | Metrik per kueri dan top-10 dengan tanda relevan, untuk bukti |
 | 13 | Pengguna | `/admin/users` | admin | 1 | Tambah, nonaktifkan, dan reset kata sandi pengguna. Admin tidak bisa menonaktifkan dirinya sendiri |
 | 14 | Log aktivitas | `/admin/activity` | admin | 1 | Filter per pengguna atau aksi |
-| 15 | Kualitas data | `/quality` | admin, petugas | 2 | Grafik Chart.js dari `data_issue` dan cakupan metadata per OPD/tahun |
+| 15 | Kualitas data | `/quality` | admin, petugas | 2 | Grafik React/Recharts dari `data_issue` dan cakupan metadata per OPD/tahun |
 | 16 | Penanda duplikat | `/duplicates` | admin, petugas | 2 | Antrean pasangan kandidat dibandingkan berdampingan, tandai `duplikat` / `bukan_duplikat`, **tanpa tombol hapus** |
 
 Halaman galat: 403, 404, dan 500 dengan pesan ramah. Detail galat hanya masuk ke log.
 
 ---
 
-## 5. Perintah CLI (`flask ...`)
+## 5. Rancangan perintah CLI (`flask ...`)
+
+Tabel berikut adalah rancangan historis, bukan daftar perintah yang sudah
+tersedia. Saat ini perintah Flask yang tersedia antara lain `user create` dan
+`report export-bundle`; pekerjaan analisis lain dijalankan lewat skrip di
+`scripts/`. Periksa `flask --app app --help` sebelum mengikuti tabel ini.
 
 | Perintah | Fungsi |
 |---|---|
@@ -280,7 +249,7 @@ Halaman galat: 403, 404, dan 500 dengan pesan ramah. Detail galat hanya masuk ke
 
 ## 6. Dependensi
 
-`flask`, `flask-sqlalchemy`, `flask-login`, `flask-wtf`, `rapidfuzz`, `pandas`, `waitress`, `python-dotenv`, `pytest`, dan opsional `scipy` untuk uji Wilcoxon. Python 3.14 (sama dengan venv prototype). Versi dikunci di `requirements.txt`.
+Backend web saat ini: `requirements-web.txt` (Flask, Flask-Login, RapidFuzz, Waitress) dan `sqlite3` bawaan Python. Analisis notebook: `requirements.txt`. Target frontend: manifest dan lockfile di `frontend/` setelah migrasi. Jangan menganggap SQLAlchemy atau Flask-WTF telah diimplementasikan.
 
 ---
 
@@ -289,4 +258,4 @@ Halaman galat: 403, 404, dan 500 dengan pesan ramah. Detail galat hanya masuk ke
 1. **Set uji dilacak di Git sebagai JSON** (`data/testset/testset_vN.json`). Semua CSV diabaikan sesuai permintaan, tetapi set uji dan penilaiannya adalah bahan penelitian yang harus bisa diulang. Kalau hanya ada di SQLite (yang diabaikan Git), set uji bisa hilang. Isinya cuma teks kueri dan ID arsip, tanpa isi arsip.
 2. **Siapa yang menilai relevansi:** kueri arsiparis dinilai arsiparis (dengan akun `petugas`), kueri sintetis dinilai kamu? Opsional: dinilai dua orang untuk sebagian kueri, lalu dihitung Cohen's kappa.
 3. **Kedalaman pool 20** (lebih dalam dari k=10) supaya jumlah dokumen yang perlu dinilai tambahan setelah penyetelan tetap sedikit.
-4. **Aset tampilan disimpan lokal** (Bootstrap, Chart.js, font Inter di `static/vendor/`), supaya tetap berjalan di jaringan dinas tanpa internet.
+4. **Aset tampilan target dikemas lokal** dari Vite build bersama font; aplikasi harus berjalan di intranet tanpa CDN dan tanpa Node.js di server.

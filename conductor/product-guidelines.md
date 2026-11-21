@@ -14,7 +14,7 @@
 ## 2. Standar Desain Visual & Tema
 - **Gaya Visual "Pemerintahan Modern":** Desain antarmuka bersih, berwibawa, dan profesional dengan palet warna biru dinas (*navy/slate*) dan aksen semantik fungsional.
 - **Tipografi:** Menggunakan font modern **Inter** yang dihosting secara lokal.
-- **Satu Tema Terang (Light Mode Only):** Menggunakan Bootstrap 5 yang dikustomisasi melalui CSS variables terstruktur. Mode gelap (*dark mode*) berada di luar lingkup penelitian.
+- **Satu Tema Terang (Light Mode Only):** Target React memakai Tailwind CSS dan token desain terstruktur. Mode gelap berada di luar lingkup penelitian.
 - **Sistem Spasi & Bentuk:** Menerapkan kelipatan 4px/8px secara konsisten untuk padding dan margin; border-radius seragam pada kartu dan tombol.
 - **Hierarki Informasi & Status:**
   - Status arsip (*In Aktif, Statis, Musnah*) dan badge *"Dugaan"* untuk jenis SPM menggunakan warna semantik yang wajib disertai teks atau ikon indikator (tidak mengandalkan warna semata demi aksesibilitas).
@@ -34,7 +34,7 @@
 - **Protokol Blind Pooling:** Halaman penilaian relevansi menyajikan kumpulan dokumen secara teracak tanpa menampilkan nama algoritma maupun skor nilai, guna menjamin objektivitas evaluasi.
 
 ## 4. Aksesibilitas, Keandalan & Lingkungan Operasional
-- **Tanpa Ketergantungan Eksternal Saat Berjalan:** Seluruh file CSS, JavaScript (Bootstrap 5, Chart.js), dan font web disimpan secara lokal di direktori `static/vendor/`. Sistem dapat berfungsi penuh pada jaringan intranet dinas tanpa akses internet.
+- **Tanpa Ketergantungan Eksternal Saat Berjalan:** Berkas JS/CSS hasil Vite build dan font lokal dikemas bersama Flask. Sistem harus berfungsi di intranet tanpa CDN, Node.js, atau internet.
 - **Aksesibilitas Prioritas (WCAG AA):** Difokuskan pada halaman Login, Pencarian, dan Detail Arsip:
   - Kontras warna teks normal dan latar belakang memenuhi rasio minimum 4.5:1, serta rasio minimum 3:1 untuk teks besar dan komponen antarmuka aktif.
   - Navigasi keyboard penuh dengan *focus ring* yang terlihat jelas pada kolom isian dan tombol interaktif.
@@ -42,4 +42,4 @@
 - **Keandalan Transaksi Data:** Proses impor SQL dump dijalankan dalam satu transaksi basis data atomik; jika terjadi kegagalan format, sistem membatalkan seluruh perubahan (*rollback*) tanpa merusak data lama.
 - **Pencatatan Performa:** Waktu latensi rata-rata komputasi per kueri (dalam milidetik) dicatat pada setiap eksekusi evaluasi temu kembali.
 - **Prosedur Pencadangan (Backup):** File database SQLite (`instance/app.sqlite`) dan file set uji dicadangkan secara manual ke folder terpisah di luar Git sebelum pelaksanaan impor ulang maupun evaluasi akhir.
-- **Target Kompatibilitas:** Dioptimalkan untuk peramban desktop modern (**Google Chrome** dan **Microsoft Edge** versi terbaru) pada resolusi monitor minimum 1280x720 piksel. Antarmuka ponsel pintar (*mobile smartphone*) dan audit pembaca layar (*screen reader*) formal berada di luar cakupan penelitian.
+- **Target Kompatibilitas:** Chrome dan Edge modern pada desktop, tablet, dan ponsel. Alur login, pencarian, detail, dan penilaian harus tetap dapat dipakai dengan sentuhan serta keyboard; audit pembaca layar formal mengikuti lingkup pengujian yang disepakati.

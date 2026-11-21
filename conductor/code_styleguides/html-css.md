@@ -1,35 +1,58 @@
-# HTML, CSS & Client Script Style Guide: Sistem Pencarian Arsip SIMANIS
+# Panduan antarmuka React, TypeScript, HTML, dan CSS
 
-Panduan standar untuk template Jinja2, Bootstrap 5 kustom, dan skrip JavaScript sisi klien.
+Dokumen ini menggantikan aturan lama yang mewajibkan Jinja2/Bootstrap dan
+melarang React. Rancangan target: `../../docs/arsitektur_flask_react.md`.
 
-## 1. Keamanan & Sanitasi Template Jinja2
-- **Autoescape Wajib Aktif:** Mesin render Jinja2 wajib menjalankan *autoescape* secara default pada seluruh file `.html`.
-- **Restriksi Filter `|safe`:**
-  - Penggunaan filter `|safe` dilarang keras, kecuali untuk satu pengecualian tertulis: perenderan tag `<mark>` pada penyorotan teks hasil pencarian.
-- **Protokol Penyorotan Teks (Text Highlight Sanitization):**
-  - Data teks ringkasan dari database dinas pernah memuat karakter khusus atau sisa fragmen HTML.
-  - Sebelum menyisipkan penanda `<mark>`, teks ringkasan wajib di-*escape* terlebih dahulu menggunakan `html.escape()` atau fungsi utilitas sanitasi, baru kemudian token kueri yang cocok dibungkus oleh `<mark class="search-highlight">...</mark>`.
-- **Tanpa Inline Style:** Dilarang menggunakan atribut `style="..."` pada elemen HTML. Semua styling wajib menggunakan kelas utilitas Bootstrap 5 atau kelas kustom di `static/css/app.css`.
+## Struktur dan batas data
 
-## 2. Struktur CSS & Variabel Desain Token
-- **Design Tokens via CSS Variables:**
-  - Seluruh palet warna primer (*navy/slate*), warna semantik (*success, warning, danger, info*), spasi (kelipatan 4px/8px), dan *border-radius* didefinisikan dalam `:root` di `static/css/app.css`.
-  - Gunakan variabel CSS untuk mempermudah konsistensi tema (misalnya `var(--color-primary)`, `var(--border-radius-base)`).
-- **Struktur Template:**
-  - Terapkan hierarki template inheritance: `base.html` sebagai layout utama, disusul blok spesifik (`content`, `scripts`, `styles`).
-  - Elemen berulang (seperti kartu arsip, badge status, pagination) diekstrak menjadi komponen Jinja2 (*macros* atau *partials*).
+- Kode baru berada di `frontend/src/`; kelompokkan menurut fitur (`features/`),
+  lalu letakkan komponen bersama yang benar-benar dipakai ulang di
+  `components/ui/`. Jangan membuat satu berkas besar untuk seluruh aplikasi.
+- Komponen merender data dan interaksi; klien HTTP di `lib/api/`; hook query dan
+  mutation di fitur terkait. Jangan memanggil `fetch` langsung dari JSX.
+- TypeScript `strict`; tipe API tidak boleh diasumsikan dari bentuk JSON mentah.
+  Definisikan kontrak dan validasi pada batas respons. Hindari `any`, assertion
+  non-null tanpa alasan, dan state turunan yang bisa dihitung dari props/query.
+- TanStack Query untuk data server. Gunakan state React biasa untuk dialog,
+  input lokal, dan kontrol presentasi. Jangan menambah Redux/Zustand hanya
+  untuk menyalin cache server.
+- React Router mode deklaratif mengelola navigasi. Status 401 membawa pengguna
+  ke login dan mempertahankan tujuan semula secara aman; 403 menampilkan akses
+  ditolak. Proteksi route klien tidak menggantikan otorisasi API.
 
-## 3. Aksesibilitas (WCAG AA) & Form Standards
-- **Label Form Eksplisit:** Setiap kontrol input, select, dan textarea wajib memiliki pasangan `<label for="id_elemen">` yang jelas.
-- **Focus Ring Keyboard:** Jangan pernah menghapus `outline: none` tanpa menyediakan pengganti focus ring yang kontras (fokus visual yang jelas pada tombol dan kolom teks saat tombol `Tab` ditekan).
-- **Prinsip Non-Color Dependency:**
-  - Status dokumen (*In Aktif, Statis, Musnah*) dan badge *"Dugaan"* tidak boleh hanya dibedakan berdasarkan warna latar badge.
-  - Wajib menyertakan teks keterangan yang jelas atau ikon pendukung bersama warna semantik.
-- **Kontras Minimum:** Memenuhi rasio kontras 4.5:1 untuk teks normal dan 3:1 untuk teks besar serta komponen antarmuka.
+## Library dan tampilan
 
-## 4. Aturan JavaScript Sisi Klien (Client Scripts)
-- **Skrip Minimalis & Terisolasi:**
-  - JavaScript hanya digunakan untuk peningkatan progresif (*progressive enhancement*): inisialisasi grafik Chart.js, aktivasi tooltip Bootstrap, pengosongan filter form, dan penyalinan teks.
-  - Dilarang menambahkan framework frontend berat (React, Vue, dsb.).
-- **Tanpa Ketergantungan Eksternal:** Seluruh skrip pustaka (Bootstrap JS, Chart.js) wajib dimuat dari path lokal `static/vendor/` tanpa memanggil URL CDN luar.
-- **Kode Bersih:** Hindari variabel global; bungkus logika dalam event listener `DOMContentLoaded` dan gunakan sintaks JavaScript modern (ES6+).
+- Tailwind CSS v4 dipakai lewat plugin Vite. Warna, tipografi, ruang, radius,
+  dan fokus didefinisikan sebagai token; hindari kelas arbitrer berulang.
+  Pakai CSS biasa untuk pola kompleks yang lebih jelas daripada daftar utilitas.
+- Gunakan komponen shadcn/ui yang dibutuhkan saja di `components/ui/` dengan
+  basis Radix yang konsisten. Kode hasil generator milik proyek: baca diff,
+  uji perubahan, dan jangan menimpa penyesuaian lokal tanpa review. Form standar
+  gunakan elemen HTML asli. Ikon gunakan `lucide-react`, dengan ukuran/stroke
+  konsisten dan label aksesibel pada tombol yang hanya berisi ikon.
+- Gunakan Recharts untuk grafik evaluasi yang memiliki data sah. Sertakan
+  label, satuan, legenda yang jelas, dan tabel data alternatif. Jangan
+  menggambar grafik dari angka contoh atau hardcode metrik.
+- Desain profesional dan ringkas: palet netral, satu warna aksen, hierarki
+  tipografi jelas, ruang cukup, tanpa dekorasi/gradien berlebihan. Status
+  ilmiah seperti “dugaan” atau “belum diverifikasi” terlihat jelas.
+
+## Keamanan dan aksesibilitas
+
+- Render teks arsip sebagai teks React. Dilarang memakai
+  `dangerouslySetInnerHTML` untuk data arsip atau hasil API. Untuk sorotan,
+  pecah teks menjadi node teks dan elemen `<mark>`.
+- Setiap input memiliki label, pesan galat terkait, dan fokus keyboard yang
+  terlihat. Gunakan tombol/link sesuai maknanya. Status tidak disampaikan
+  dengan warna saja. Pastikan kontras dan ukuran target sentuh memadai.
+- Layout harus tetap dapat dipakai pada desktop, tablet, dan ponsel. Jangan
+  mengunci tinggi seluruh halaman agar bebas scroll; tabel lebar boleh memakai
+  scroll horizontal pada kontainernya, dengan kolom penting tetap terbaca.
+- Tampilkan keadaan loading, kosong, gagal, dan berhasil. Pesan API kepada
+  pengguna tidak boleh memuat stack trace atau data rahasia.
+
+## Pemeriksaan
+
+Jalankan lint, pemeriksaan tipe, uji perilaku yang relevan, dan build produksi.
+Uji alur login, pencarian, detail, serta pembatasan peran pada ukuran desktop,
+tablet, dan ponsel. Aset final tidak boleh membutuhkan CDN.

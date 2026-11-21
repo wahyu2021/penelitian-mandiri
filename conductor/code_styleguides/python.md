@@ -8,7 +8,7 @@ Dokumen ini memadukan prinsip Google Python Style Guide (PEP 8) dengan aturan sp
   - Komentar kode dan *docstrings* menggunakan **Bahasa Indonesia** yang ringkas, jelas, dan hanya untuk logika non-trivial.
 - **Isolasi Logika Domain (`core/`):**
   - Modul di dalam `core/` adalah Python murni. Dilarang keras mengimpor pustaka `Flask`, `flask_sqlalchemy`, atau dependensi web lainnya ke dalam `core/`.
-  - Akses basis data dan integrasi web hanya diizinkan di lapisan `app/models/` dan `app/services/`.
+  - Akses basis data berada di `services/` melalui fungsi terparameterisasi; integrasi HTTP berada di `webapp/`. `core/` tidak mengakses Flask maupun SQLite.
 - **Anti-Hardcode Angka Metrik:**
   - Dilarang keras mengetik manual angka metrik, persentase akurasi, atau nilai statistik di dalam kode, template, maupun docstring (misalnya dilarang menulis klaim "akurasi 100%"). Semua angka wajib dihasilkan dari komputasi skrip.
 - **Jaminan Pengujian (Test-Driven):**
