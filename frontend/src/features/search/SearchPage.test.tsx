@@ -113,6 +113,10 @@ describe('pencarian arsip React', () => {
       limit: '10',
     })
     expect(window.location.href).not.toContain('test-token')
+    expect(screen.getByRole('link', { name: 'Arsip #1' })).toHaveAttribute(
+      'href',
+      '/app/archives/1?q=jembatan&opd_id=1&year=2020&status=1&limit=10',
+    )
     expect(view.container.querySelector('mark')?.textContent).toBe('Jembatan')
     expect(
       screen.getByText('LIKE menunjukkan kecocokan kata, tanpa peringkat kemiripan.'),

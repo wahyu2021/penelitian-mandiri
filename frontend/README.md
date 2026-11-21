@@ -3,9 +3,10 @@
 Frontend ini adalah fondasi migrasi. Route `/login` memakai sesi JSON Flask;
 route `/app/dashboard` menampilkan angka korpus dari `/api/v1/dashboard`,
 `/app/status` memeriksa koneksi ke `/api/v1/health`, dan `/app/search`
-menampilkan pencarian serta filter arsip setelah pengguna masuk. Pemilihan
-metode pencarian pada halaman React hanya tersedia untuk admin. Detail arsip
-dan perbandingan metode React masih menunggu tiket berikutnya. Aplikasi
+menampilkan pencarian serta filter arsip setelah pengguna masuk. Hasil pencarian
+membuka `/app/archives/{id}` untuk teks asli, metadata ekstraksi, dan lokasi.
+Pemilihan metode pencarian pada halaman React hanya tersedia untuk admin.
+Perbandingan metode React masih menunggu tiket berikutnya. Aplikasi
 Flask/Jinja tetap menjadi antarmuka kerja sampai paritas fitur terbukti.
 
 ## Jalankan di laptop pengembang

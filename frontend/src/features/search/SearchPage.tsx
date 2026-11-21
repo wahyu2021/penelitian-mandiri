@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { FileText } from 'lucide-react'
-import { useNavigate, useSearchParams } from 'react-router'
+import { Link, useNavigate, useSearchParams } from 'react-router'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -124,7 +124,7 @@ export function SearchPage() {
           </CardContent>
         </Card>
       ) : (
-        <SearchResultList data={results.data} onPage={changePage} />
+        <SearchResultList data={results.data} onPage={changePage} returnSearch={request} />
       )}
     </main>
   )
@@ -133,9 +133,11 @@ export function SearchPage() {
 function SearchResultList({
   data,
   onPage,
+  returnSearch,
 }: {
   data: SearchResults
   onPage: (offset: number) => void
+  returnSearch: string
 }) {
   const { limit, offset, total } = data.pagination
   const start = data.items.length === 0 ? 0 : offset + 1
@@ -178,7 +180,17 @@ function SearchResultList({
             <Card key={item.id}>
               <CardContent className="space-y-3">
                 <div className="flex flex-wrap items-start justify-between gap-2">
-                  <p className="font-semibold">Arsip #{item.id}</p>
+                  <p className="font-semibold">
+                    <Link
+                      className="text-primary underline-offset-4 hover:underline focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                      to={{
+                        pathname: `/app/archives/${item.id}`,
+                        search: returnSearch ? `?${returnSearch}` : '',
+                      }}
+                    >
+                      Arsip #{item.id}
+                    </Link>
+                  </p>
                   <span className="rounded-md bg-muted px-2 py-1 text-xs font-medium">
                     {data.method === 'like' ? 'Cocok' : `Skor ${item.score.toFixed(3)}`}
                   </span>

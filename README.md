@@ -12,9 +12,10 @@ Urutan tiket, uji per tiket, dan aturan commit ada di
 Aturan yang wajib dibaca AI sebelum mengubah kode ada di [AGENTS.md](AGENTS.md).
 Fondasi React/Vite kini ada di [`frontend/`](frontend/) dengan login, dashboard
 yang memakai angka dari `/api/v1/dashboard`, halaman status layanan, dan
-pencarian arsip di `/app/search`. Detail arsip dan perbandingan metode React
-masih menunggu tiket berikutnya. Langkah menjalankan aplikasi di bawah ini
-menjelaskan versi Flask/Jinja yang sekarang dipakai untuk alur kerja.
+pencarian arsip di `/app/search`, dan detail di `/app/archives/{id}`.
+Perbandingan metode React masih menunggu tiket berikutnya. Langkah
+menjalankan aplikasi di bawah ini menjelaskan versi Flask/Jinja yang sekarang
+dipakai untuk alur kerja.
 
 Node.js dipakai di laptop untuk Vite dan build frontend. Paket produksi
 akan berisi aset hasil build dan berjalan dengan Python/Waitress tanpa Node.js,

@@ -182,7 +182,7 @@ tampilan atau klaim dokumen saja.
 - **Uji:** Testing Library untuk pencarian/filter/empty/error; browser dengan
   typo, keyboard, ponsel/tablet; pemeriksaan sorotan tanpa HTML mentah.
 - **Commit:** `feat(frontend): tambah alur pencarian arsip [PM-10]`.
-- **Jejak:** Status: selesai (21 November 2026) | Uji: 15 uji frontend lulus; lint, tipe, format, build lulus; browser typo/Enter pada desktop dan viewport tablet 768 px/ponsel 390 px tanpa gulir horizontal; `pytest -q` 214 lulus, 5 dilewati | Commit: `5769e3b`, `6b2fcba`, dan commit frontend PM-10 pada riwayat Git | Catatan: opsi filter dibaca dari API, sorotan teks aman tanpa HTML mentah, metode hanya dapat dipilih admin, dan URL hanya menyimpan parameter pencarian. Detail arsip menunggu PM-11.
+- **Jejak:** Status: selesai (21 November 2026) | Uji: 15 uji frontend lulus; lint, tipe, format, build lulus; browser typo/Enter pada desktop dan viewport tablet 768 px/ponsel 390 px tanpa gulir horizontal; `pytest -q` 214 lulus, 5 dilewati | Commit: `5769e3b`, `6b2fcba`, `f4f09c4` | Catatan: opsi filter dibaca dari API, sorotan teks aman tanpa HTML mentah, metode hanya dapat dipilih admin, dan URL hanya menyimpan parameter pencarian. Detail arsip dikerjakan pada PM-11.
 
 ### PM-11 — Detail arsip React
 
@@ -192,7 +192,7 @@ tampilan atau klaim dokumen saja.
 - **Uji:** data penuh/sebagian kosong, 404, 401, tampilan ponsel/tablet,
   keyboard, lint, tipe, build.
 - **Commit:** `feat(frontend): tampilkan detail dan lokasi arsip [PM-11]`.
-- **Jejak:** Status: belum dimulai | Uji: — | Commit: — | Catatan: —
+- **Jejak:** Status: selesai (21 November 2026) | Uji: 20 uji frontend lulus; lint, tipe, format, build lulus; 5 uji API detail lulus; browser desktop/tablet 768 px/ponsel 390 px tanpa gulir horizontal, navigasi cari–detail–kembali berhasil | Commit: commit frontend PM-11 pada riwayat Git | Catatan: teks asli dirender aman, field kosong jelas, status dugaan diberi penjelasan, dan parameter pencarian tetap ada pada tautan kembali.
 
 ### PM-12 — Perbandingan metode React
 
