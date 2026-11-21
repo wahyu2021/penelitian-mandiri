@@ -3,6 +3,7 @@ import csv
 from pathlib import Path
 import pytest
 from scripts.relevance_labeler_app import app, write_pool_csv, get_local_ip
+from scripts.export_relevance_verification_sample import export_verification_sample
 
 
 @pytest.fixture
@@ -109,3 +110,67 @@ def test_api_save_item(client):
     assert saved_rows[0]["is_relevant"] == "1"
     assert saved_rows[0]["ragu"] == "1"
     assert saved_rows[0]["auditor_notes"] == "Arsip sangat cocok"
+
+
+def test_verification_mode_isolates_second_rater(client, monkeypatch):
+    c, main_csv = client
+    verification_csv = main_csv.parent / "relevance_verification_sample.csv"
+    fields = [
+        "query_id", "query_text", "base_query_text", "query_type", "archive_id", "summary_raw",
+        "spm_number", "party_name", "is_relevant", "ragu", "archivist_notes",
+    ]
+    write_pool_csv(verification_csv, fields, [{
+        "query_id": "Q001", "query_text": "trmin III", "base_query_text": "termin III", "query_type": "topik",
+        "archive_id": "100", "summary_raw": "Pembayaran termin III",
+        "spm_number": "123/LS/2000", "party_name": "CV Contoh",
+        "is_relevant": "", "ragu": "", "archivist_notes": "",
+    }])
+    monkeypatch.setitem(app.config, "VERIFICATION_ONLY", True)
+
+    page = c.get("/")
+    assert page.status_code == 200
+    assert b'<option value="relevance_pool.csv"' not in page.data
+    assert c.get("/api/data?dataset=relevance_pool.csv").status_code == 403
+    assert c.post("/api/save", json={"dataset": "relevance_pool.csv"}).status_code == 403
+
+    response = c.get("/api/data?dataset=relevance_verification_sample.csv")
+    assert response.status_code == 200
+    item = response.get_json()["items"][0]
+    assert item["summary_raw"] == "Pembayaran termin III"
+    assert item["base_query_text"] == "termin III"
+    assert "spm_number" not in item
+    assert "party_name" not in item
+
+    saved = c.post("/api/save", json={
+        "dataset": "relevance_verification_sample.csv", "index": 0,
+        "query_id": "Q001", "archive_id": "100", "is_relevant": "1",
+        "ragu": "0", "notes": "sesuai",
+    })
+    assert saved.status_code == 200
+    assert read_csv(verification_csv)[0]["is_relevant"] == "1"
+    assert read_csv(main_csv)[0]["is_relevant"] == ""
+
+
+def read_csv(path):
+    with open(path, "r", encoding="utf-8-sig", newline="") as handle:
+        return list(csv.DictReader(handle))
+
+
+def test_verification_export_supplies_raw_summary(tmp_path):
+    pool = tmp_path / "pool.csv"
+    corpus = tmp_path / "corpus.csv"
+    sample = tmp_path / "sample.csv"
+    write_pool_csv(pool, ["query_id", "query_text", "query_type", "archive_id", "summary_clean"], [{
+        "query_id": "Q001", "query_text": "termin III", "query_type": "topik",
+        "archive_id": "100", "summary_clean": "Pembayaran termin III",
+    }])
+    write_pool_csv(corpus, ["id", "summary_clean", "summary_raw"], [{
+        "id": "100", "summary_clean": "Pembayaran termin III",
+        "summary_raw": "Pembayaran termin III\nNo. SPM 123",
+    }])
+
+    assert export_verification_sample(
+        pool, sample, sample_size=1, corpus_csv_path=corpus, candidates_path=None
+    ) == 1
+    assert read_csv(sample)[0]["summary_raw"] == "Pembayaran termin III\nNo. SPM 123"
+    assert read_csv(sample)[0]["base_query_text"] == "termin III"

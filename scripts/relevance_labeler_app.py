@@ -27,7 +27,7 @@ DATASET_CONFIG = {
     "relevance_pool.csv": {
         "label": "Berkas Utama (relevance_pool.csv)",
         "notes_col": "auditor_notes",
-        "description": "Seluruh 40 kueri hasil blind pooling untuk evaluasi utama.",
+        "description": "Pasangan kueri–arsip hasil blind pooling untuk penilaian utama.",
     },
     "relevance_pool_pilot_5.csv": {
         "label": "Sampel Pilot (relevance_pool_pilot_5.csv)",
@@ -42,6 +42,14 @@ DATASET_CONFIG = {
 }
 
 app = Flask(__name__)
+app.config["VERIFICATION_ONLY"] = False
+
+
+def dataset_allowed(filename: str) -> bool:
+    """Batasi akses berkas peneliti saat sesi penilai kedua berlangsung."""
+    if app.config["VERIFICATION_ONLY"]:
+        return filename == "relevance_verification_sample.csv"
+    return filename in DATASET_CONFIG
 
 
 def get_dataset_path(filename: str) -> Path:
@@ -117,6 +125,31 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         }
     </script>
     <style>
+        body.verification-mode { font-family: "Segoe UI", Arial, sans-serif; background: #f5f6f7; }
+        .verification-mode #mainCard,
+        .verification-mode #actionCard { border-radius: 12px; box-shadow: none; }
+        .verification-mode #mainCard { justify-content: flex-start; gap: 16px; }
+        .verification-mode #summarySection { margin: 0; padding: 0; flex: 1; }
+        .verification-mode #summaryPanel { max-height: none; flex: 1; min-height: 0; background: #fff; box-shadow: none; }
+        .verification-mode #actionCard { justify-content: flex-start; gap: 16px; }
+        .verification-mode #actionButtons { margin: 0; }
+        .verification-mode #btnRelevant,
+        .verification-mode #btnIrrelevant { box-shadow: none; border-radius: 9px; padding-top: 12px; padding-bottom: 12px; }
+        .verification-mode #btnRelevant { background: #147d61; }
+        .verification-mode #btnIrrelevant { background: #b83c50; }
+        .verification-mode #cardQueryText { white-space: normal; overflow-wrap: anywhere; }
+        .verification-mode .kbd-badge { box-shadow: none; }
+        @media (max-width: 639px) {
+            .verification-mode #actionButtons,
+            .verification-mode #cardNavigation { display: none; }
+            .verification-mode #actionCard { gap: 14px; }
+        }
+        @media (min-width: 1024px) and (max-height: 680px) {
+            body.verification-mode { height: auto; overflow-y: auto; }
+            .verification-mode main { overflow: visible; }
+            .verification-mode #mainCard,
+            .verification-mode #actionCard { min-height: 570px; }
+        }
         .highlight-kw {
             background-color: #fef08a;
             color: #854d0e;
@@ -151,7 +184,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen lg:h-screen flex flex-col font-sans overflow-y-auto lg:overflow-hidden select-none">
+<body class="bg-slate-100 text-slate-800 min-h-screen lg:h-screen flex flex-col font-sans overflow-y-auto lg:overflow-hidden select-none {% if verification_only %}verification-mode{% endif %}">
 
     <!-- FLOATING TOP NOTIFICATION TOAST (FEEDBACK UTAMA) -->
     <div id="floatingToast" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-200 transform -translate-y-12 opacity-0 pointer-events-none">
@@ -166,21 +199,22 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         <div class="w-full flex items-center justify-between gap-2">
             <!-- Brand & Dataset -->
             <div class="flex items-center space-x-2 sm:space-x-3 min-w-0">
-                <div class="w-8 h-8 rounded-lg bg-brand-600 text-white flex items-center justify-center font-bold shadow-sm shadow-brand-500/20 text-sm shrink-0">
+                <div class="w-8 h-8 rounded-lg bg-brand-600 text-white flex items-center justify-center font-bold shadow-sm shadow-brand-500/20 text-sm shrink-0 {% if verification_only %}hidden{% endif %}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
                 </div>
                 <div class="min-w-0">
-                    <h1 class="text-xs sm:text-sm font-bold text-slate-900 leading-tight truncate">
-                        <span class="hidden sm:inline">Pelabel Relevansi Arsip</span>
-                        <span class="sm:hidden">Pelabel Arsip</span>
-                    </h1>
+                    <h1 class="text-xs sm:text-sm font-bold text-slate-900 leading-tight truncate">{% if verification_only %}Penilaian Relevansi Arsip{% else %}<span class="hidden sm:inline">Pelabel Relevansi Arsip</span><span class="sm:hidden">Pelabel Arsip</span>{% endif %}</h1>
+                    {% if verification_only %}
+                    <p class="text-xs text-slate-500">Verifikasi mandiri oleh petugas</p>
+                    {% else %}
                     <select id="datasetSelect" onchange="changeDataset()" class="text-2xs bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded px-1.5 py-0.5 font-medium text-slate-700 outline-none focus:ring-1 focus:ring-brand-500 cursor-pointer">
                         {% for key, cfg in datasets.items() %}
                         <option value="{{ key }}" {% if key == active_dataset %}selected{% endif %}>{{ cfg.label }}</option>
                         {% endfor %}
                     </select>
+                    {% endif %}
                 </div>
             </div>
 
@@ -191,7 +225,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
             </div>
 
             <!-- Integrated Mini Progress Bar Desktop (>= md) -->
-            <div class="hidden md:flex items-center space-x-3 text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
+                <div class="hidden md:flex items-center space-x-3 text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
                 <div class="flex items-center space-x-2">
                     <span class="text-slate-500 font-medium">Progres:</span>
                     <strong id="progressText" class="text-slate-800 font-bold font-mono">0 / 0</strong>
@@ -200,7 +234,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
                 <div class="w-24 h-2 bg-slate-200 rounded-full overflow-hidden">
                     <div id="progressBar" class="bg-brand-600 h-full transition-all duration-300" style="width: 0%"></div>
                 </div>
-                <div class="flex items-center space-x-1.5 text-2xs font-semibold pl-1 border-l border-slate-200">
+                <div class="flex items-center space-x-1.5 text-2xs font-semibold pl-1 border-l border-slate-200 {% if verification_only %}hidden{% endif %}">
                     <span class="text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">Relevan: <strong id="countRelevant">0</strong></span>
                     <span class="text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200">Tidak: <strong id="countIrrelevant">0</strong></span>
                     <span class="text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">Ragu: <strong id="countRagu">0</strong></span>
@@ -209,7 +243,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 
             <!-- Action Controls & Modals -->
             <div class="flex items-center space-x-1 sm:space-x-1.5 shrink-0">
-                <button id="soundToggleBtn" onclick="toggleSound()" title="Aktif/Nonaktifkan Suara Efek (M)" class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs border border-slate-300 transition-all cursor-pointer">
+                <button id="soundToggleBtn" onclick="toggleSound()" title="Aktif/Nonaktifkan Suara Efek (M)" class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs border border-slate-300 transition-all cursor-pointer {% if verification_only %}hidden{% endif %}">
                     <span id="soundIcon">🔊</span>
                 </button>
                 <button onclick="toggleModal('guideModal')" class="inline-flex items-center space-x-1 px-2 sm:px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-300 transition-all cursor-pointer">
@@ -260,7 +294,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
                                 </svg>
                             </div>
                             <div class="min-w-0 flex-1">
-                                <div class="text-3xs font-bold uppercase tracking-wider text-indigo-500">Kata Kunci Kueri:</div>
+                                <div class="text-3xs font-bold uppercase tracking-wider text-indigo-500">{% if verification_only %}Kebutuhan informasi kueri dasar{% else %}Kueri pencarian{% endif %}</div>
                                 <div id="cardQueryText" class="text-base sm:text-lg font-extrabold text-slate-900 font-mono select-all truncate">
                                     ...
                                 </div>
@@ -269,12 +303,12 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
                     </div>
 
                     <!-- Tengah: Teks Dokumen Arsip (Fleksibel, Terbaca Jelas) -->
-                    <div class="my-auto py-2 flex flex-col min-h-0">
+                    <div id="summarySection" class="my-auto py-2 flex flex-col min-h-0">
                         <div class="text-2xs font-bold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center justify-between">
-                            <span>Teks Ringkasan Arsip (Temu Kembali):</span>
-                            <span class="text-3xs text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">Kata kunci disorot otomatis</span>
+                            <span>Ringkasan arsip</span>
+                            {% if verification_only %}<span id="cardArchiveId" class="font-mono text-slate-500 normal-case">Arsip #0</span>{% else %}<span class="text-3xs text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">Kata kunci disorot otomatis</span>{% endif %}
                         </div>
-                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 sm:p-4 shadow-2xs overflow-y-auto max-h-[36vh] sm:max-h-[44vh] lg:max-h-[50vh]">
+                        <div id="summaryPanel" class="bg-slate-50 border border-slate-200 rounded-xl p-3 sm:p-4 shadow-2xs overflow-y-auto max-h-[36vh] sm:max-h-[44vh] lg:max-h-[50vh]">
                             <div id="cardSummaryRaw" class="text-sm sm:text-base text-slate-800 leading-relaxed font-normal">
                                 Memuat data arsip...
                             </div>
@@ -282,6 +316,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
                     </div>
 
                     <!-- Bawah: Grid Metadata Tiga Kolom & Tips Koreksi -->
+                    {% if not verification_only %}
                     <div class="space-y-2 pt-1 border-t border-slate-100">
                         <div class="grid grid-cols-3 gap-2 text-2xs">
                             <div class="bg-slate-50 border border-slate-200 rounded-lg p-2">
@@ -301,6 +336,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
                             <span>💡 Tips Koreksi: Tekan <span class="font-bold text-slate-600">[ ← ]</span> untuk kembali atau <span class="font-bold text-slate-600">[ Ctrl + Z ]</span> untuk membatalkan.</span>
                         </div>
                     </div>
+                    {% endif %}
 
                 </div>
             </div>
@@ -309,7 +345,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
             <!-- KOLOM KANAN (5 Kolom): AKSI & KONTROL CEPAT -->
             <!-- ========================================== -->
             <div class="lg:col-span-5 flex flex-col h-full min-h-0">
-                <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-4 sm:p-5 flex flex-col h-full justify-between min-h-0 space-y-3">
+                <div id="actionCard" class="bg-white rounded-2xl border border-slate-200 shadow-xs p-4 sm:p-5 flex flex-col h-full justify-between min-h-0 space-y-3">
                     
                     <!-- Atas: Filter Kueri & Status Saat Ini -->
                     <div class="space-y-3">
@@ -347,11 +383,11 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
                                     <!-- Populated via JS -->
                                 </select>
                                 <button onclick="jumpToFirstUnjudged()" class="px-2 py-1 rounded bg-brand-50 border border-brand-200 text-brand-700 font-bold hover:bg-brand-100 transition-all cursor-pointer">
-                                    <span>Unjudged</span>
+                                    <span>{% if verification_only %}Ke belum dinilai{% else %}Unjudged{% endif %}</span>
                                     <span class="kbd-badge ml-0.5">U</span>
                                 </button>
                             </div>
-                            <label class="inline-flex items-center space-x-1 text-slate-600 font-medium cursor-pointer select-none">
+                            <label class="inline-flex items-center space-x-1 text-slate-600 font-medium cursor-pointer select-none {% if verification_only %}hidden{% endif %}">
                                 <input type="checkbox" id="unjudgedOnlyCheck" onchange="toggleUnjudgedOnly()" class="rounded border-slate-300 text-brand-600 focus:ring-brand-500 text-xs">
                                 <span>Hanya belum dinilai</span>
                             </label>
@@ -359,7 +395,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
                     </div>
 
                     <!-- Tengah: 2 Tombol Aksi Raksasa (Paling Mudah Diklik / Dipencet) -->
-                    <div class="space-y-2.5 my-auto">
+                    <div id="actionButtons" class="space-y-2.5 my-auto">
                         <!-- Button Relevan (1) -->
                         <button id="btnRelevant" onclick="setVerdict(1)" class="group w-full flex items-center justify-between py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-md shadow-emerald-600/20 active:scale-98 transition-all cursor-pointer">
                             <div class="flex items-center space-x-2.5">
@@ -397,11 +433,11 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
                     <div class="space-y-2 pt-2 border-t border-slate-100">
                         <!-- Input Catatan 1 Baris Ramping -->
                         <div>
-                            <input type="text" id="cardNotes" placeholder="Catatan auditor opsional..." onchange="saveNotesOnly()" class="w-full text-2xs bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand-500 rounded-lg px-2.5 py-1.5 outline-none transition-all">
+                            <input type="text" id="cardNotes" placeholder="{% if verification_only %}Catatan penilaian (opsional){% else %}Catatan auditor opsional...{% endif %}" onchange="saveNotesOnly()" class="w-full text-2xs bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand-500 rounded-lg px-2.5 py-1.5 outline-none transition-all">
                         </div>
 
                         <!-- Tombol Navigasi Prev / Next -->
-                        <div class="flex items-center justify-between gap-2">
+                        <div id="cardNavigation" class="flex items-center justify-between gap-2">
                             <button onclick="navigate(-1)" class="flex-1 inline-flex items-center justify-center space-x-1.5 py-2 px-3 rounded-lg border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold text-2xs transition-all cursor-pointer">
                                 <span class="kbd-badge">←</span>
                                 <span>Sebelumnya (Koreksi)</span>
@@ -436,7 +472,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     <!-- BILAH AKSI JEMPOL KHUSUS MOBILE (THUMB-ZONE ACTION BAR)  -->
     <!-- Tampil hanya di layar HP/Tablet (< lg)                   -->
     <!-- ======================================================== -->
-    <aside class="lg:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 px-2.5 py-2 z-40 shadow-2xl safe-area-pb">
+    <aside class="{% if verification_only %}sm:hidden{% else %}lg:hidden{% endif %} fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 px-2.5 py-2 z-40 shadow-2xl safe-area-pb">
         <div class="max-w-md mx-auto flex items-center justify-between gap-1.5 sm:gap-2">
             <!-- Prev -->
             <button onclick="navigate(-1)" title="Arsip Sebelumnya" class="h-12 w-11 shrink-0 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 flex items-center justify-center border border-slate-300 transition-all cursor-pointer">
@@ -488,39 +524,37 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
                 <button onclick="toggleModal('guideModal')" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-200 hover:text-slate-700 transition-all cursor-pointer">✕</button>
             </div>
             <div class="p-6 overflow-y-auto space-y-4 text-xs text-slate-700 leading-relaxed">
-                <div class="p-3 bg-brand-50 border border-brand-200 rounded-xl">
-                    <h4 class="font-bold text-brand-900 mb-1">Prinsip Dasar:</h4>
-                    <p>Nilai berdasarkan teks deskripsi asli (<code class="bg-white px-1.5 py-0.5 rounded text-brand-800 font-mono font-bold">summary_raw</code>), bukan metadata komputer. Penilaian bersifat buta (tanpa skor/metode).</p>
+                <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                    <h4 class="font-bold text-slate-900 mb-1">Dasar penilaian</h4>
+                    <p>Bandingkan kueri dengan ringkasan asli arsip. Abaikan metadata hasil ekstraksi, metode pencarian, skor, dan jawaban penilai lain. Pilih Relevan (1) atau Tidak relevan (0). Tandai Ragu jika ringkasan tidak cukup jelas, lalu tulis alasannya.</p>
                 </div>
 
                 <div class="space-y-3">
                     <div class="border-b border-slate-100 pb-2">
-                        <h5 class="font-bold text-slate-900">1. Kueri Nomor SPM (<code>nomor_spm</code>)</h5>
-                        <p class="text-slate-600">Relevan hanya jika merujuk pada nomor SPM yang sama persis (termasuk variasi spasi/garis miring, atau ejaan varian seperti <code>L.S</code> / dua digit tahun <code>02</code>). Berbeda nomor = Tidak Relevan.</p>
+                        <h5 class="font-bold text-slate-900">Nomor SPM</h5>
+                        <p class="text-slate-600">Nomor SPM harus sama; perbedaan spasi, tanda baca, atau format tahun yang setara boleh diabaikan. Salinan dari SPM yang sama tetap relevan. Nomor berbeda tidak relevan, walau OPD dan tahunnya sama.</p>
                     </div>
 
                     <div class="border-b border-slate-100 pb-2">
-                        <h5 class="font-bold text-slate-900">2. Kueri Topik / Pekerjaan (<code>topik</code>)</h5>
-                        <p class="text-slate-600">Relevan jika memuat pekerjaan atau transaksi pembayaran yang sama. <em>Catatan Termin:</em> Jika kueri menyebut termin secara spesifik (misal "termin I"), jangan samakan dengan termin lain (termin II).</p>
+                        <h5 class="font-bold text-slate-900">Topik atau pekerjaan</h5>
+                        <p class="text-slate-600">Pekerjaan atau transaksi pembayaran harus sama secara spesifik. Sinonim yang merujuk pada pekerjaan yang sama boleh diterima. Jika kueri menyebut termin I, arsip termin II tidak relevan.</p>
                     </div>
 
                     <div class="border-b border-slate-100 pb-2">
-                        <h5 class="font-bold text-slate-900">3. Kueri Rekanan / Pihak Ketiga (<code>pihak</code>)</h5>
-                        <p class="text-slate-600">Relevan jika melibatkan badan usaha / CV / PT yang sama persis. Nama perusahaan berbeda = Tidak Relevan.</p>
+                        <h5 class="font-bold text-slate-900">Pihak atau rekanan</h5>
+                        <p class="text-slate-600">Arsip harus melibatkan badan usaha atau instansi yang sama. Kemiripan kata umum pada nama pihak tidak cukup untuk dianggap relevan.</p>
                     </div>
 
                     <div class="border-b border-slate-100 pb-2">
-                        <h5 class="font-bold text-slate-900">4. Kueri Campuran (<code>campuran</code>)</h5>
-                        <p class="text-slate-600">Wajib memenuhi seluruh unsur secara bersamaan (misal pekerjaan + tahun, atau pihak + tahun). Hanya memenuhi salah satu = Tidak Relevan.</p>
+                        <h5 class="font-bold text-slate-900">Kueri campuran</h5>
+                        <p class="text-slate-600">Semua unsur harus sesuai, misalnya pekerjaan dan tahun, atau pihak dan pekerjaan. Kecocokan satu unsur saja tidak cukup.</p>
                     </div>
 
-                    <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl">
-                        <h5 class="font-bold text-amber-900 mb-1">5. Aturan Khusus Kueri Kata Hilang (<code>kata_hilang</code>):</h5>
-                        <ul class="list-disc list-inside space-y-1 text-amber-800">
-                            <li>Semua komponen yang <strong>masih tertulis</strong> dalam kueri wajib cocok persis dengan data arsip.</li>
-                            <li>Bila ada <strong>lebih dari satu arsip</strong> yang cocok dengan komponen tertulis tersebut, <strong>semua arsip yang cocok dinilai RELEVAN (1)</strong> dan wajib ditandai <strong>RAGU = 1</strong>.</li>
-                        </ul>
+                    <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                        <h5 class="font-bold text-amber-900 mb-1">Varian kueri pada set uji v2</h5>
+                        <p class="text-amber-900">Nilai berdasarkan kebutuhan informasi kueri dasar. Aturan <em>wildcard</em> untuk <code>kata_hilang</code> pada pedoman lama tidak berlaku di set uji v2. Jika maksud kueri tidak jelas, tandai Ragu dan tulis alasannya.</p>
                     </div>
+                    <p class="text-slate-500">Ringkasan ini mengikuti <code>docs/pedoman_penilaian_relevansi.md</code> Bagian 1–2.4 dan pengecualian v2 dalam <code>docs/protokol_testset_v2.md</code> Bagian 5.</p>
                 </div>
             </div>
             <div class="px-6 py-3 bg-slate-50 border-t border-slate-200 text-right">
@@ -583,8 +617,9 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         let allItems = [];
         let currentIndex = 0;
         let activeDataset = "{{ active_dataset }}";
+        const verificationOnly = {{ verification_only | tojson }};
         let isSaving = false;
-        let soundEnabled = true;
+        let soundEnabled = !verificationOnly;
         let lastAction = null; // Menyimpan state untuk Undo
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -702,15 +737,26 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 
             document.getElementById("cardQueryId").textContent = item.query_id;
             document.getElementById("cardItemPosition").textContent = `Item ${currentIndex + 1} dari ${allItems.length}`;
-            document.getElementById("badgeQueryType").textContent = item.query_type || "topik";
-            document.getElementById("badgeNoiseType").textContent = item.noise_type || "tanpa_gangguan";
-            document.getElementById("cardQueryText").textContent = item.query_text;
-            document.getElementById("cardPoolOrder").textContent = `Peringkat Pool: #${item.pool_order || (currentIndex + 1)}`;
+            const queryTypeLabels = {
+                nomor_spm: "Nomor SPM", topik: "Topik pekerjaan",
+                pihak: "Nama pihak", campuran: "Campuran",
+            };
+            document.getElementById("badgeQueryType").textContent = verificationOnly
+                ? (queryTypeLabels[item.query_type] || item.query_type || "Kueri")
+                : (item.query_type || "topik");
+            document.getElementById("badgeNoiseType").textContent = item.noise_type || "";
+            if (verificationOnly) document.getElementById("badgeNoiseType").style.display = "none";
+            const judgmentQuery = verificationOnly ? item.base_query_text : item.query_text;
+            document.getElementById("cardQueryText").textContent = judgmentQuery;
+            document.getElementById("cardPoolOrder").textContent = verificationOnly ? "" : `Peringkat Pool: #${item.pool_order || (currentIndex + 1)}`;
             
-            document.getElementById("cardSummaryRaw").innerHTML = highlightKeywords(item.summary_raw, item.query_text);
-            document.getElementById("cardSpmNumber").textContent = item.spm_number || "-";
-            document.getElementById("cardPartyName").textContent = item.party_name || "-";
-            document.getElementById("cardArchiveId").textContent = `#${item.archive_id}`;
+            document.getElementById("cardSummaryRaw").innerHTML = highlightKeywords(item.summary_raw, judgmentQuery);
+            if (!verificationOnly) {
+                document.getElementById("cardSpmNumber").textContent = item.spm_number || "-";
+                document.getElementById("cardPartyName").textContent = item.party_name || "-";
+            }
+            document.getElementById("cardArchiveId").textContent = verificationOnly
+                ? `Arsip #${item.archive_id}` : `#${item.archive_id}`;
             document.getElementById("cardNotes").value = item.auditor_notes || item.archivist_notes || "";
 
             const statusBadge = document.getElementById("currentStatusBadge");
@@ -1131,13 +1177,21 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 @app.route("/")
 def index():
     """Halaman utama pelabel relevansi."""
-    active_dataset = request.args.get("dataset", "relevance_pool.csv")
-    if active_dataset not in DATASET_CONFIG:
-        active_dataset = "relevance_pool.csv"
+    default_dataset = (
+        "relevance_verification_sample.csv"
+        if app.config["VERIFICATION_ONLY"] else "relevance_pool.csv"
+    )
+    active_dataset = request.args.get("dataset", default_dataset)
+    if not dataset_allowed(active_dataset):
+        active_dataset = default_dataset
+    available_datasets = {
+        name: cfg for name, cfg in DATASET_CONFIG.items() if dataset_allowed(name)
+    }
     return render_template_string(
         HTML_TEMPLATE,
-        datasets=DATASET_CONFIG,
+        datasets=available_datasets,
         active_dataset=active_dataset,
+        verification_only=app.config["VERIFICATION_ONLY"],
     )
 
 
@@ -1145,12 +1199,19 @@ def index():
 def api_get_data():
     """Ambil data item dari berkas CSV yang dipilih beserta statistik."""
     dataset_name = request.args.get("dataset", "relevance_pool.csv")
+    if not dataset_allowed(dataset_name):
+        return jsonify({"error": "Dataset tidak tersedia dalam sesi ini"}), 403
     file_path = get_dataset_path(dataset_name)
 
     if not file_path.is_file():
         return jsonify({"error": f"Berkas tidak ditemukan: {file_path.name}"}), 404
 
     fieldnames, rows = read_pool_csv(file_path)
+    if app.config["VERIFICATION_ONLY"]:
+        if any(not row.get("summary_raw", "").strip() for row in rows):
+            return jsonify({"error": "Ringkasan asli arsip kosong; sampel harus diperbaiki"}), 422
+        if any(not row.get("base_query_text", "").strip() for row in rows):
+            return jsonify({"error": "Kueri dasar belum tersedia; sampel harus diperbaiki"}), 422
 
     judged = 0
     relevant = 0
@@ -1168,6 +1229,13 @@ def api_get_data():
                 irrelevant += 1
         if rg == "1":
             ragu += 1
+
+    if app.config["VERIFICATION_ONLY"]:
+        visible_fields = (
+            "query_id", "query_text", "base_query_text", "query_type", "archive_id", "summary_raw",
+            "is_relevant", "ragu", "archivist_notes",
+        )
+        rows = [{key: row.get(key, "") for key in visible_fields} for row in rows]
 
     return jsonify({
         "dataset": dataset_name,
@@ -1187,6 +1255,8 @@ def api_save_item():
     """Simpan keputusan penilaian (is_relevant, ragu, notes) langsung ke berkas CSV."""
     payload = request.get_json() or {}
     dataset_name = payload.get("dataset", "relevance_pool.csv")
+    if not dataset_allowed(dataset_name):
+        return jsonify({"success": False, "error": "Dataset tidak tersedia dalam sesi ini"}), 403
     file_path = get_dataset_path(dataset_name)
 
     if not file_path.is_file():
@@ -1262,7 +1332,13 @@ def main() -> None:
     parser.add_argument("--port", type=int, default=5000, help="Port server web (default: 5000)")
     parser.add_argument("--host", default="127.0.0.1", help="Host server web (default: 127.0.0.1, gunakan 0.0.0.0 untuk akses dari HP)")
     parser.add_argument("--no-browser", action="store_true", help="Jangan buka browser otomatis")
+    parser.add_argument(
+        "--verification-only", action="store_true",
+        help="Mode penilai kedua: hanya buka 120 pasangan verifikasi, tanpa berkas peneliti",
+    )
     args = parser.parse_args()
+
+    app.config["VERIFICATION_ONLY"] = args.verification_only
 
     local_ip = get_local_ip()
     url = f"http://{args.host}:{args.port}"
@@ -1275,7 +1351,10 @@ def main() -> None:
     else:
         print(f"[*] Tips Akses HP      : Jalankan dengan flag --host 0.0.0.0")
         print(f"                         Lalu buka http://{local_ip}:{args.port} dari HP")
-    print("[*] Berkas aktif default: output/relevance_pool.csv")
+    default_file = (
+        "relevance_verification_sample.csv" if args.verification_only else "relevance_pool.csv"
+    )
+    print(f"[*] Berkas aktif default: output/{default_file}")
     print("[*] Tekan Ctrl + C di terminal untuk menghentikan server.")
     print("=" * 65)
 
