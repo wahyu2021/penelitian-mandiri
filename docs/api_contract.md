@@ -100,6 +100,11 @@ halaman. Urutan `like` mengikuti ID naik; metode fuzzy mengikuti skor turun
 dengan ID naik untuk skor seri. `score` adalah keluaran mesin pencarian, bukan
 perhitungan baru di endpoint; LIKE memakai skor tetap 1.0.
 
+`GET /api/v1/search/filters` menyediakan pilihan OPD dari salinan SQLite,
+`default_method`, serta daftar `methods` berlabel untuk admin. Petugas menerima
+`methods: []`; UI petugas tidak menampilkan pemilih metode. Keduanya memerlukan
+sesi, memakai `Cache-Control: no-store`, dan tidak mengirim data arsip.
+
 `opd_id` bilangan positif; `year` 1900–2100; `status` 1, 2, atau 3; `limit`
 1–100 (default 20); `offset` bilangan nol atau lebih (default 0). Filter
 kosong berarti tidak dipakai. `limit=` atau `offset=` kosong, angka tidak
@@ -154,6 +159,7 @@ database memberi 500 JSON tanpa rincian SQL.
 | `DELETE /api/v1/session` | masuk | sesi diakhiri; tersedia | PM-02 |
 | `GET /api/v1/dashboard` | admin, petugas | `counts` dan enam arsip ber-ID tertinggi; tersedia | PM-03 |
 | `GET /api/v1/search` | admin, petugas | `items`, `pagination`, metode yang dipakai; tersedia | PM-04 |
+| `GET /api/v1/search/filters` | admin, petugas | pilihan OPD dan metode sesuai peran; tersedia | PM-10 |
 | `GET /api/v1/archives/{id}` | admin, petugas | detail, metadata, status dugaan, lokasi; tersedia | PM-05 |
 | `GET /api/v1/search/compare` | admin | hasil per metode untuk kueri sama; tersedia | PM-06 |
 

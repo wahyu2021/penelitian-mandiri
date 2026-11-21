@@ -54,3 +54,15 @@ def compare_methods(db_path: Path, query: str, opd_id=None, year=None, status=No
                     limit: int = 10):
     return {method: search_archives(db_path, query, method, opd_id, year, status, limit)
             for method in METHODS}
+
+
+def list_opd_options(db_path: Path):
+    """Daftar OPD dari salinan SQLite untuk formulir filter pencarian."""
+    connection = sqlite3.connect(str(db_path))
+    connection.row_factory = sqlite3.Row
+    try:
+        return [dict(row) for row in connection.execute(
+            "SELECT id, name FROM opd ORDER BY name, id"
+        )]
+    finally:
+        connection.close()

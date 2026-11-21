@@ -38,3 +38,4 @@ from webapp.api import dashboard as _dashboard  # noqa: E402,F401
 from webapp.api import search as _search  # noqa: E402,F401
 from webapp.api import archives as _archives  # noqa: E402,F401
 from webapp.api import compare as _compare  # noqa: E402,F401
+from webapp.api import search_filters as _search_filters  # noqa: E402,F401

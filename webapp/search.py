@@ -3,9 +3,8 @@
 from flask import Blueprint, abort, current_app, render_template, request
 from flask_login import current_user, login_required
 
-from services.web_search import DEFAULT_METHOD, METHODS, compare_methods, search_archives
+from services.web_search import DEFAULT_METHOD, METHODS, compare_methods, list_opd_options, search_archives
 from webapp.auth import admin_required
-from webapp.database import db
 
 search_pages = Blueprint("search", __name__)
 
@@ -35,7 +34,7 @@ def search():
         search_archives(current_app.config["DATABASE"], query, method, **filters)
         if query else []
     )
-    opds = db().execute("SELECT id, name FROM opd ORDER BY name").fetchall()
+    opds = list_opd_options(current_app.config["DATABASE"])
     return render_template("search.html", query=query, method=method, methods=METHODS,
                            filters=filters, results=results, opds=opds)
 

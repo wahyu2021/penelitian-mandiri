@@ -6,16 +6,9 @@ from flask import abort, current_app, request
 
 from services.web_search import METHODS, compare_methods
 from webapp.api import api, success
+from webapp.api.method_labels import METHOD_LABELS
 from webapp.api.query_params import optional_int, reject_duplicate_params
 from webapp.api.session import require_api_role
-
-METHOD_LABELS = {
-    "like": "LIKE (pembanding)",
-    "levenshtein": "Levenshtein",
-    "jaro_winkler": "Jaro-Winkler",
-    "token_set": "Token Set",
-    "ngram": "N-gram Dice",
-}
 
 
 @api.get("/search/compare")

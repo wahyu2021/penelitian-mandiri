@@ -217,3 +217,43 @@ def test_compare_database_error_is_safe_json(search_app):
     assert response.status_code == 500
     assert response.get_json()["error"]["code"] == "server_error"
     assert "no such table" not in response.get_data(as_text=True)
+
+
+def test_search_filter_options_use_local_opds_and_admin_methods(search_app):
+    client = search_app.test_client()
+    assert client.get("/api/v1/search/filters").status_code == 401
+    login(client)
+    response = client.get("/api/v1/search/filters")
+    assert response.status_code == 200
+    assert response.headers["Cache-Control"] == "no-store"
+    data = response.get_json()["data"]
+    assert data["opds"] == [
+        {"id": 2, "name": "Dinas Kesehatan"},
+        {"id": 1, "name": "Dinas Pekerjaan Umum"},
+    ]
+    assert data["default_method"] == "like"
+    assert [option["name"] for option in data["methods"]] == list(METHODS)
+    assert all(option["label"] for option in data["methods"])
+
+
+def test_petugas_filter_options_hide_admin_methods(search_app):
+    client = search_app.test_client()
+    login(client, "petugas")
+    data = client.get("/api/v1/search/filters").get_json()["data"]
+    assert data["methods"] == []
+    assert data["default_method"] == "like"
+    assert len(data["opds"]) == 2
+
+
+def test_filter_options_database_error_is_safe_json(search_app):
+    client = search_app.test_client()
+    login(client)
+    connection = get_connection(search_app.config["DATABASE"])
+    connection.execute("PRAGMA foreign_keys = OFF")
+    with connection:
+        connection.execute("DROP TABLE opd")
+    connection.close()
+    response = client.get("/api/v1/search/filters")
+    assert response.status_code == 500
+    assert response.get_json()["error"]["code"] == "server_error"
+    assert "no such table" not in response.get_data(as_text=True)
