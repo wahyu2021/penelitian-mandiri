@@ -1,7 +1,8 @@
 # Kontrak HTTP API Flask untuk React
 
-**Status:** fondasi PM-01, sesi PM-02, dan dashboard PM-03 diimplementasikan;
-endpoint lain di tabel bawah adalah kontrak target untuk PM-04 sampai PM-06. Dokumen ini diperbarui bersama
+**Status:** fondasi PM-01, sesi PM-02, dashboard PM-03, dan pencarian PM-04
+diimplementasikan; endpoint lain di tabel bawah adalah kontrak target untuk
+PM-05 sampai PM-06. Dokumen ini diperbarui bersama
 implementasi tiap tiket, bukan bukti bahwa endpoint target sudah tersedia.
 
 ## Versi, origin, dan bentuk respons
@@ -84,6 +85,30 @@ tertinggi tidak selalu berarti tanggal dokumen terbaru. `year` dan
 kosong. Respons memakai `Cache-Control: no-store`; kegagalan baca database
 memberi 500 JSON tanpa rincian SQL.
 
+### Pencarian yang sudah tersedia (PM-04)
+
+`GET /api/v1/search` memerlukan sesi. `q` di-*trim*; kueri kosong memberi
+`items: []` dan `total: 0`. Default `method` saat ini adalah `like`, sama
+dengan halaman Flask/Jinja. Admin boleh memilih salah satu nama di
+`services/web_search.py`; petugas tidak boleh memilih metode fuzzy dan
+menerima 403 jika mencobanya. Pilihan ini ditegakkan juga pada route Jinja.
+
+Respons berbentuk `data: {query, method, items, pagination}`. Setiap item hanya
+memuat `id`, `summary_raw`, `opd_name`, `year`, `spm_number`, `file_number`,
+`has_document`, dan `score`; field yang tidak tersedia dapat `null`.
+`pagination` memuat `limit`, `offset`, dan `total` hasil cocok sebelum pemotongan
+halaman. Urutan `like` mengikuti ID naik; metode fuzzy mengikuti skor turun
+dengan ID naik untuk skor seri. `score` adalah keluaran mesin pencarian, bukan
+perhitungan baru di endpoint; LIKE memakai skor tetap 1.0.
+
+`opd_id` bilangan positif; `year` 1900–2100; `status` 1, 2, atau 3; `limit`
+1–100 (default 20); `offset` bilangan nol atau lebih (default 0). Filter
+kosong berarti tidak dipakai. `limit=` atau `offset=` kosong, angka tidak
+valid, parameter ganda, kueri lebih dari 200 karakter, serta metode tidak
+dikenal memberi 400. Data arsip tidak dikirim bila belum login (401). Respons
+memakai `Cache-Control: no-store`; kegagalan membaca SQLite memberi 500 JSON
+tanpa rincian internal.
+
 ## Endpoint target dan pemilik tiket
 
 | Metode dan path | Pemakai | Data yang diharapkan | Tiket |
@@ -92,7 +117,7 @@ memberi 500 JSON tanpa rincian SQL.
 | `POST /api/v1/session` | publik | akun yang masuk; cookie sesi; tersedia | PM-02 |
 | `DELETE /api/v1/session` | masuk | sesi diakhiri; tersedia | PM-02 |
 | `GET /api/v1/dashboard` | admin, petugas | `counts` dan enam arsip ber-ID tertinggi; tersedia | PM-03 |
-| `GET /api/v1/search` | admin, petugas | `items`, `pagination`, metode yang dipakai | PM-04 |
+| `GET /api/v1/search` | admin, petugas | `items`, `pagination`, metode yang dipakai; tersedia | PM-04 |
 | `GET /api/v1/archives/{id}` | admin, petugas | detail, metadata, status dugaan, lokasi | PM-05 |
 | `GET /api/v1/search/compare` | admin | hasil per metode untuk kueri sama | PM-06 |
 
@@ -107,7 +132,7 @@ respons berhasil dalam README atau laporan.
   seluruh korpus tanpa batas.
 - `opd_id`, `year`, `status`: filter opsional. Nilai numerik dan rentang/status
   diverifikasi di Flask. Nilai tidak valid menghasilkan 400.
-- `method`: petugas memakai metode bawaan dari konfigurasi server; hanya admin
+- `method`: petugas memakai metode bawaan `like` saat ini; hanya admin
   dapat memilih metode atau membuka perbandingan. Nama metode yang tidak dikenal
   menghasilkan 400, pilihan tanpa hak menghasilkan 403.
 - Daftar memakai `limit` (default 20, maksimum 100) dan `offset` (default 0).

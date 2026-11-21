@@ -117,7 +117,7 @@ tampilan atau klaim dokumen saja.
 - **Uji:** kueri tepat/typo/kosong, filter valid/tidak valid, nol hasil,
   limit, 401, dan penolakan metode admin bagi petugas; uji domain tetap lulus.
 - **Commit:** `feat(api): sediakan pencarian arsip terfilter [PM-04]`.
-- **Jejak:** Status: belum dimulai | Uji: — | Commit: — | Catatan: —
+- **Jejak:** Status: selesai (21 November 2026) | Uji: 22 uji API pencarian/web lulus; `pytest -q` 190 lulus, 5 dilewati | Commit: commit PM-04 pada riwayat Git | Catatan: metode bawaan sementara `like`; pilihan fuzzy hanya admin. Total pagination berasal dari daftar hasil berurutan yang sama.
 
 ### PM-05 — Detail arsip API
 

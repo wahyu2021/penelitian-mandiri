@@ -1,9 +1,9 @@
 """Pencarian arsip dan pembandingan metode."""
 
 from flask import Blueprint, abort, current_app, render_template, request
-from flask_login import login_required
+from flask_login import current_user, login_required
 
-from services.web_search import METHODS, compare_methods, search_archives
+from services.web_search import DEFAULT_METHOD, METHODS, compare_methods, search_archives
 from webapp.auth import admin_required
 from webapp.database import db
 
@@ -23,9 +23,11 @@ def optional_int(name):
 @login_required
 def search():
     query = request.args.get("q", "").strip()
-    method = request.args.get("method", "like")
+    method = request.args.get("method", DEFAULT_METHOD)
     if len(query) > 200 or method not in METHODS:
         abort(400, description="Kueri atau metode pencarian tidak valid.")
+    if current_user.role != "admin" and method != DEFAULT_METHOD:
+        abort(403, description="Pemilihan metode hanya tersedia untuk admin.")
     filters = {name: optional_int(name) for name in ("opd_id", "year", "status")}
     if filters["status"] not in (None, 1, 2, 3):
         abort(400, description="Status arsip tidak valid.")

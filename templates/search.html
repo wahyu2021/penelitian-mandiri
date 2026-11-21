@@ -10,9 +10,9 @@
     <span class="input-wrap">{{ icon('search') }}<input type="search" name="q" value="{{ query }}" maxlength="200" placeholder="Contoh: pembangunan jembatan" autofocus></span>
   </label>
   <div class="filter-grid">
-    <label>Metode
+    {% if current_user.role == 'admin' %}<label>Metode
       <select name="method">{% for item in methods %}<option value="{{ item }}" {% if item == method %}selected{% endif %}>{{ item|replace('_', ' ')|title }}</option>{% endfor %}</select>
-    </label>
+    </label>{% endif %}
     <label>OPD
       <select name="opd_id"><option value="">Semua OPD</option>{% for opd in opds %}<option value="{{ opd.id }}" {% if filters.opd_id == opd.id %}selected{% endif %}>{{ opd.name }}</option>{% endfor %}</select>
     </label>

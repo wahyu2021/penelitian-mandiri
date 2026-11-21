@@ -10,6 +10,7 @@ from core.search.matchers import FUZZY_METHOD_NAMES, create_matcher
 from core.search.ranker import FieldRanker, equal_weights
 
 METHODS = ("like", *FUZZY_METHOD_NAMES)
+DEFAULT_METHOD = "like"
 
 
 @lru_cache(maxsize=4)
@@ -34,8 +35,8 @@ def _indexed_corpus(db_path: str, modified_ns: int):
     return SearchIndex.from_records(records), {row["id"]: row for row in records}
 
 
-def search_archives(db_path: Path, query: str, method: str = "like",
-                    opd_id=None, year=None, status=None, limit: int = 20):
+def search_archives(db_path: Path, query: str, method: str = DEFAULT_METHOD,
+                    opd_id=None, year=None, status=None, limit: int | None = 20):
     """Kembalikan hasil pencarian dan metadata tampilan tanpa mengubah basis data."""
     if method not in METHODS:
         raise ValueError(f"Metode pencarian tidak dikenal: {method}")
