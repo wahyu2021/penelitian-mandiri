@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% from '_icons.html' import icon %}
+{% block title %}Masuk{% endblock %}
+{% block content %}
+<section class="login-card">
+  <div class="login-emblem">{{ icon('archive') }}</div>
+  <p class="eyebrow">Akses petugas</p>
+  <h1>Masuk ke pencarian arsip</h1>
+  <p class="muted">Gunakan akun lokal yang dibuat oleh pengelola.</p>
+  <form method="post" class="stack">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label>Nama pengguna<input name="username" autocomplete="username" required autofocus></label>
+    <label>Kata sandi<input name="password" type="password" autocomplete="current-password" required></label>
+    <button class="primary" type="submit">Masuk {{ icon('arrow-right') }}</button>
+  </form>
+</section>
+{% endblock %}

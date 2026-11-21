@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% from '_icons.html' import icon %}
+{% block title %}Perbandingan{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">Analisis metode</p><h1>Perbandingan hasil</h1><p class="muted">Sepuluh hasil teratas per metode untuk kueri yang sama. Skor antarmetode tidak selalu sebanding.</p></div></div>
+<form method="get" class="panel search-form">
+  <label class="query-field">Kata kunci<span class="input-wrap">{{ icon('search') }}<input type="search" name="q" value="{{ query }}" maxlength="200" required></span></label>
+  <div class="form-actions"><button class="primary" type="submit">{{ icon('columns-3') }} Bandingkan</button></div>
+</form>
+{% if results %}
+<div class="compare-grid">
+  {% for method, rows in results.items() %}
+  <section class="panel">
+    <div class="section-heading"><h2>{{ icon('scale') }} {{ method|replace('_', ' ')|title }}</h2><span class="muted">{{ rows|length }} hasil</span></div>
+    <ol class="rank-list">
+      {% for row in rows %}<li><a href="{{ url_for('main.archive_detail', archive_id=row.id) }}">#{{ row.id }} · {{ row.summary_raw or 'Tanpa ringkasan' }}</a></li>
+      {% else %}<li class="muted">Tidak ada hasil</li>{% endfor %}
+    </ol>
+  </section>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

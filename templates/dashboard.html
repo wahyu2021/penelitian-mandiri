@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% from '_icons.html' import icon %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div><p class="eyebrow">Ikhtisar korpus</p><h1>Dashboard arsip</h1><p class="muted">Angka langsung dari basis data lokal.</p></div>
+  <a class="primary button-link" href="{{ url_for('search.search') }}">{{ icon('search') }} Cari arsip</a>
+</div>
+<div class="metric-grid">
+  <div class="metric"><span class="metric-icon">{{ icon('archive') }}</span><span>Jumlah arsip</span><strong>{{ counts.total or 0 }}</strong></div>
+  <div class="metric"><span class="metric-icon">{{ icon('shield-check') }}</span><span>Status aktif</span><strong>{{ counts.active or 0 }}</strong></div>
+  <div class="metric"><span class="metric-icon">{{ icon('database') }}</span><span>Status nonaktif</span><strong>{{ counts.inactive or 0 }}</strong></div>
+  <div class="metric"><span class="metric-icon">{{ icon('file-text') }}</span><span>Ada berkas digital</span><strong>{{ counts.with_file or 0 }}</strong></div>
+</div>
+<section class="panel">
+  <div class="section-heading"><h2>{{ icon('folder-open') }} Arsip terakhir dalam data</h2><span class="muted">Berdasarkan ID arsip</span></div>
+  <div class="list">
+    {% for row in recent %}
+    <a class="list-row" href="{{ url_for('main.archive_detail', archive_id=row.id) }}">
+      <span class="mono">#{{ row.id }}</span><span class="truncate">{{ row.summary_raw or 'Tanpa ringkasan' }}</span><span>{{ row.year or '—' }}</span>{{ icon('chevron-right') }}
+    </a>
+    {% else %}<p class="empty">Belum ada arsip. Impor data melalui CLI sebelum menggunakan pencarian.</p>{% endfor %}
+  </div>
+</section>
+{% endblock %}

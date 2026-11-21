@@ -13,6 +13,31 @@ DEFAULT_DB_PATH = Path(__file__).resolve().parent.parent / "instance" / "app.sql
 
 SCHEMA_STATEMENTS = [
     """
+    CREATE TABLE IF NOT EXISTS user (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL UNIQUE,
+        password_hash TEXT NOT NULL,
+        role TEXT NOT NULL CHECK (role IN ('admin', 'petugas')),
+        is_active INTEGER NOT NULL DEFAULT 1 CHECK (is_active IN (0, 1)),
+        created_at TEXT NOT NULL
+    );
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS activity_log (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER REFERENCES user(id),
+        action TEXT NOT NULL,
+        detail TEXT,
+        created_at TEXT NOT NULL
+    );
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS app_setting (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL
+    );
+    """,
+    """
     CREATE TABLE IF NOT EXISTS import_batch (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         source_filename TEXT NOT NULL,

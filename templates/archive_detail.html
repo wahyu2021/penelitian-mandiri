@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% from '_icons.html' import icon %}
+{% block title %}Arsip #{{ archive.id }}{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div><p class="eyebrow">Detail arsip</p><h1>Arsip #{{ archive.id }}</h1><p class="muted">{{ archive.opd_name or 'OPD tidak tersedia' }} · {{ archive.year or 'Tahun tidak tersedia' }}</p></div>
+  <a class="secondary" href="{{ url_for('search.search') }}">{{ icon('arrow-left') }} Kembali ke pencarian</a>
+</div>
+<div class="detail-grid">
+  <section class="panel">
+    <h2>{{ icon('file-text') }} Ringkasan asli</h2>
+    <p class="archive-text">{{ archive.summary_raw or 'Ringkasan tidak tersedia' }}</p>
+    <h2>{{ icon('folder-open') }} Data arsip</h2>
+    <dl class="facts">
+      <dt>Klasifikasi</dt><dd>{{ archive.classification_label or '—' }}</dd>
+      <dt>Nomor berkas</dt><dd>{{ archive.file_number or '—' }}</dd>
+      <dt>Lokasi</dt><dd>{{ [archive.location_block, archive.location_rack, archive.location_row, archive.box_number]|select|join(' / ') or '—' }}</dd>
+      <dt>Berkas digital</dt><dd>{{ 'Ada' if archive.has_document else 'Tidak ada' }}</dd>
+    </dl>
+  </section>
+  <section class="panel">
+    <h2>{{ icon('list-filter') }} Metadata hasil ekstraksi</h2>
+    <dl class="facts">
+      <dt>Nomor SPM</dt><dd>{{ archive.spm_number or '—' }}</dd>
+      <dt>Jenis SPM</dt><dd>{{ archive.spm_type_code or '—' }}{% if archive.spm_type_code %} · {{ archive.spm_type_label }} <span class="badge">{{ archive.spm_type_confidence }}</span>{% endif %}</dd>
+      <dt>Nomor SP2D</dt><dd>{{ archive.sp2d_number or '—' }}</dd>
+      <dt>Tanggal</dt><dd>{{ archive.document_date or '—' }}</dd>
+      <dt>Nominal</dt><dd>{% if archive.amount_rp is not none %}Rp {{ '{:,.0f}'.format(archive.amount_rp)|replace(',', '.') }}{% else %}—{% endif %}</dd>
+      <dt>Pihak</dt><dd>{{ archive.party_name or '—' }}</dd>
+    </dl>
+    <p class="muted small extraction-note">{{ icon('info') }} Nilai ini dibuat oleh ekstraktor. Bandingkan dengan ringkasan asli sebelum dipakai sebagai bukti.</p>
+  </section>
+</div>
+{% endblock %}

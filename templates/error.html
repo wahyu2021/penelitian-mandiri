@@ -1,0 +1,6 @@
+{% extends 'base.html' %}
+{% from '_icons.html' import icon %}
+{% block title %}Kesalahan {{ code }}{% endblock %}
+{% block content %}
+<section class="panel error-card"><span class="error-icon">{{ icon('circle-help') }}</span><p class="eyebrow">Kesalahan {{ code }}</p><h1>Halaman tidak dapat ditampilkan</h1><p>{{ message }}</p><a href="{{ url_for('main.dashboard') if current_user.is_authenticated else url_for('auth.login') }}">{{ icon('arrow-left') }} Kembali ke halaman utama</a></section>
+{% endblock %}
