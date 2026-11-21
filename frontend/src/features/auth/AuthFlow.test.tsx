@@ -19,6 +19,15 @@ describe('alur sesi React', () => {
     let authenticated = false
     const fetchMock = vi.fn().mockImplementation((url: string, options?: RequestInit) => {
       if (url === '/api/v1/health') return Promise.resolve(json({ data: { status: 'ok' } }))
+      if (url === '/api/v1/dashboard')
+        return Promise.resolve(
+          json({
+            data: {
+              counts: { total: 0, active: 0, inactive: 0, with_file: 0 },
+              recent: [],
+            },
+          }),
+        )
       if (options?.method === 'POST') {
         authenticated = true
         return Promise.resolve(
@@ -53,6 +62,8 @@ describe('alur sesi React', () => {
     await user.type(screen.getByLabelText('Kata sandi'), 'kata-sandi-aman')
     await user.click(screen.getByRole('button', { name: 'Masuk' }))
     expect(await screen.findByText('admin · Admin')).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Dashboard arsip' })).toBeInTheDocument()
+    await user.click(screen.getByRole('link', { name: 'Status' }))
     expect(await screen.findByText('Layanan tersambung.')).toBeInTheDocument()
     const post = fetchMock.mock.calls.find(([, options]) => options?.method === 'POST')
     expect(post?.[1].headers['X-CSRF-Token']).toBe('awal')

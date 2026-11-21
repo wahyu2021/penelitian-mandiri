@@ -162,7 +162,7 @@ tampilan atau klaim dokumen saja.
 - **Uji:** Testing Library untuk alur sesi dan galat; uji browser login/logout,
   reload, keyboard, ponsel/tablet; lint, tipe, build.
 - **Commit:** `feat(frontend): tambah login dan navigasi [PM-08]`.
-- **Jejak:** Status: sebagian selesai (21 November 2026) | Uji: 6 uji frontend lulus; lint, tipe, format, build lulus; login/status/logout berhasil di browser desktop dengan akun uji sementara | Commit: commit login PM-08 pada riwayat Git | Catatan: login/logout, pemulihan sesi, route terlindungi, dan kerangka navigasi sudah ada; menu bisnis per peran dan uji browser ponsel/tablet menunggu PM-09–PM-12 sebelum tiket ditutup.
+- **Jejak:** Status: sebagian selesai (21 November 2026) | Uji: 6 uji frontend lulus saat commit; login/status/logout berhasil di browser desktop; login dan navigasi dashboard diperiksa pada ponsel | Commit: commit login PM-08 pada riwayat Git | Catatan: login/logout, pemulihan sesi, route terlindungi, dan kerangka navigasi sudah ada; menu bisnis per peran serta uji keyboard/reload menyeluruh menunggu fitur PM-10–PM-12 sebelum tiket ditutup.
 
 ### PM-09 — Dashboard React
 
@@ -172,7 +172,7 @@ tampilan atau klaim dokumen saja.
 - **Uji:** respons berisi angka/empty/error; cek layout desktop/tablet/ponsel;
   lint, tipe, build.
 - **Commit:** `feat(frontend): tampilkan dashboard korpus [PM-09]`.
-- **Jejak:** Status: belum dimulai | Uji: — | Commit: — | Catatan: —
+- **Jejak:** Status: selesai (21 November 2026) | Uji: 10 uji frontend lulus; lint, tipe, format, build lulus; browser desktop/tablet 768 px/ponsel 390 px tanpa gulir horizontal | Commit: commit PM-09 pada riwayat Git | Catatan: angka dibaca dari API PM-03; daftar terbaru berdasarkan ID arsip dan belum membuka detail React yang menunggu PM-11.
 
 ### PM-10 — Pencarian React
 

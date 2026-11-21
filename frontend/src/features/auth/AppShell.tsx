@@ -55,6 +55,16 @@ export function AppShell() {
       <div className="mx-auto max-w-5xl px-4 sm:px-6">
         <nav aria-label="Navigasi utama" className="flex gap-6 border-b border-border py-3 text-sm">
           <NavLink
+            to="/app/dashboard"
+            className={({ isActive }) =>
+              isActive
+                ? 'font-semibold text-primary underline underline-offset-8'
+                : 'text-muted-foreground hover:text-foreground'
+            }
+          >
+            Dashboard
+          </NavLink>
+          <NavLink
             to="/app/status"
             className={({ isActive }) =>
               isActive

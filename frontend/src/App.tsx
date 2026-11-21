@@ -3,6 +3,7 @@ import { AppProviders } from '@/app/providers'
 import { AppShell } from '@/features/auth/AppShell'
 import { ProtectedRoute, RootRedirect } from '@/features/auth/AuthRoutes'
 import { LoginPage } from '@/features/auth/LoginPage'
+import { DashboardPage } from '@/features/dashboard/DashboardPage'
 import { StatusPage } from '@/features/status/StatusPage'
 import { NotFoundPage } from '@/features/status/NotFoundPage'
 
@@ -14,7 +15,8 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/app" element={<AppShell />}>
-            <Route index element={<Navigate to="status" replace />} />
+            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route path="dashboard" element={<DashboardPage />} />
             <Route path="status" element={<StatusPage />} />
           </Route>
         </Route>

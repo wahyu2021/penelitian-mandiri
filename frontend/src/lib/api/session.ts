@@ -25,7 +25,7 @@ export class ApiError extends Error {
   }
 }
 
-async function readResponse(response: Response): Promise<unknown> {
+export async function readResponse(response: Response): Promise<unknown> {
   const body: unknown = await response.json()
   if (!response.ok) {
     const parsed = z.object({ error: z.object({ message: z.string() }) }).safeParse(body)

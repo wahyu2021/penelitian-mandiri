@@ -1,8 +1,9 @@
 # Frontend React proyek PM
 
 Frontend ini adalah fondasi migrasi. Route `/login` memakai sesi JSON Flask;
-route `/app/status` memeriksa koneksi ke `/api/v1/health` setelah pengguna
-masuk. Dashboard, pencarian, dan detail arsip React masih dikerjakan dalam
+route `/app/dashboard` menampilkan angka korpus dari `/api/v1/dashboard`, dan
+`/app/status` memeriksa koneksi ke `/api/v1/health` setelah pengguna masuk.
+Pencarian dan detail arsip React masih dikerjakan dalam
 tiket berikutnya. Aplikasi Flask/Jinja yang lama
 tetap menjadi antarmuka kerja sampai paritas fitur terbukti.
 
