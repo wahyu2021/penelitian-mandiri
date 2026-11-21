@@ -74,6 +74,16 @@ export function AppShell() {
           >
             Status
           </NavLink>
+          <NavLink
+            to="/app/search"
+            className={({ isActive }) =>
+              isActive
+                ? 'font-semibold text-primary underline underline-offset-8'
+                : 'text-muted-foreground hover:text-foreground'
+            }
+          >
+            Pencarian
+          </NavLink>
           {user?.role === 'admin' && (
             <span className="text-muted-foreground" title="Tersedia setelah modul analisis dibuat">
               Analisis · segera hadir

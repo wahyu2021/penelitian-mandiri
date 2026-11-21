@@ -1,10 +1,9 @@
 # Backlog tiket — Flask API + React dan penelitian arsip
 
 Sumber kebutuhan: [PRD](PRD.md), [arsitektur](arsitektur_flask_react.md),
-[protokol set uji](protokol_testset_v2.md). Dokumen ini adalah daftar kerja,
-bukan laporan fitur yang sudah selesai. **Status awal seluruh tiket di bawah:
-belum dimulai.** Fondasi Flask/Jinja dan skrip CLI yang sudah ada dipakai ulang,
-tetapi tidak otomatis membuat tiket migrasi berstatus selesai.
+[protokol set uji](protokol_testset_v2.md). Dokumen ini mencatat status tiap
+tiket beserta bukti uji. Fondasi Flask/Jinja dan skrip CLI yang sudah ada
+dipakai ulang, tetapi tidak otomatis membuat tiket migrasi berstatus selesai.
 
 ## Cara memakai backlog
 
@@ -183,7 +182,7 @@ tampilan atau klaim dokumen saja.
 - **Uji:** Testing Library untuk pencarian/filter/empty/error; browser dengan
   typo, keyboard, ponsel/tablet; pemeriksaan sorotan tanpa HTML mentah.
 - **Commit:** `feat(frontend): tambah alur pencarian arsip [PM-10]`.
-- **Jejak:** Status: belum dimulai | Uji: — | Commit: — | Catatan: —
+- **Jejak:** Status: selesai (21 November 2026) | Uji: 15 uji frontend lulus; lint, tipe, format, build lulus; browser typo/Enter pada desktop dan viewport tablet 768 px/ponsel 390 px tanpa gulir horizontal; `pytest -q` 214 lulus, 5 dilewati | Commit: `5769e3b`, `6b2fcba`, dan commit frontend PM-10 pada riwayat Git | Catatan: opsi filter dibaca dari API, sorotan teks aman tanpa HTML mentah, metode hanya dapat dipilih admin, dan URL hanya menyimpan parameter pencarian. Detail arsip menunggu PM-11.
 
 ### PM-11 — Detail arsip React
 

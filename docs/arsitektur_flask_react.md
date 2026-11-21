@@ -2,8 +2,8 @@
 
 **Status (21 November 2026): fondasi API PM-01, sesi PM-02, dashboard PM-03,
 pencarian PM-04, detail PM-05, perbandingan PM-06, React PM-07, login PM-08,
-dan dashboard PM-09 sudah dibuat;
-halaman bisnis dan pengemasan produksi masih target.** Web utama saat ini
+dashboard PM-09, dan pencarian React PM-10 sudah dibuat;
+detail/perbandingan React dan pengemasan produksi masih target.** Web utama saat ini
 memakai route Flask/Jinja di `webapp/` dan `templates/`.
 `scripts/relevance_labeler_app.py` adalah alat pelabelan internal yang terpisah.
 Dokumen ini menetapkan arah implementasi berikutnya; jangan mengutipnya di Bab IV
