@@ -86,7 +86,7 @@ tampilan atau klaim dokumen saja.
 - **Uji:** Flask test client untuk 400/404/500 JSON, bentuk respons,
   dan route Jinja lama; `pytest tests/`.
 - **Commit:** `feat(api): siapkan kontrak JSON berversi [PM-01]`.
-- **Jejak:** Status: belum dimulai | Uji: — | Commit: — | Catatan: —
+- **Jejak:** Status: selesai (21 November 2026) | Uji: `pytest -q` 160 lulus, 5 dilewati; kontrak API + web 9 lulus | Commit: commit PM-01 pada riwayat Git | Catatan: hanya health dan penanganan galat yang sudah tersedia; endpoint bisnis tetap target PM-02–PM-06.
 
 ### PM-02 — Sesi API, CSRF, dan izin peran
 

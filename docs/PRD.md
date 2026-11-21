@@ -5,6 +5,7 @@ bahwa seluruh fitur telah selesai.
 
 **Diperbarui:** 21 November 2026.
 **Dokumen terkait:** [arsitektur Flask–React](arsitektur_flask_react.md),
+[kontrak API](api_contract.md),
 [rancangan aplikasi](../rancangan_aplikasi.md),
 [backlog tiket](BACKLOG.md),
 [protokol set uji](protokol_testset_v2.md), dan

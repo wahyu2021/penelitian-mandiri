@@ -83,6 +83,9 @@ sebelum prosedur tersebut tersedia dan lulus.
 
 ## Kontrak dan keamanan API
 
+Kontrak respons dan status endpoint yang sedang diimplementasikan ada di
+[api_contract.md](api_contract.md). Bagian di bawah menetapkan batas arsitektur.
+
 - Semua endpoint data memakai prefiks `/api/v1`. Endpoint yang direncanakan:
   `GET /session`, `POST /session`, `DELETE /session`, `GET /dashboard`,
   `GET /search`, `GET /archives/{id}`, dan endpoint admin/evaluasi sesuai fitur.

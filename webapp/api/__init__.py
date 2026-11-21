@@ -1,0 +1,32 @@
+"""Fondasi API JSON berversi untuk antarmuka React."""
+
+from flask import Blueprint, jsonify, request
+
+api = Blueprint("api", __name__, url_prefix="/api/v1")
+
+ERROR_CODES = {
+    400: "bad_request",
+    401: "unauthorized",
+    403: "forbidden",
+    404: "not_found",
+    405: "method_not_allowed",
+    409: "conflict",
+    422: "validation_error",
+    500: "server_error",
+}
+
+
+def is_api_request() -> bool:
+    """Kenali seluruh prefiks API, termasuk versi/path yang belum tersedia."""
+    return request.path == "/api" or request.path.startswith("/api/")
+
+
+def success(data, status: int = 200):
+    """Bentuk respons sukses yang digunakan endpoint API."""
+    return jsonify({"data": data}), status
+
+
+@api.get("/health")
+def health():
+    """Pemeriksaan HTTP ringan tanpa membuka isi database."""
+    return success({"status": "ok"})

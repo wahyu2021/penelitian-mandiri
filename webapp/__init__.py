@@ -5,8 +5,10 @@ import secrets
 from pathlib import Path
 
 from flask import Flask, render_template
+from werkzeug.exceptions import HTTPException
 
 from services.db import DEFAULT_DB_PATH
+from webapp.api import ERROR_CODES, api, is_api_request
 from webapp.auth import auth, csrf_token, login_manager
 from webapp.cli import register_commands
 from webapp.database import close_db
@@ -37,12 +39,20 @@ def create_app(test_config=None):
     app.register_blueprint(auth)
     app.register_blueprint(main)
     app.register_blueprint(search_pages)
+    app.register_blueprint(api)
     register_commands(app)
 
-    @app.errorhandler(400)
-    @app.errorhandler(403)
-    @app.errorhandler(404)
-    def html_error(error):
+    @app.errorhandler(HTTPException)
+    def http_error(error):
+        if is_api_request():
+            status = error.code or 500
+            message = "Terjadi kesalahan pada server." if status >= 500 else error.description
+            response = error.get_response()
+            response.set_data(app.json.dumps({
+                "error": {"code": ERROR_CODES.get(status, "http_error"), "message": message}
+            }))
+            response.content_type = "application/json"
+            return response
         return render_template("error.html", code=error.code, message=error.description), error.code
 
     return app
