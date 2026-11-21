@@ -1,7 +1,8 @@
 # Arsitektur target: Flask API + React
 
-**Status (21 November 2026): rancangan migrasi, belum implementasi React.**
-Web utama saat ini memakai route Flask/Jinja di `webapp/` dan `templates/`.
+**Status (21 November 2026): fondasi API PM-01 dan React PM-07 sudah dibuat;
+halaman bisnis dan pengemasan produksi masih target.** Web utama saat ini
+memakai route Flask/Jinja di `webapp/` dan `templates/`.
 `scripts/relevance_labeler_app.py` adalah alat pelabelan internal yang terpisah.
 Dokumen ini menetapkan arah implementasi berikutnya; jangan mengutipnya di Bab IV
 sebagai hasil yang sudah selesai.
@@ -39,7 +40,7 @@ Browser ── React SPA (aset statis hasil Vite build)
 | Ikon | `lucide-react` | Ikon konsisten; tombol ikon wajib punya nama aksesibel |
 | Grafik | Recharts | Hanya halaman evaluasi yang benar-benar punya data; tabel tetap tersedia |
 | Pengujian frontend | Vitest + Testing Library | Uji perilaku penting; Playwright untuk alur lintas browser jika diperlukan |
-| Pemeriksaan kode | ESLint + Prettier | Jalankan bersama `tsc --noEmit` dan build sebelum rilis |
+| Pemeriksaan kode | Oxlint + Prettier | Jalankan lint, `tsc -b`, uji, dan build sebelum rilis |
 
 Saat inisialisasi shadcn/ui, pilih basis Radix secara eksplisit dan simpan
 `components.json` agar hasil generator konsisten. Jangan mencampur komponen

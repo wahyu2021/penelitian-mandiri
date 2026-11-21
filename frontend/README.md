@@ -1,0 +1,45 @@
+# Frontend React proyek PM
+
+Frontend ini adalah fondasi migrasi. Saat ini route `/` menampilkan status
+koneksi ke Flask `/api/v1/health`; login, dashboard, pencarian, dan detail
+arsip masih dikerjakan dalam tiket berikutnya. Aplikasi Flask/Jinja yang lama
+tetap menjadi antarmuka kerja sampai paritas fitur terbukti.
+
+## Jalankan di laptop pengembang
+
+Dari `D:\Coding\PM`, jalankan Flask/Waitress di port 8000. Lalu pada terminal
+lain di folder `frontend/`:
+
+```powershell
+npm ci
+npm run dev
+```
+
+Vite meneruskan `/api` ke `http://127.0.0.1:8000`. Node.js diperlukan untuk
+pengembangan dan build frontend saja. Untuk memeriksa fondasi:
+
+```powershell
+npm run lint
+npm run typecheck
+npm test
+npm run format:check
+npm run build
+```
+
+Hasil `dist/` diabaikan Git. Pengemasan aset bersama Flask/Waitress adalah
+tiket PM-13; belum selesai saat README ini ditulis.
+
+## Struktur dan komponen
+
+- `src/app/`: provider dan router.
+- `src/features/`: halaman dan hook per fitur.
+- `src/lib/api/`: permintaan dan validasi respons API.
+- `src/components/ui/`: komponen shadcn/ui dengan basis Radix, milik proyek.
+- `src/index.css`: Tailwind dan token desain; font Inter disimpan lokal.
+
+`components.json` mengunci basis `radix-nova`. Tambahkan komponen hanya saat
+fitur memerlukannya, misalnya `npx shadcn add input`; tinjau diff hasil CLI
+sebelum commit. Jangan memakai `add --all` atau menimpa penyesuaian lokal.
+
+Kontrak HTTP ada di `../docs/api_contract.md` dan aturan kerja di
+`../AGENTS.md`.

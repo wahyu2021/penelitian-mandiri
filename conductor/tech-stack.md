@@ -11,7 +11,8 @@ ada di `../AGENTS.md`.
 - `core/` memuat logika ilmiah; `services/` menghubungkan domain dan database;
   `webapp/` memuat route Flask. `app.py` dan `wsgi.py` adalah entry point.
 - Antarmuka web utama masih dirender oleh Jinja2 di `templates/` dengan CSS di
-  `static/`. Ini implementasi sementara, bukan React yang sudah selesai.
+  `static/`. Fondasi React di `frontend/` baru menampilkan status sambungan;
+  alur kerja petugas belum dipindahkan.
 - Analisis notebook memakai dependensi terpisah di `requirements.txt`. Paket
   analisis tidak perlu dipasang pada server web kecuali fitur yang memerlukannya
   benar-benar dijalankan di sana.
@@ -25,7 +26,7 @@ ada di `../AGENTS.md`.
 - Frontend: React + TypeScript `strict`, Vite, `react-router`, TanStack Query,
   React Hook Form + Zod, Tailwind CSS v4, shadcn/ui berbasis Radix,
   `lucide-react`, dan Recharts hanya untuk grafik evaluasi.
-- Kualitas frontend: ESLint, Prettier, `tsc`, Vitest/Testing Library. Gunakan
+- Kualitas frontend: Oxlint, Prettier, `tsc`, Vitest/Testing Library. Gunakan
   Playwright bila diperlukan untuk alur end-to-end penting.
 - Node.js dan npm dipakai pada laptop pengembang untuk instalasi, server Vite,
   pemeriksaan, dan build. `npm run build` menghasilkan aset statis yang dikemas

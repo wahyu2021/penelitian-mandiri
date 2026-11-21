@@ -10,13 +10,18 @@ Kebutuhan produk, prioritas, serta kriteria penerimaan ada di
 Urutan tiket, uji per tiket, dan aturan commit ada di
 [docs/BACKLOG.md](docs/BACKLOG.md).
 Aturan yang wajib dibaca AI sebelum mengubah kode ada di [AGENTS.md](AGENTS.md).
-**React belum terimplementasi**; langkah menjalankan aplikasi di bawah ini
-menjelaskan versi Flask/Jinja yang sekarang tersedia.
+Fondasi React/Vite kini ada di [`frontend/`](frontend/) sebagai halaman status
+yang memeriksa `/api/v1/health`. Login, dashboard, pencarian, dan detail React
+belum tersedia; langkah menjalankan aplikasi di bawah ini menjelaskan versi
+Flask/Jinja yang sekarang dipakai untuk alur kerja.
 
 Node.js nantinya dipakai di laptop untuk Vite dan build frontend. Paket produksi
 akan berisi aset hasil build dan berjalan dengan Python/Waitress tanpa Node.js,
-npm, CDN, atau proses PHP. Prosedur build dan pengemasan akan ditambahkan
-bersamaan dengan implementasi React.
+npm, CDN, atau proses PHP. Prosedur pengemasan akan ditambahkan pada PM-13.
+
+Untuk menjalankan pratinjau fondasi React, lihat
+[`frontend/README.md`](frontend/README.md). Paket produksi Flask + aset React
+masih menunggu tiket PM-13.
 
 ## Aplikasi web lokal (dasar Fase 1)
 

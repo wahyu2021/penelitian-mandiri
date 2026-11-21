@@ -151,7 +151,7 @@ tampilan atau klaim dokumen saja.
 - **Uji:** `npm ci`, lint, pemeriksaan tipe, uji render komponen dasar, dan
   `npm run build`; cek bundle tidak meminta CDN.
 - **Commit:** `chore(frontend): siapkan React dan shadcn UI [PM-07]`.
-- **Jejak:** Status: belum dimulai | Uji: — | Commit: — | Catatan: —
+- **Jejak:** Status: selesai (21 November 2026) | Uji: `npm ci`, lint, typecheck, 2 uji render/API, format check, build lulus; audit dependensi produksi 0 temuan | Commit: commit PM-07 pada riwayat Git | Catatan: CLI shadcn hanya dependensi pengembangan; audit penuh masih melaporkan 4 temuan tingkat sedang pada rantai CLI dan perlu dipantau saat pembaruan.
 
 ### PM-08 — Login React dan kerangka navigasi
 
