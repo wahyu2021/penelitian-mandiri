@@ -1,7 +1,7 @@
 # Kontrak HTTP API Flask untuk React
 
-**Status:** fondasi PM-01 diimplementasikan; endpoint bisnis di tabel bawah
-adalah kontrak target untuk PM-02 sampai PM-06. Dokumen ini diperbarui bersama
+**Status:** fondasi PM-01 dan sesi PM-02 diimplementasikan; endpoint bisnis di tabel bawah
+adalah kontrak target untuk PM-03 sampai PM-06. Dokumen ini diperbarui bersama
 implementasi tiap tiket, bukan bukti bahwa endpoint target sudah tersedia.
 
 ## Versi, origin, dan bentuk respons
@@ -38,13 +38,34 @@ GET /api/v1/health
 Pemeriksaan health hanya memastikan HTTP aplikasi menjawab. Ia tidak
 menyatakan database atau seluruh fitur penelitian siap.
 
+### Sesi yang sudah tersedia (PM-02)
+
+`GET /api/v1/session` dapat dipanggil sebelum login. Respons berisi
+`{"data":{"authenticated":false,"user":null,"csrf_token":"..."}}`.
+Setelah login, `user` hanya berisi `id`, `username`, dan `role` (`admin` atau
+`petugas`). Token CSRF berasal dari sesi browser; jangan menyimpannya di
+`localStorage`. Endpoint ini dan semua respons sesi memakai `Cache-Control:
+no-store`.
+
+`POST /api/v1/session` menerima JSON `{"username":"...","password":"..."}`
+dan header `X-CSRF-Token` dari GET sesi. Respons berhasil berisi bentuk data
+GET sesi dengan token CSRF **baru**. Kredensial salah atau akun nonaktif memberi
+401 dengan pesan umum; JSON rusak memberi 400; field kosong/tipe salah memberi
+422; token CSRF hilang/salah memberi 403.
+
+`DELETE /api/v1/session` memerlukan sesi aktif dan header `X-CSRF-Token` terbaru.
+Respons berhasil `{"data":{"authenticated":false}}`; cookie sesi dibersihkan.
+Endpoint terlindungi memakai `require_api_user` untuk 401 atau
+`require_api_role("admin")` untuk 403 bagi petugas. Kedua status selalu JSON,
+tanpa redirect HTML.
+
 ## Endpoint target dan pemilik tiket
 
 | Metode dan path | Pemakai | Data yang diharapkan | Tiket |
 |---|---|---|---|
-| `GET /api/v1/session` | publik | `authenticated`, `user` atau `null`, `csrf_token` | PM-02 |
-| `POST /api/v1/session` | publik | akun yang masuk; cookie sesi | PM-02 |
-| `DELETE /api/v1/session` | masuk | sesi diakhiri | PM-02 |
+| `GET /api/v1/session` | publik | `authenticated`, `user` atau `null`, `csrf_token`; tersedia | PM-02 |
+| `POST /api/v1/session` | publik | akun yang masuk; cookie sesi; tersedia | PM-02 |
+| `DELETE /api/v1/session` | masuk | sesi diakhiri; tersedia | PM-02 |
 | `GET /api/v1/dashboard` | admin, petugas | `counts` dan daftar ringkas terbaru | PM-03 |
 | `GET /api/v1/search` | admin, petugas | `items`, `pagination`, metode yang dipakai | PM-04 |
 | `GET /api/v1/archives/{id}` | admin, petugas | detail, metadata, status dugaan, lokasi | PM-05 |
@@ -75,10 +96,14 @@ respons berhasil dalam README atau laporan.
 ## Sesi dan operasi tulis target
 
 - `GET /session` menyediakan token CSRF untuk sesi browser, termasuk sebelum
-  login. `POST`/`PATCH`/`PUT`/`DELETE` memakai header `X-CSRF-Token`.
+  login. Endpoint tulis yang sudah dibuat memakai header `X-CSRF-Token`;
+  endpoint tulis berikutnya wajib mengikuti aturan yang sama.
 - Cookie sesi `HttpOnly`, `SameSite=Lax`, dan `Secure` saat HTTPS. Respons
   sesi/data sensitif memakai `Cache-Control: no-store`. Jangan simpan kredensial
   atau token sesi di `localStorage`.
+- Atur `PM_SECRET_KEY` tetap dan acak pada instalasi agar sesi tidak terputus
+  saat layanan dimulai ulang. Atur `PM_COOKIE_SECURE=1` bila browser mengakses
+  aplikasi lewat HTTPS; cookie Secure hanya dikirim lewat koneksi HTTPS.
 - Semua izin diperiksa oleh backend. 401 berarti masuk ulang diperlukan;
   403 berarti akun aktif tetapi perannya tidak cukup.
 - Validasi UI membantu pengguna, tetapi Flask tetap memvalidasi semua input

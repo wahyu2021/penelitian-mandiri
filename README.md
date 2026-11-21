@@ -11,7 +11,8 @@ Urutan tiket, uji per tiket, dan aturan commit ada di
 [docs/BACKLOG.md](docs/BACKLOG.md).
 Aturan yang wajib dibaca AI sebelum mengubah kode ada di [AGENTS.md](AGENTS.md).
 Fondasi React/Vite kini ada di [`frontend/`](frontend/) sebagai halaman status
-yang memeriksa `/api/v1/health`. Login, dashboard, pencarian, dan detail React
+yang memeriksa `/api/v1/health`. API sesi JSON sudah tersedia, tetapi login,
+dashboard, pencarian, dan detail React
 belum tersedia; langkah menjalankan aplikasi di bawah ini menjelaskan versi
 Flask/Jinja yang sekarang dipakai untuk alur kerja.
 
@@ -54,6 +55,9 @@ buka `http://127.0.0.1:8000`. Untuk akun petugas, ulangi perintah pertama dengan
 atur `PM_DB_PATH` jika memakai basis data lokal lain. Server sengaja dibatasi pada
 komputer sendiri. Jika `PM_SECRET_KEY` tidak diatur, sesi login akan berakhir saat
 server dimulai ulang.
+Untuk instalasi melalui HTTPS, atur `PM_COOKIE_SECURE=1` dan gunakan
+`PM_SECRET_KEY` acak yang tetap antar-restart. Saat uji HTTP lokal, jangan aktifkan
+cookie Secure karena browser tidak akan mengirimnya lewat HTTP.
 
 ### Jika server dinas memakai XAMPP lama
 

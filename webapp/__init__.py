@@ -29,6 +29,7 @@ def create_app(test_config=None):
         DATABASE=Path(os.environ.get("PM_DB_PATH", str(DEFAULT_DB_PATH))),
         SESSION_COOKIE_HTTPONLY=True,
         SESSION_COOKIE_SAMESITE="Lax",
+        SESSION_COOKIE_SECURE=os.environ.get("PM_COOKIE_SECURE") == "1",
     )
     if test_config:
         app.config.update(test_config)
@@ -52,6 +53,7 @@ def create_app(test_config=None):
                 "error": {"code": ERROR_CODES.get(status, "http_error"), "message": message}
             }))
             response.content_type = "application/json"
+            response.headers["Cache-Control"] = "no-store"
             return response
         return render_template("error.html", code=error.code, message=error.description), error.code
 

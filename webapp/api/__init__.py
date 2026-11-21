@@ -30,3 +30,7 @@ def success(data, status: int = 200):
 def health():
     """Pemeriksaan HTTP ringan tanpa membuka isi database."""
     return success({"status": "ok"})
+
+
+# Impor setelah blueprint dan utilitas tersedia agar route sesi terdaftar.
+from webapp.api import session as _session  # noqa: E402,F401
