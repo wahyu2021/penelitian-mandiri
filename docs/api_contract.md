@@ -1,7 +1,7 @@
 # Kontrak HTTP API Flask untuk React
 
-**Status:** fondasi PM-01 dan sesi PM-02 diimplementasikan; endpoint bisnis di tabel bawah
-adalah kontrak target untuk PM-03 sampai PM-06. Dokumen ini diperbarui bersama
+**Status:** fondasi PM-01, sesi PM-02, dan dashboard PM-03 diimplementasikan;
+endpoint lain di tabel bawah adalah kontrak target untuk PM-04 sampai PM-06. Dokumen ini diperbarui bersama
 implementasi tiap tiket, bukan bukti bahwa endpoint target sudah tersedia.
 
 ## Versi, origin, dan bentuk respons
@@ -59,6 +59,31 @@ Endpoint terlindungi memakai `require_api_user` untuk 401 atau
 `require_api_role("admin")` untuk 403 bagi petugas. Kedua status selalu JSON,
 tanpa redirect HTML.
 
+### Dashboard yang sudah tersedia (PM-03)
+
+`GET /api/v1/dashboard` memerlukan sesi `admin` atau `petugas`. Angka berasal
+dari tabel `archive` pada salinan SQLite lokal yang sama dengan dashboard
+Flask/Jinja. Contoh bentuk respons (angka mengikuti isi database, bukan nilai
+tetap):
+
+```json
+{
+  "data": {
+    "counts": {"total": 0, "active": 0, "inactive": 0, "with_file": 0},
+    "recent": []
+  }
+}
+```
+
+`active` berarti `status = 1`, `inactive` berarti `status = 2`, dan
+`with_file` berarti `has_document = 1`. `total` mencakup semua status, termasuk
+status 3. `recent` berisi maksimal enam arsip dengan ID tertinggi, berurutan
+menurun; setiap item hanya mempunyai `id`, `year`, dan `summary_raw`. ID
+tertinggi tidak selalu berarti tanggal dokumen terbaru. `year` dan
+`summary_raw` dapat `null`. Database kosong memberi semua angka nol dan daftar
+kosong. Respons memakai `Cache-Control: no-store`; kegagalan baca database
+memberi 500 JSON tanpa rincian SQL.
+
 ## Endpoint target dan pemilik tiket
 
 | Metode dan path | Pemakai | Data yang diharapkan | Tiket |
@@ -66,7 +91,7 @@ tanpa redirect HTML.
 | `GET /api/v1/session` | publik | `authenticated`, `user` atau `null`, `csrf_token`; tersedia | PM-02 |
 | `POST /api/v1/session` | publik | akun yang masuk; cookie sesi; tersedia | PM-02 |
 | `DELETE /api/v1/session` | masuk | sesi diakhiri; tersedia | PM-02 |
-| `GET /api/v1/dashboard` | admin, petugas | `counts` dan daftar ringkas terbaru | PM-03 |
+| `GET /api/v1/dashboard` | admin, petugas | `counts` dan enam arsip ber-ID tertinggi; tersedia | PM-03 |
 | `GET /api/v1/search` | admin, petugas | `items`, `pagination`, metode yang dipakai | PM-04 |
 | `GET /api/v1/archives/{id}` | admin, petugas | detail, metadata, status dugaan, lokasi | PM-05 |
 | `GET /api/v1/search/compare` | admin | hasil per metode untuk kueri sama | PM-06 |

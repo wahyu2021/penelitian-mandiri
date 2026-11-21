@@ -3,6 +3,7 @@
 from flask import Blueprint, abort, render_template
 from flask_login import login_required
 
+from services.dashboard import get_dashboard_summary
 from webapp.database import db
 
 main = Blueprint("main", __name__)
@@ -11,17 +12,8 @@ main = Blueprint("main", __name__)
 @main.get("/")
 @login_required
 def dashboard():
-    counts = db().execute("""
-        SELECT COUNT(*) AS total,
-               SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) AS active,
-               SUM(CASE WHEN status = 2 THEN 1 ELSE 0 END) AS inactive,
-               SUM(CASE WHEN has_document = 1 THEN 1 ELSE 0 END) AS with_file
-        FROM archive
-    """).fetchone()
-    recent = db().execute(
-        "SELECT id, year, summary_raw FROM archive ORDER BY id DESC LIMIT 6"
-    ).fetchall()
-    return render_template("dashboard.html", counts=counts, recent=recent)
+    summary = get_dashboard_summary(db())
+    return render_template("dashboard.html", **summary)
 
 
 @main.get("/archives/<int:archive_id>")

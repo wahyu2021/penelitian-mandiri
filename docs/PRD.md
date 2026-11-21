@@ -52,7 +52,7 @@ persyaratan TI serta keamanan diperiksa.
 | Pipeline normalisasi, ekstraksi, pencarian, dan evaluasi CLI/notebook | Ada di proyek; hasil ilmiah mengikuti artefak dan protokol aktif |
 | Web utama: login, dashboard, pencarian, perbandingan admin, detail arsip | Ada dalam Flask/Jinja sebagai fondasi; belum setara semua halaman rancangan |
 | Aplikasi pelabelan relevansi internal | Ada di `scripts/relevance_labeler_app.py`; terpisah dari web utama |
-| Flask JSON API `/api/v1` dan frontend React | Fondasi health/galat JSON, sesi login/logout API, serta login/status React sudah ada; endpoint bisnis dan halaman kerja masih target |
+| Flask JSON API `/api/v1` dan frontend React | Fondasi health/galat JSON, sesi login/logout dan dashboard API, serta login/status React sudah ada; pencarian/detail API dan halaman kerja React masih target |
 | Impor, audit, set uji, evaluasi, dan administrasi melalui web utama | Target; jangan ditandai selesai berdasarkan adanya skrip CLI |
 | Verifikasi penilai kedua, kesepakatan audit, UAT/SUS petugas | Menunggu pengumpulan/penilaian nyata; tidak boleh diberi hasil contoh |
 

@@ -106,7 +106,7 @@ tampilan atau klaim dokumen saja.
 - **Uji:** fixture database berisi data, database kosong, 401, dan kegagalan
   akses database; bandingkan angka API dengan query sumber.
 - **Commit:** `feat(api): sediakan ringkasan dashboard [PM-03]`.
-- **Jejak:** Status: belum dimulai | Uji: — | Commit: — | Catatan: —
+- **Jejak:** Status: selesai (21 November 2026) | Uji: 10 uji dashboard/web lulus; `pytest -q` 171 lulus, 5 dilewati | Commit: commit PM-03 pada riwayat Git | Catatan: API dan Jinja berbagi fungsi `services/dashboard.py`; data terbaru berarti ID tertinggi, bukan tanggal dokumen terbaru.
 
 ### PM-04 — Pencarian API dan pembatasan metode
 

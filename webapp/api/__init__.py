@@ -34,3 +34,4 @@ def health():
 
 # Impor setelah blueprint dan utilitas tersedia agar route sesi terdaftar.
 from webapp.api import session as _session  # noqa: E402,F401
+from webapp.api import dashboard as _dashboard  # noqa: E402,F401
