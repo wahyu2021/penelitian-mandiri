@@ -1,8 +1,8 @@
 # Kontrak HTTP API Flask untuk React
 
-**Status:** fondasi PM-01, sesi PM-02, dashboard PM-03, dan pencarian PM-04
-diimplementasikan; endpoint lain di tabel bawah adalah kontrak target untuk
-PM-05 sampai PM-06. Dokumen ini diperbarui bersama
+**Status:** fondasi PM-01, sesi PM-02, dashboard PM-03, pencarian PM-04, dan
+detail arsip PM-05 diimplementasikan; perbandingan metode PM-06 masih target.
+Dokumen ini diperbarui bersama
 implementasi tiap tiket, bukan bukti bahwa endpoint target sudah tersedia.
 
 ## Versi, origin, dan bentuk respons
@@ -109,6 +109,25 @@ dikenal memberi 400. Data arsip tidak dikirim bila belum login (401). Respons
 memakai `Cache-Control: no-store`; kegagalan membaca SQLite memberi 500 JSON
 tanpa rincian internal.
 
+### Detail arsip yang sudah tersedia (PM-05)
+
+`GET /api/v1/archives/{id}` memerlukan sesi admin atau petugas. `{id}` harus
+bilangan bulat positif; format salah memberi 400 dan ID yang tidak ditemukan
+memberi 404. Respons `data` memuat `id`, `status`, `year`, `opd_name`,
+`classification_label`, `file_number`, `index_label`, `summary_raw`,
+`has_document` (boolean), `location`, dan `extraction`.
+
+`location` berisi `block`, `rack`, `row`, dan `box_number`. `extraction`
+berisi `spm_number`, `sp2d_number`, `document_date`, `amount_rp`, `party_name`,
+serta `spm_type` (`code`, `label`, `confidence`) atau `null` bila tidak ada.
+`confidence` dari kamus SPM ditampilkan apa adanya, termasuk `dugaan`;
+hasil ekstraksi harus dibandingkan dengan `summary_raw` sebelum dipakai
+sebagai bukti. Field yang tidak tersedia tetap `null`, bukan teks pengganti
+buatan server. Nama berkas digital, catatan retensi, dan kolom internal lain
+tidak dikirim. Respons memakai `Cache-Control: no-store` dan galat database
+500 JSON tanpa rincian SQL. Frontend harus merender teks asli sebagai teks,
+tanpa menyisipkannya sebagai HTML.
+
 ## Endpoint target dan pemilik tiket
 
 | Metode dan path | Pemakai | Data yang diharapkan | Tiket |
@@ -118,7 +137,7 @@ tanpa rincian internal.
 | `DELETE /api/v1/session` | masuk | sesi diakhiri; tersedia | PM-02 |
 | `GET /api/v1/dashboard` | admin, petugas | `counts` dan enam arsip ber-ID tertinggi; tersedia | PM-03 |
 | `GET /api/v1/search` | admin, petugas | `items`, `pagination`, metode yang dipakai; tersedia | PM-04 |
-| `GET /api/v1/archives/{id}` | admin, petugas | detail, metadata, status dugaan, lokasi | PM-05 |
+| `GET /api/v1/archives/{id}` | admin, petugas | detail, metadata, status dugaan, lokasi; tersedia | PM-05 |
 | `GET /api/v1/search/compare` | admin | hasil per metode untuk kueri sama | PM-06 |
 
 Penamaan field rinci ditambahkan ke dokumen ini dan diuji sebelum frontend

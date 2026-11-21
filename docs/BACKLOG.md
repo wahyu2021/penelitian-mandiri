@@ -127,7 +127,7 @@ tampilan atau klaim dokumen saja.
 - **Uji:** arsip lengkap/sebagian kosong, ID tidak ada, 401, dan sanitasi
   bentuk respons; `pytest tests/`.
 - **Commit:** `feat(api): sediakan detail dan lokasi arsip [PM-05]`.
-- **Jejak:** Status: belum dimulai | Uji: — | Commit: — | Catatan: —
+- **Jejak:** Status: selesai (21 November 2026) | Uji: 10 uji API detail/web lulus; `pytest -q` 195 lulus, 5 dilewati | Commit: commit PM-05 pada riwayat Git | Catatan: API dan Jinja berbagi query detail; API hanya mengirim field tampilan dan nilai kosong tetap `null`.
 
 ### PM-06 — Perbandingan metode khusus admin
 
