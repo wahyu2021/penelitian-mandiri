@@ -1,8 +1,9 @@
 # Frontend React proyek PM
 
-Frontend ini adalah fondasi migrasi. Saat ini route `/` menampilkan status
-koneksi ke Flask `/api/v1/health`; login, dashboard, pencarian, dan detail
-arsip masih dikerjakan dalam tiket berikutnya. Aplikasi Flask/Jinja yang lama
+Frontend ini adalah fondasi migrasi. Route `/login` memakai sesi JSON Flask;
+route `/app/status` memeriksa koneksi ke `/api/v1/health` setelah pengguna
+masuk. Dashboard, pencarian, dan detail arsip React masih dikerjakan dalam
+tiket berikutnya. Aplikasi Flask/Jinja yang lama
 tetap menjadi antarmuka kerja sampai paritas fitur terbukti.
 
 ## Jalankan di laptop pengembang
@@ -16,7 +17,8 @@ npm run dev
 ```
 
 Vite meneruskan `/api` ke `http://127.0.0.1:8000`. Node.js diperlukan untuk
-pengembangan dan build frontend saja. Untuk memeriksa fondasi:
+pengembangan dan build frontend saja. Buat akun melalui perintah di README
+proyek sebelum mencoba login. Untuk memeriksa fondasi:
 
 ```powershell
 npm run lint

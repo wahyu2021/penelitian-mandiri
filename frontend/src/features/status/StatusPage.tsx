@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { Archive, RefreshCw } from 'lucide-react'
+import { RefreshCw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { getHealth } from '@/lib/api/health'
 
@@ -18,30 +18,16 @@ export function StatusPage() {
         : 'Status belum tersedia.'
 
   return (
-    <main className="min-h-svh bg-stone-50 px-4 py-10 text-foreground sm:px-8">
+    <main className="py-8 text-foreground sm:py-10">
       <div className="mx-auto max-w-3xl">
-        <header className="flex items-center gap-3 border-b border-border pb-6">
-          <span className="flex size-11 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-            <Archive aria-hidden="true" className="size-5" />
-          </span>
-          <div>
-            <p className="text-sm font-semibold tracking-wide text-muted-foreground">
-              PENELITIAN MANDIRI
-            </p>
-            <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
-              Sistem Pencarian Arsip
-            </h1>
-          </div>
-        </header>
-
         <section
           aria-labelledby="status-title"
-          className="mt-10 rounded-2xl border border-border bg-card p-6 shadow-xs sm:p-8"
+          className="rounded-2xl border border-border bg-card p-6 shadow-xs sm:p-8"
         >
           <p className="text-sm font-medium text-muted-foreground">Status aplikasi</p>
-          <h2 id="status-title" className="mt-2 text-2xl font-semibold tracking-tight">
+          <h1 id="status-title" className="mt-2 text-2xl font-semibold tracking-tight">
             Sambungan ke layanan arsip
-          </h2>
+          </h1>
           <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
             Halaman ini memeriksa apakah layanan aplikasi dapat dihubungi. Data arsip tetap berada
             pada salinan penelitian.

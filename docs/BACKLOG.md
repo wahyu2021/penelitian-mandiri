@@ -162,7 +162,7 @@ tampilan atau klaim dokumen saja.
 - **Uji:** Testing Library untuk alur sesi dan galat; uji browser login/logout,
   reload, keyboard, ponsel/tablet; lint, tipe, build.
 - **Commit:** `feat(frontend): tambah login dan navigasi [PM-08]`.
-- **Jejak:** Status: belum dimulai | Uji: — | Commit: — | Catatan: —
+- **Jejak:** Status: sebagian selesai (21 November 2026) | Uji: 6 uji frontend lulus; lint, tipe, format, build lulus; login/status/logout berhasil di browser desktop dengan akun uji sementara | Commit: commit login PM-08 pada riwayat Git | Catatan: login/logout, pemulihan sesi, route terlindungi, dan kerangka navigasi sudah ada; menu bisnis per peran dan uji browser ponsel/tablet menunggu PM-09–PM-12 sebelum tiket ditutup.
 
 ### PM-09 — Dashboard React
 

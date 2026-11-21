@@ -1,6 +1,16 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render, screen } from '@testing-library/react'
-import App from '@/App'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { StatusPage } from '@/features/status/StatusPage'
+
+function renderStatus() {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <StatusPage />
+    </QueryClientProvider>,
+  )
+}
 
 afterEach(() => {
   cleanup()
@@ -17,7 +27,7 @@ describe('status layanan', () => {
       }),
     )
 
-    render(<App />)
+    renderStatus()
 
     expect(await screen.findByText('Layanan tersambung.')).toBeInTheDocument()
     expect(fetch).toHaveBeenCalledWith('/api/v1/health', {
@@ -29,7 +39,7 @@ describe('status layanan', () => {
   it('menampilkan galat dan tombol periksa ulang bila API gagal', async () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')))
 
-    render(<App />)
+    renderStatus()
 
     expect(await screen.findByText('Layanan belum tersambung.')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Periksa ulang' })).toBeEnabled()

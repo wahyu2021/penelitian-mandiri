@@ -10,10 +10,9 @@ Kebutuhan produk, prioritas, serta kriteria penerimaan ada di
 Urutan tiket, uji per tiket, dan aturan commit ada di
 [docs/BACKLOG.md](docs/BACKLOG.md).
 Aturan yang wajib dibaca AI sebelum mengubah kode ada di [AGENTS.md](AGENTS.md).
-Fondasi React/Vite kini ada di [`frontend/`](frontend/) sebagai halaman status
-yang memeriksa `/api/v1/health`. API sesi JSON sudah tersedia, tetapi login,
-dashboard, pencarian, dan detail React
-belum tersedia; langkah menjalankan aplikasi di bawah ini menjelaskan versi
+Fondasi React/Vite kini ada di [`frontend/`](frontend/) dengan login dan
+halaman status yang memeriksa `/api/v1/health`. Dashboard, pencarian, dan
+detail React belum tersedia; langkah menjalankan aplikasi di bawah ini menjelaskan versi
 Flask/Jinja yang sekarang dipakai untuk alur kerja.
 
 Node.js nantinya dipakai di laptop untuk Vite dan build frontend. Paket produksi
