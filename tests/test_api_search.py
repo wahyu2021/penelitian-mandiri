@@ -81,6 +81,7 @@ def test_search_pagination_order_and_minimum_fields(search_app):
         "id", "summary_raw", "opd_name", "year", "spm_number",
         "file_number", "has_document", "score",
     }
+    assert data["items"][0]["has_document"] is False
     assert client.get("/api/v1/search?q=arsip&offset=99").get_json()["data"]["items"] == []
 
 

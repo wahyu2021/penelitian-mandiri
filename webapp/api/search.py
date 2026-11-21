@@ -43,10 +43,13 @@ def search():
         abort(500, description="Pencarian arsip tidak dapat dijalankan.")
 
     items = [
-        {key: row[key] for key in (
-            "id", "summary_raw", "opd_name", "year", "spm_number",
-            "file_number", "has_document", "score",
-        )}
+        {
+            **{key: row[key] for key in (
+                "id", "summary_raw", "opd_name", "year", "spm_number",
+                "file_number", "score",
+            )},
+            "has_document": bool(row["has_document"]),
+        }
         for row in matches[offset:offset + limit]
     ]
     response, code = success({

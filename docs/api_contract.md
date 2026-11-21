@@ -94,7 +94,7 @@ menerima 403 jika mencobanya. Pilihan ini ditegakkan juga pada route Jinja.
 
 Respons berbentuk `data: {query, method, items, pagination}`. Setiap item hanya
 memuat `id`, `summary_raw`, `opd_name`, `year`, `spm_number`, `file_number`,
-`has_document`, dan `score`; field yang tidak tersedia dapat `null`.
+`has_document` (boolean), dan `score`; field yang tidak tersedia dapat `null`.
 `pagination` memuat `limit`, `offset`, dan `total` hasil cocok sebelum pemotongan
 halaman. Urutan `like` mengikuti ID naik; metode fuzzy mengikuti skor turun
 dengan ID naik untuk skor seri. `score` adalah keluaran mesin pencarian, bukan
