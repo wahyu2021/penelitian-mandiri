@@ -54,10 +54,13 @@ def test_api_bad_request_and_server_error_have_safe_messages(tmp_path):
     assert "Rincian internal" not in server.get_data(as_text=True)
 
 
-def test_existing_jinja_route_keeps_html_behavior(tmp_path):
-    client = make_app(tmp_path).test_client()
-    assert client.get("/").status_code == 302
+def test_unknown_page_has_plain_error_and_legacy_routes_are_gone(tmp_path):
+    app = make_app(tmp_path)
+    app.config["SERVE_REACT"] = False
+    client = app.test_client()
+    assert client.get("/search").status_code == 404
+    assert client.get("/archives/1").status_code == 404
     missing = client.get("/missing-page")
     assert missing.status_code == 404
     assert not missing.is_json
-    assert b"Halaman tidak dapat ditampilkan" in missing.data
+    assert missing.mimetype == "text/plain"

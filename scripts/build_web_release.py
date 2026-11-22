@@ -15,7 +15,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 ROOT_FILES = ("app.py", "wsgi.py", "requirements-web.txt", "docs/runbook_web_release.md")
 CODE_DIRS = ("core", "services", "webapp")
-ASSET_DIRS = ("templates", "static", "frontend/dist")
+ASSET_DIRS = ("frontend/dist",)
 
 class AssetReferences(HTMLParser):
     def __init__(self):

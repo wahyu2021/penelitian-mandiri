@@ -7,7 +7,7 @@
 
 ## Architecture & Technology Stack
 - **Bahasa & Runtime:** Python 3.14.5 (diuji pada mesin AMD Ryzen 5 6600H, RAM 16 GB, Windows 11).
-- **Backend & Web:** Flask application factory; target endpoint JSON `/api/v1`. UI saat ini masih Jinja2 selama migrasi.
+- **Backend & Web:** Flask application factory; endpoint JSON `/api/v1` dan UI React hasil build lokal.
 - **Basis Data:** SQLite 3 lokal lewat `services/db.py`/`sqlite3` (tanpa koneksi MySQL produksi).
 - **Autentikasi & Keamanan:** Flask-Login, hash kata sandi Werkzeug, cookie sesi, CSRF pada operasi tulis, otorisasi peran di server.
 - **Fuzzy Matching & Temu Kembali:** RapidFuzz 3.14.6, Custom Pure-Python Dice Character N-Gram, Pandas 3.0.6, SciPy 1.18.1 (uji Wilcoxon opsional).

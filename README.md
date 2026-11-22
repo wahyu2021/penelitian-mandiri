@@ -2,8 +2,8 @@
 
 ## Arah pengembangan
 
-Arsitektur yang dipilih untuk pengembangan berikutnya adalah **Flask JSON API +
-React/TypeScript**. Rancangan, pilihan library, struktur folder, kontrak API,
+Antarmuka web utama memakai **Flask JSON API + React/TypeScript**. Rancangan,
+pilihan library, struktur folder, kontrak API,
 dan urutan migrasi ada di [docs/arsitektur_flask_react.md](docs/arsitektur_flask_react.md).
 Kebutuhan produk, prioritas, serta kriteria penerimaan ada di
 [docs/PRD.md](docs/PRD.md).
@@ -14,8 +14,7 @@ Fondasi React/Vite kini ada di [`frontend/`](frontend/) dengan login, dashboard
 yang memakai angka dari `/api/v1/dashboard`, halaman status layanan,
 pencarian arsip di `/app/search`, detail di `/app/archives/{id}`, serta
 perbandingan metode khusus admin di `/app/compare`. Langkah menjalankan
-aplikasi di bawah ini menjelaskan versi Flask/Jinja yang sekarang dipakai
-untuk alur kerja.
+aplikasi di bawah ini menjelaskan versi React yang sekarang dipakai.
 
 Node.js dipakai di laptop untuk Vite dan build frontend. Paket rilis memuat
 aset hasil build dan berjalan dengan Python/Waitress tanpa Node.js, npm, CDN,
@@ -34,28 +33,27 @@ Dari folder `D:\Coding\PM` pada laptop pengembang:
 
 Perintah ini menjalankan `npm ci` dan build bersih, lalu membuat ZIP di
 `output/releases/`. Ekstrak ZIP di komputer uji yang disetujui; jalankan
-Waitress dari folder `pm-web` dengan `PM_SERVE_REACT=1`, `PM_DB_PATH` ke
+Waitress dari folder `pm-web` dengan `PM_DB_PATH` ke
 salinan SQLite **di luar folder rilis**, dan `PM_SECRET_KEY` yang tetap.
 Buka `http://127.0.0.1:8000/login` untuk antarmuka React. Langkah lengkap
 dan pemulihan ada di [runbook](docs/runbook_web_release.md).
 
-## Aplikasi Flask/Jinja lama (masa paritas)
+## Menjalankan aplikasi web
 
 Aplikasi utama kini menyediakan login, dashboard korpus, pencarian LIKE dan empat metode fuzzy,
 perbandingan hasil untuk admin, serta detail arsip. Halaman impor, audit, set uji,
 evaluasi, dan administrasi pengguna pada `rancangan_aplikasi.md` masih harus dibangun
 sebelum UAT/SUS untuk keseluruhan aplikasi.
 
-Antarmuka Jinja memakai CSS lokal di `static/css/app.css` dan pilihan ikon Lucide 1.77.0
-di `templates/icons/lucide_sprite.svg` (lisensi di `static/vendor/lucide/LICENSE`).
-Tidak ada CDN, Node.js, atau proses kompilasi aset saat antarmuka Jinja dijalankan.
-Route Flask dipisah ke modul `webapp/`, mesin pencarian ke `services/web_search.py`,
-dan `app.py`/`wsgi.py` hanya menjadi titik masuk.
+Route API berada di `webapp/api/`, mesin pencarian di `services/web_search.py`,
+dan `app.py`/`wsgi.py` menjadi titik masuk. UI Jinja lama dihapus setelah uji
+paritas PM-14; rumus dan mesin pencarian tidak berubah.
 
 Jalankan dari folder `D:\Coding\PM`:
 
 ```powershell
 .\.venv\Scripts\flask.exe --app app user create --username admin --role admin
+.\.venv\Scripts\python.exe scripts\build_web_release.py
 .\.venv\Scripts\waitress-serve.exe --listen=127.0.0.1:8000 wsgi:app
 ```
 
@@ -64,8 +62,11 @@ Paket notebook/analisis seperti pandas dan scipy tidak diperlukan untuk halaman 
 yang sudah tersedia. Perintah `report export-bundle` tetap memakai lingkungan
 penelitian lengkap dari `requirements.txt`.
 
-Perintah pertama meminta kata sandi secara interaktif (minimal 10 karakter). Kemudian
-buka `http://127.0.0.1:8000`. Untuk akun petugas, ulangi perintah pertama dengan
+Perintah pertama meminta kata sandi secara interaktif (minimal 10 karakter).
+Perintah kedua membuat aset React dan ZIP rilis; untuk pengembangan lokal,
+`npm run build` dari `frontend/` juga cukup. Jika build belum ada, route API
+tetap dapat diuji tetapi halaman web tidak tersedia. Kemudian buka
+`http://127.0.0.1:8000/login`. Untuk akun petugas, ulangi perintah pertama dengan
 `--role petugas` dan nama pengguna lain. Basis data bawaan adalah `instance/app.sqlite`;
 atur `PM_DB_PATH` jika memakai basis data lokal lain. Server sengaja dibatasi pada
 komputer sendiri. Jika `PM_SECRET_KEY` tidak diatur, sesi login akan berakhir saat

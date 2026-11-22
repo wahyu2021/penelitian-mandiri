@@ -1,4 +1,4 @@
-"""Kontrak penyajian React saat rilis tanpa mengubah route API/Jinja lama."""
+"""Kontrak penyajian React saat rilis tanpa route halaman lama."""
 
 import pytest
 
@@ -55,11 +55,13 @@ def test_api_routes_remain_json_and_unauthorized(spa_app):
     assert b'<div id="root"></div>' not in denied.data
 
 
-def test_missing_build_fails_fast_and_legacy_mode_keeps_jinja(tmp_path):
+def test_missing_build_fails_fast_and_api_only_mode_has_no_jinja(tmp_path):
     with pytest.raises(RuntimeError, match="Build React tidak ditemukan"):
         create_app({"TESTING": True, "SERVE_REACT": True, "FRONTEND_DIST": tmp_path})
-    legacy = create_app({
+    api_only = create_app({
         "TESTING": True, "SECRET_KEY": "test-only", "DATABASE": tmp_path / "unused.sqlite",
         "SERVE_REACT": False,
     })
-    assert legacy.test_client().get("/").status_code == 302
+    assert api_only.test_client().get("/").status_code == 404
+    assert api_only.test_client().get("/search?q=arsip").status_code == 404
+    assert api_only.test_client().get("/login").status_code == 404

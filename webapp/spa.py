@@ -10,7 +10,7 @@ HASHED_ASSET = re.compile(r"-[A-Za-z0-9_-]{8,}\.[A-Za-z0-9]+$")
 
 
 def register_spa(app):
-    """Aktifkan route React hanya untuk paket yang memang memuat build Vite."""
+    """Aktifkan route React bila build Vite tersedia dan UI diaktifkan."""
     if not app.config["SERVE_REACT"]:
         return
 

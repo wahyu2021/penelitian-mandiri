@@ -28,46 +28,6 @@ def web_app(tmp_path):
     return create_app({"TESTING": True, "SECRET_KEY": "test-only", "DATABASE": database})
 
 
-def log_in(client, username, password):
-    client.get("/login")
-    with client.session_transaction() as session:
-        token = session["csrf_token"]
-    return client.post("/login", data={"csrf_token": token, "username": username,
-                                       "password": password}, follow_redirects=True)
-
-
-def test_login_protects_pages_and_rejects_missing_csrf(web_app):
-    client = web_app.test_client()
-    assert client.get("/").status_code == 302
-    assert client.post("/login", data={"username": "admin", "password": "password-aman-123"}).status_code == 400
-    assert b"Dashboard arsip" in log_in(client, "admin", "password-aman-123").data
-
-
-def test_search_compare_and_detail_use_local_corpus(web_app):
-    client = web_app.test_client()
-    log_in(client, "admin", "password-aman-123")
-    assert b"Arsip #1" in client.get("/search?q=jembatan&method=like").data
-    assert b"Arsip #1" in client.get("/search?q=jembatan&method=levenshtein").data
-    assert b"Levenshtein" in client.get("/search/compare?q=jembatan").data
-    detail = client.get("/archives/1")
-    assert detail.status_code == 200
-    assert b"Pembangunan jembatan kota" in detail.data
-    assert client.get("/archives/999").status_code == 404
-
-
-def test_petugas_cannot_open_admin_comparison(web_app):
-    client = web_app.test_client()
-    log_in(client, "petugas", "password-aman-456")
-    assert client.get("/search?q=jembatan").status_code == 200
-    assert client.get("/search/compare?q=jembatan").status_code == 403
-
-
-def test_invalid_method_is_rejected(web_app):
-    client = web_app.test_client()
-    log_in(client, "admin", "password-aman-123")
-    assert client.get("/search?q=jembatan&method=unknown").status_code == 400
-
-
 def test_cli_creates_hashed_user_without_touching_existing_accounts(web_app):
     result = web_app.test_cli_runner().invoke(
         args=["user", "create", "--username", "arsiparis", "--role", "petugas"],

@@ -11,8 +11,8 @@ ada di `../AGENTS.md`.
 - `core/` memuat logika ilmiah; `services/` menghubungkan domain dan database;
   `webapp/` memuat route Flask. `app.py` dan `wsgi.py` adalah entry point.
 - Antarmuka React di `frontend/` mencakup login, dashboard, pencarian, detail,
-  dan perbandingan admin. `PM_SERVE_REACT=1` melayani build lokal dari Waitress.
-  Jinja2 di `templates/` dan CSS di `static/` tetap tersedia selama uji paritas.
+  dan perbandingan admin. Waitress melayani build lokal secara otomatis ketika
+  tersedia. UI Jinja lama dihapus setelah uji paritas PM-14.
 - Analisis notebook memakai dependensi terpisah di `requirements.txt`. Paket
   analisis tidak perlu dipasang pada server web kecuali fitur yang memerlukannya
   benar-benar dijalankan di sana.

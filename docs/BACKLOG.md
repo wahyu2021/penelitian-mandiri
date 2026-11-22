@@ -227,7 +227,7 @@ tampilan atau klaim dokumen saja.
 - **Uji:** regresi Flask dan frontend, alur login–cari–detail–banding,
   desktop/tablet/ponsel, keyboard; bandingkan hasil pencarian sebelum/sesudah.
 - **Commit:** `refactor(web): hapus antarmuka Jinja yang terganti [PM-14]`.
-- **Jejak:** Status: belum dimulai | Uji: — | Commit: — | Catatan: —
+- **Jejak:** Status: selesai (22 November 2026) | Uji: baseline Jinja/API pada 4 kueri-metode menghasilkan urutan ID sama; `pytest -q` 226 lulus, 5 dilewati; lint, tipe, 26 uji frontend, build Vite lulus; ZIP 62 entri dengan manifest SHA-256 valid, tanpa aset Jinja atau data; smoke ZIP tanpa Node melewati login–dashboard–cari–detail–banding, route SPA dan galat JSON; browser lokal melewati alur yang sama, Enter pada pencarian, dan halaman perbandingan tanpa overflow pada viewport 390/820/1440 px | Commit: lihat riwayat Git PM-14 | Catatan: ZIP `output/releases/pm-web-20261122-105559.zip` (SHA-256 `76d32d6d86f1422ed9142b49d0c50bd63b7e6722ddc428366b909a64fd22ffa3`); UI lama dihapus, `PM_SERVE_REACT` otomatis aktif jika build ada.
 
 ## Tiket fitur penelitian dan pengelolaan
 

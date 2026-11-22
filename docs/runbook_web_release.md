@@ -1,7 +1,7 @@
-# Runbook rilis web Flask + React (PM-13)
+# Runbook rilis web Flask + React (PM-13/PM-14)
 
-Runbook ini untuk **komputer uji yang disetujui**. Paket ZIP memuat kode Python,
-template Jinja yang masih dipakai selama migrasi, serta aset React hasil build.
+Runbook ini untuk **komputer uji yang disetujui**. Paket ZIP memuat kode Python
+dan aset React hasil build.
 Paket tidak memuat basis data, dump SQL, hasil penelitian, akun, rahasia,
 `node_modules`, atau lingkungan Python. Node.js diperlukan pada laptop pembangun
 paket, tetapi **tidak** pada komputer yang menjalankan Waitress.
@@ -46,7 +46,7 @@ Gunakan `--output D:\lokasi\pm-web.zip` bila perlu lokasi lain. Simpan hasil
 
    | Variabel | Isi |
    |---|---|
-   | `PM_SERVE_REACT` | `1` untuk UI React; `0` untuk UI Jinja lama selama masa paritas |
+   | `PM_SERVE_REACT` | Opsional; otomatis `1` jika build React tersedia. `0` hanya untuk uji API tanpa UI |
    | `PM_DB_PATH` | Path absolut SQLite salinan penelitian, di luar folder rilis |
    | `PM_SECRET_KEY` | Nilai acak panjang yang tetap antar-restart; wajib untuk sesi stabil |
    | `PM_COOKIE_SECURE` | `1` hanya bila browser mengakses melalui HTTPS; `0` untuk HTTP lokal |
@@ -54,7 +54,6 @@ Gunakan `--output D:\lokasi\pm-web.zip` bila perlu lokasi lain. Simpan hasil
    Contoh untuk terminal uji lokal:
 
    ```powershell
-   $env:PM_SERVE_REACT = '1'
    $env:PM_DB_PATH = 'D:\PMData\app.sqlite'
    $env:PM_SECRET_KEY = '<nilai-rahasia-lokal-yang-tetap>'
    $env:PM_COOKIE_SECURE = '0'
@@ -89,6 +88,7 @@ Jika rilis baru bermasalah: hentikan Waitress, jalankan kembali folder rilis
 sebelumnya dengan `PM_DB_PATH` dan `PM_SECRET_KEY` yang sama, lalu periksa
 `/api/v1/health` dan alur login. Pulihkan cadangan database **hanya** bila
 database ikut berubah atau rusak; jangan menimpa penilaian baru tanpa
-keputusan pemilik data. Selama masa migrasi, `PM_SERVE_REACT=0` mengembalikan
-halaman Jinja lama. Perintah riset `report export-bundle` tidak dikemas dalam
+keputusan pemilik data. UI Jinja tidak tersedia lagi di rilis PM-14; untuk
+memulihkan UI sebelumnya, jalankan folder rilis PM-13. Perintah riset
+`report export-bundle` tidak dikemas dalam
 paket web minimal; jalankan dari lingkungan penelitian lengkap.

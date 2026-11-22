@@ -50,7 +50,7 @@ persyaratan TI serta keamanan diperiksa.
 | Komponen | Status |
 |---|---|
 | Pipeline normalisasi, ekstraksi, pencarian, dan evaluasi CLI/notebook | Ada di proyek; hasil ilmiah mengikuti artefak dan protokol aktif |
-| Web utama: login, dashboard, pencarian, perbandingan admin, detail arsip | Ada dalam Flask/Jinja sebagai fondasi; belum setara semua halaman rancangan |
+| Web utama: login, dashboard, pencarian, perbandingan admin, detail arsip | Ada dalam React + Flask API; belum mencakup semua halaman rancangan |
 | Aplikasi pelabelan relevansi internal | Ada di `scripts/relevance_labeler_app.py`; terpisah dari web utama |
 | Flask JSON API `/api/v1` dan frontend React | API P0 untuk sesi, dashboard, pencarian, detail, dan perbandingan admin sudah ada; login/dashboard/status/pencarian/detail/perbandingan admin React sudah ada; ZIP rilis lokal PM-13 dapat dijalankan dengan Waitress tanpa Node.js |
 | Impor, audit, set uji, evaluasi, dan administrasi melalui web utama | Target; jangan ditandai selesai berdasarkan adanya skrip CLI |
@@ -73,7 +73,7 @@ di hasil penelitian.
   perbandingan admin pada desktop, tablet, serta ponsel.
 - Hasil build Vite disajikan oleh Flask/Waitress. Paket uji tetap berfungsi
   tanpa proses Node.js, CDN, atau internet.
-- Alur Flask/Jinja yang sudah ada tetap dapat dipakai sampai paritas P0 terbukti.
+- Paritas hasil pencarian P0 diperiksa sebelum UI Jinja dihapus pada PM-14.
 
 ### P1 — Kelengkapan penelitian dan pengelolaan
 

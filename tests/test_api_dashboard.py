@@ -1,4 +1,4 @@
-"""Dashboard API memakai angka database yang sama dengan halaman Jinja."""
+"""Dashboard API memakai angka dari database sumber."""
 
 from datetime import datetime, timezone
 
@@ -101,10 +101,6 @@ def test_dashboard_matches_database_counts_and_jinja(dashboard_app):
         {"id": 9, "year": None, "summary_raw": None},
         {"id": 7, "year": 2020, "summary_raw": "Jembatan kota"},
     ]
-    html = client.get("/")
-    assert html.status_code == 200
-    assert b"Jembatan kota" in html.data
-    assert b"Surat izin" in html.data
 
 
 def test_dashboard_database_failure_does_not_leak_sql_error(dashboard_app):

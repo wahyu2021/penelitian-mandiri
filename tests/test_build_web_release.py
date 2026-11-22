@@ -13,8 +13,7 @@ def make_source(root):
         path = root / name
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(name, encoding="utf-8")
-    for name in ("core/search/like.py", "services/db.py", "webapp/spa.py",
-                 "templates/error.html", "static/css/app.css"):
+    for name in ("core/search/like.py", "services/db.py", "webapp/spa.py"):
         path = root / name
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(name, encoding="utf-8")
@@ -46,6 +45,7 @@ def test_package_has_runtime_assets_manifest_and_no_data(tmp_path):
         assert "pm-web/webapp/spa.py" in names
         assert "pm-web/frontend/dist/assets/index-AbCd1234.js" in names
         assert "pm-web/release-manifest.json" in names
+        assert not any(name.startswith(("pm-web/templates/", "pm-web/static/")) for name in names)
         assert all(not any(part in name for part in ("instance/", "node_modules/", "output/", ".env"))
                    for name in names)
         manifest = json.loads(bundle.read("pm-web/release-manifest.json"))

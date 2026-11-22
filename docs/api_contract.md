@@ -62,8 +62,7 @@ tanpa redirect HTML.
 ### Dashboard yang sudah tersedia (PM-03)
 
 `GET /api/v1/dashboard` memerlukan sesi `admin` atau `petugas`. Angka berasal
-dari tabel `archive` pada salinan SQLite lokal yang sama dengan dashboard
-Flask/Jinja. Contoh bentuk respons (angka mengikuti isi database, bukan nilai
+dari tabel `archive` pada salinan SQLite lokal. Contoh bentuk respons (angka mengikuti isi database, bukan nilai
 tetap):
 
 ```json
@@ -88,9 +87,9 @@ memberi 500 JSON tanpa rincian SQL.
 
 `GET /api/v1/search` memerlukan sesi. `q` di-*trim*; kueri kosong memberi
 `items: []` dan `total: 0`. Default `method` saat ini adalah `like`, sama
-dengan halaman Flask/Jinja. Admin boleh memilih salah satu nama di
+dengan baseline pencarian lama. Admin boleh memilih salah satu nama di
 `services/web_search.py`; petugas tidak boleh memilih metode fuzzy dan
-menerima 403 jika mencobanya. Pilihan ini ditegakkan juga pada route Jinja.
+menerima 403 jika mencobanya. UI React menyembunyikan pemilihan metode bagi petugas.
 
 Respons berbentuk `data: {query, method, items, pagination}`. Setiap item hanya
 memuat `id`, `summary_raw`, `opd_name`, `year`, `spm_number`, `file_number`,

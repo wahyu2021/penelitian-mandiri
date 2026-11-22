@@ -102,16 +102,13 @@ def test_archive_detail_contains_original_and_extraction_with_guess_status(archi
     assert "party_normalized" not in body
     assert "password_hash" not in body
 
-    # Halaman lama dan API membaca record yang sama, tanpa menghilangkan teks asli.
+    # API tetap mengirim teks asli yang sama dengan sumber data.
     connection = get_connection(archive_app.config["DATABASE"])
     try:
         source = get_archive_detail(connection, 41)
         assert detail["summary_raw"] == source["summary_raw"]
     finally:
         connection.close()
-    html = client.get("/archives/41")
-    assert html.status_code == 200
-    assert b"&lt;script&gt;" in html.data
 
 
 def test_archive_detail_preserves_missing_values_as_null(archive_app):

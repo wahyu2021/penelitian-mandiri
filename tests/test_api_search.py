@@ -99,6 +99,21 @@ def test_search_filters_and_typo_matcher_use_service_results(search_app):
     assert client.get("/api/v1/search?q=tidak-ada-000").get_json()["data"]["pagination"]["total"] == 0
 
 
+@pytest.mark.parametrize(("method", "query", "legacy_ids"), [
+    ("like", "arsip", [10, 11, 12, 13]),
+    ("like", "jembatan", [10, 13]),
+    ("levenshtein", "jembatn", [10, 13, 11, 12]),
+    ("jaro_winkler", "jembatn", [10, 13]),
+])
+def test_search_order_matches_recorded_jinja_baseline(search_app, method, query, legacy_ids):
+    # Diambil dari route Jinja /search sebelum penghapusannya pada korpus fixture ini.
+    client = search_app.test_client()
+    login(client)
+    response = client.get(f"/api/v1/search?q={query}&method={method}&limit=100")
+    assert response.status_code == 200
+    assert [row["id"] for row in response.get_json()["data"]["items"]] == legacy_ids
+
+
 @pytest.mark.parametrize("parameter", [
     "q=" + "a" * 201, "method=unknown", "opd_id=-1", "year=1899",
     "year=2101", "status=4", "limit=0", "limit=101", "limit=", "offset=", "offset=-1",
@@ -113,7 +128,7 @@ def test_search_rejects_invalid_parameters(search_app, parameter):
     assert response.is_json
 
 
-def test_petugas_cannot_choose_fuzzy_method_or_open_jinja_method(search_app):
+def test_petugas_cannot_choose_fuzzy_method(search_app):
     client = search_app.test_client()
     login(client, "petugas")
     default = client.get("/api/v1/search?q=jembatan")
@@ -122,8 +137,6 @@ def test_petugas_cannot_choose_fuzzy_method_or_open_jinja_method(search_app):
     denied = client.get("/api/v1/search?q=jembatan&method=levenshtein")
     assert denied.status_code == 403
     assert denied.get_json()["error"]["code"] == "forbidden"
-    assert client.get("/search?q=jembatan&method=levenshtein").status_code == 403
-    assert b'name="method"' not in client.get("/search?q=jembatan").data
 
 
 def test_search_database_error_is_safe_json(search_app):
