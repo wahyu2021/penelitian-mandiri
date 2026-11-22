@@ -202,7 +202,7 @@ tampilan atau klaim dokumen saja.
 - **Uji:** hasil kosong/berisi/error, peran admin/petugas, tabel pada layar
   sempit, lint, tipe, build.
 - **Commit:** `feat(frontend): tampilkan perbandingan metode [PM-12]`.
-- **Jejak:** Status: selesai (22 November 2026) | Uji: 26 uji frontend lulus; lint, tipe, format, build lulus; 38 uji API pencarian/perbandingan lulus; browser desktop/tablet 768 px/ponsel 390 px tanpa gulir horizontal; admin melihat lima metode dan petugas mendapat 403 pada alamat langsung | Commit: commit frontend PM-12 pada riwayat Git | Catatan: urutan dan skor diambil dari API, tabel per metode memiliki penjelasan skor lintas metode, dan URL hanya menyimpan parameter kueri/filter.
+- **Jejak:** Status: selesai (22 November 2026) | Uji: 26 uji frontend lulus; lint, tipe, format, build lulus; 38 uji API pencarian/perbandingan lulus; browser desktop/tablet 768 px/ponsel 390 px tanpa gulir horizontal; admin melihat lima metode dan petugas mendapat 403 pada alamat langsung | Commit: `8fcf970` | Catatan: urutan dan skor diambil dari API, tabel per metode memiliki penjelasan skor lintas metode, dan URL hanya menyimpan parameter kueri/filter.
 
 ## Tiket kemasan dan paritas
 
