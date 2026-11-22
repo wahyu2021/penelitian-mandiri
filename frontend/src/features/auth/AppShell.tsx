@@ -53,7 +53,10 @@ export function AppShell() {
         </div>
       </header>
       <div className="mx-auto max-w-5xl px-4 sm:px-6">
-        <nav aria-label="Navigasi utama" className="flex gap-6 border-b border-border py-3 text-sm">
+        <nav
+          aria-label="Navigasi utama"
+          className="flex flex-wrap gap-x-6 gap-y-2 border-b border-border py-3 text-sm"
+        >
           <NavLink
             to="/app/dashboard"
             className={({ isActive }) =>
@@ -85,9 +88,16 @@ export function AppShell() {
             Pencarian
           </NavLink>
           {user?.role === 'admin' && (
-            <span className="text-muted-foreground" title="Tersedia setelah modul analisis dibuat">
-              Analisis · segera hadir
-            </span>
+            <NavLink
+              to="/app/compare"
+              className={({ isActive }) =>
+                isActive
+                  ? 'font-semibold text-primary underline underline-offset-8'
+                  : 'text-muted-foreground hover:text-foreground'
+              }
+            >
+              Perbandingan
+            </NavLink>
           )}
         </nav>
         {mutation.isError && (

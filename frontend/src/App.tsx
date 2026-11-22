@@ -5,6 +5,7 @@ import { ProtectedRoute, RootRedirect } from '@/features/auth/AuthRoutes'
 import { LoginPage } from '@/features/auth/LoginPage'
 import { DashboardPage } from '@/features/dashboard/DashboardPage'
 import { ArchiveDetailPage } from '@/features/archives/ArchiveDetailPage'
+import { ComparePage } from '@/features/compare/ComparePage'
 import { SearchPage } from '@/features/search/SearchPage'
 import { StatusPage } from '@/features/status/StatusPage'
 import { NotFoundPage } from '@/features/status/NotFoundPage'
@@ -21,6 +22,7 @@ export default function App() {
             <Route path="dashboard" element={<DashboardPage />} />
             <Route path="search" element={<SearchPage />} />
             <Route path="archives/:id" element={<ArchiveDetailPage />} />
+            <Route path="compare" element={<ComparePage />} />
             <Route path="status" element={<StatusPage />} />
           </Route>
         </Route>

@@ -5,8 +5,9 @@ route `/app/dashboard` menampilkan angka korpus dari `/api/v1/dashboard`,
 `/app/status` memeriksa koneksi ke `/api/v1/health`, dan `/app/search`
 menampilkan pencarian serta filter arsip setelah pengguna masuk. Hasil pencarian
 membuka `/app/archives/{id}` untuk teks asli, metadata ekstraksi, dan lokasi.
-Pemilihan metode pencarian pada halaman React hanya tersedia untuk admin.
-Perbandingan metode React masih menunggu tiket berikutnya. Aplikasi
+Pemilihan metode pencarian dan halaman `/app/compare` hanya tersedia untuk
+admin. Halaman perbandingan menampilkan urutan hasil lima metode dari API;
+skor antarmetode tidak digunakan sebagai angka yang sebanding. Aplikasi
 Flask/Jinja tetap menjadi antarmuka kerja sampai paritas fitur terbukti.
 
 ## Jalankan di laptop pengembang
