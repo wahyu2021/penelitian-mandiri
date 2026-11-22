@@ -10,9 +10,9 @@ ada di `../AGENTS.md`.
   dan Waitress. Versi tepat dependensi web tercantum di `requirements-web.txt`.
 - `core/` memuat logika ilmiah; `services/` menghubungkan domain dan database;
   `webapp/` memuat route Flask. `app.py` dan `wsgi.py` adalah entry point.
-- Antarmuka web utama masih dirender oleh Jinja2 di `templates/` dengan CSS di
-  `static/`. Fondasi React di `frontend/` baru menampilkan status sambungan;
-  alur kerja petugas belum dipindahkan.
+- Antarmuka React di `frontend/` mencakup login, dashboard, pencarian, detail,
+  dan perbandingan admin. `PM_SERVE_REACT=1` melayani build lokal dari Waitress.
+  Jinja2 di `templates/` dan CSS di `static/` tetap tersedia selama uji paritas.
 - Analisis notebook memakai dependensi terpisah di `requirements.txt`. Paket
   analisis tidak perlu dipasang pada server web kecuali fitur yang memerlukannya
   benar-benar dijalankan di sana.
@@ -29,8 +29,8 @@ ada di `../AGENTS.md`.
 - Kualitas frontend: Oxlint, Prettier, `tsc`, Vitest/Testing Library. Gunakan
   Playwright bila diperlukan untuk alur end-to-end penting.
 - Node.js dan npm dipakai pada laptop pengembang untuk instalasi, server Vite,
-  pemeriksaan, dan build. `npm run build` menghasilkan aset statis yang dikemas
-  bersama aplikasi Flask. Produksi menjalankan Python/Waitress saja.
+  pemeriksaan, dan build. `scripts/build_web_release.py` mengemas aset statis
+  bersama aplikasi Flask. Paket berjalan dengan Python/Waitress saja.
 - Tidak ada CDN atau panggilan cloud saat aplikasi berjalan. XAMPP/PHP yang
   mungkin ada di server dinas bukan dependensi aplikasi ini.
 

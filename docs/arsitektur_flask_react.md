@@ -3,8 +3,9 @@
 **Status (22 November 2026): fondasi API PM-01, sesi PM-02, dashboard PM-03,
 pencarian PM-04, detail PM-05, perbandingan PM-06, React PM-07, login PM-08,
 dashboard PM-09, pencarian React PM-10, detail React PM-11, dan perbandingan
-React PM-12 sudah dibuat; pengemasan produksi masih target.** Web utama saat ini
-memakai route Flask/Jinja di `webapp/` dan `templates/`.
+React PM-12 serta kemasan lokal PM-13 sudah dibuat.** `PM_SERVE_REACT=1`
+menyajikan React dari Waitress; Jinja tetap tersedia saat flag dimatikan selama
+uji paritas PM-14. Route Jinja ada di `webapp/` dan `templates/`.
 `scripts/relevance_labeler_app.py` adalah alat pelabelan internal yang terpisah.
 Dokumen ini menetapkan arah implementasi berikutnya; jangan mengutipnya di Bab IV
 sebagai hasil yang sudah selesai.
@@ -22,8 +23,10 @@ Browser ── React SPA (aset statis hasil Vite build)
 - Saat pengembangan: Vite di laptop dengan proxy `/api` ke Flask. Node.js hanya
   menjalankan Vite, lint, dan build pada mesin pengembang.
 - Saat digunakan: satu layanan Python/Waitress menyajikan API dan berkas
-  `frontend/dist/`. Paket rilis wajib menyertakan hasil `npm run build`.
+  `frontend/dist/`. Skrip `scripts/build_web_release.py` menjalankan `npm ci`,
+  `npm run build`, dan menghasilkan ZIP di `output/releases/`.
   Server dinas tidak perlu Node.js, npm, CDN, maupun PHP untuk aplikasi ini.
+  Panduan komputer uji ada di [runbook rilis web](runbook_web_release.md).
 - XAMPP lama bukan runtime Flask. Penempatan di server dinas harus dibahas dengan
   pengelola TI; jangan mengubah konfigurasi SIMANIS atau mengasumsikan akses
   instalasi. Untuk uji penelitian, gunakan komputer uji terpisah yang diizinkan.

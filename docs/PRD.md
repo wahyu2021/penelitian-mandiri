@@ -45,14 +45,14 @@ Tidak ada koneksi tulis ke SIMANIS produksi. Sistem tidak mengubah SOP layanan,
 tidak menghapus arsip, dan tidak menjanjikan siap produksi dinas sebelum
 persyaratan TI serta keamanan diperiksa.
 
-## 3. Status yang benar pada saat PRD dibuat
+## 3. Status implementasi (22 November 2026)
 
 | Komponen | Status |
 |---|---|
 | Pipeline normalisasi, ekstraksi, pencarian, dan evaluasi CLI/notebook | Ada di proyek; hasil ilmiah mengikuti artefak dan protokol aktif |
 | Web utama: login, dashboard, pencarian, perbandingan admin, detail arsip | Ada dalam Flask/Jinja sebagai fondasi; belum setara semua halaman rancangan |
 | Aplikasi pelabelan relevansi internal | Ada di `scripts/relevance_labeler_app.py`; terpisah dari web utama |
-| Flask JSON API `/api/v1` dan frontend React | API P0 untuk sesi, dashboard, pencarian, detail, dan perbandingan admin sudah ada; login/dashboard/status/pencarian/detail/perbandingan admin React sudah ada; pengemasan produksi masih target PM-13 |
+| Flask JSON API `/api/v1` dan frontend React | API P0 untuk sesi, dashboard, pencarian, detail, dan perbandingan admin sudah ada; login/dashboard/status/pencarian/detail/perbandingan admin React sudah ada; ZIP rilis lokal PM-13 dapat dijalankan dengan Waitress tanpa Node.js |
 | Impor, audit, set uji, evaluasi, dan administrasi melalui web utama | Target; jangan ditandai selesai berdasarkan adanya skrip CLI |
 | Verifikasi penilai kedua, kesepakatan audit, UAT/SUS petugas | Menunggu pengumpulan/penilaian nyata; tidak boleh diberi hasil contoh |
 

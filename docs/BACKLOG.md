@@ -216,7 +216,7 @@ tampilan atau klaim dokumen saja.
 - **Uji:** build bersih dari `npm ci`, jalankan Waitress tanpa proses Node,
   buka direct URL/reload route SPA, cek 404 API dan aset, uji offline.
 - **Commit:** `feat(build): kemas React untuk Waitress [PM-13]`.
-- **Jejak:** Status: belum dimulai | Uji: — | Commit: — | Catatan: —
+- **Jejak:** Status: selesai (22 November 2026) | Uji: `npm ci` dari cache offline (0 temuan audit), build/lint/tipe/format dan 26 uji frontend lulus; `pytest -q` 226 lulus, 5 dilewati; ZIP 75 entri dengan SHA-256 manifest valid, tanpa data/`node_modules`; Waitress dari ZIP diekstrak tanpa Node melayani login–cari–detail–banding, reload route React, aset ber-hash, 404 aset, dan API JSON | Commit: commit PM-13 pada riwayat Git | Catatan: rilis uji `output/releases/pm-web-20261122-102412.zip` (SHA-256 `B67F8D1A0E21B08E5D8E4581E712BA4566B43B6C489F8FC8CBFBDE8963D8AA34`); flag `PM_SERVE_REACT=1` mengaktifkan React, Jinja lama tetap tersedia untuk PM-14.
 
 ### PM-14 — Uji paritas dan rapikan UI Jinja lama
 

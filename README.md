@@ -17,24 +17,38 @@ perbandingan metode khusus admin di `/app/compare`. Langkah menjalankan
 aplikasi di bawah ini menjelaskan versi Flask/Jinja yang sekarang dipakai
 untuk alur kerja.
 
-Node.js dipakai di laptop untuk Vite dan build frontend. Paket produksi
-akan berisi aset hasil build dan berjalan dengan Python/Waitress tanpa Node.js,
-npm, CDN, atau proses PHP. Prosedur pengemasan akan ditambahkan pada PM-13.
+Node.js dipakai di laptop untuk Vite dan build frontend. Paket rilis memuat
+aset hasil build dan berjalan dengan Python/Waitress tanpa Node.js, npm, CDN,
+atau proses PHP. Lihat [runbook rilis web](docs/runbook_web_release.md) untuk
+instalasi, variabel lingkungan, pencadangan, dan rollback.
 
-Untuk menjalankan pratinjau fondasi React, lihat
-[`frontend/README.md`](frontend/README.md). Paket produksi Flask + aset React
-masih menunggu tiket PM-13.
+Untuk pengembangan React dengan Vite, lihat [`frontend/README.md`](frontend/README.md).
 
-## Aplikasi web lokal (dasar Fase 1)
+## Paket React lokal tanpa Node.js saat berjalan
+
+Dari folder `D:\Coding\PM` pada laptop pengembang:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\build_web_release.py
+```
+
+Perintah ini menjalankan `npm ci` dan build bersih, lalu membuat ZIP di
+`output/releases/`. Ekstrak ZIP di komputer uji yang disetujui; jalankan
+Waitress dari folder `pm-web` dengan `PM_SERVE_REACT=1`, `PM_DB_PATH` ke
+salinan SQLite **di luar folder rilis**, dan `PM_SECRET_KEY` yang tetap.
+Buka `http://127.0.0.1:8000/login` untuk antarmuka React. Langkah lengkap
+dan pemulihan ada di [runbook](docs/runbook_web_release.md).
+
+## Aplikasi Flask/Jinja lama (masa paritas)
 
 Aplikasi utama kini menyediakan login, dashboard korpus, pencarian LIKE dan empat metode fuzzy,
 perbandingan hasil untuk admin, serta detail arsip. Halaman impor, audit, set uji,
 evaluasi, dan administrasi pengguna pada `rancangan_aplikasi.md` masih harus dibangun
 sebelum UAT/SUS untuk keseluruhan aplikasi.
 
-Antarmuka saat ini memakai CSS lokal di `static/css/app.css` dan pilihan ikon Lucide 1.77.0
+Antarmuka Jinja memakai CSS lokal di `static/css/app.css` dan pilihan ikon Lucide 1.77.0
 di `templates/icons/lucide_sprite.svg` (lisensi di `static/vendor/lucide/LICENSE`).
-Tidak ada CDN, Node.js, atau proses kompilasi aset saat aplikasi saat ini dijalankan.
+Tidak ada CDN, Node.js, atau proses kompilasi aset saat antarmuka Jinja dijalankan.
 Route Flask dipisah ke modul `webapp/`, mesin pencarian ke `services/web_search.py`,
 dan `app.py`/`wsgi.py` hanya menjadi titik masuk.
 

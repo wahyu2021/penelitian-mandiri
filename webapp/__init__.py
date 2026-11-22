@@ -14,6 +14,7 @@ from webapp.cli import register_commands
 from webapp.database import close_db
 from webapp.main import main
 from webapp.search import search_pages
+from webapp.spa import register_spa
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
@@ -30,6 +31,8 @@ def create_app(test_config=None):
         SESSION_COOKIE_HTTPONLY=True,
         SESSION_COOKIE_SAMESITE="Lax",
         SESSION_COOKIE_SECURE=os.environ.get("PM_COOKIE_SECURE") == "1",
+        SERVE_REACT=os.environ.get("PM_SERVE_REACT") == "1",
+        FRONTEND_DIST=PROJECT_ROOT / "frontend" / "dist",
     )
     if test_config:
         app.config.update(test_config)
@@ -42,6 +45,7 @@ def create_app(test_config=None):
     app.register_blueprint(search_pages)
     app.register_blueprint(api)
     register_commands(app)
+    register_spa(app)
 
     @app.errorhandler(HTTPException)
     def http_error(error):

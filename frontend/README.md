@@ -32,8 +32,9 @@ npm run format:check
 npm run build
 ```
 
-Hasil `dist/` diabaikan Git. Pengemasan aset bersama Flask/Waitress adalah
-tiket PM-13; belum selesai saat README ini ditulis.
+Hasil `dist/` diabaikan Git. Untuk membuat ZIP rilis yang menyertakan aset ini,
+jalankan `scripts/build_web_release.py` dari akar proyek. Panduan memasang dan
+menjalankannya ada di `../docs/runbook_web_release.md`.
 
 ## Struktur dan komponen
 
