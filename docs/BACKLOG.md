@@ -7,6 +7,21 @@ dipakai ulang, tetapi tidak otomatis membuat tiket migrasi berstatus selesai.
 
 ## Cara memakai backlog
 
+**Koreksi lingkup 23 November 2026.** Pengembangan dipisah tegas menjadi dua
+jalur agar fitur pengguna tidak bercampur dengan alat eksperimen:
+
+- **Jalur Operasional (`/app`) — prioritas aktif:** fokus pada kebutuhan
+  sehari-hari petugas dan admin (Dashboard, Pencarian fuzzy, Detail & Lokasi
+  Arsip, Impor salinan data, Administrasi akun & log). Tidak boleh ada menu
+  atau kontrol riset yang bocor ke ruang operasional.
+- **Jalur Ruang Penelitian (`/app/research`) — ruang pribadi peneliti:**
+  menampung perbandingan metode, audit ekstraksi, kamus SPM, set uji, dan
+  penilaian relevansi. Penyelesaian alat penelitian tidak boleh menambah menu
+  ke sidebar operasional; tautan tugas penilaian dibagikan peneliti kepada
+  akun yang ditugaskan. Tiket penelitian lanjutan (`PM-19`, `PM-20`) ditunda
+  sementara sampai produk operasional siap dan dikaji ulang kebutuhannya
+  terhadap skrip CLI.
+
 1. Kerjakan tiket menurut dependensinya. Ubah status menjadi `berjalan`,
    `tertahan`, atau `selesai` dengan tanggal, bukti uji, dan hash commit.
 2. Satu tiket menghasilkan perubahan yang dapat ditinjau sendiri. Jika
@@ -229,7 +244,7 @@ tampilan atau klaim dokumen saja.
 - **Commit:** `refactor(web): hapus antarmuka Jinja yang terganti [PM-14]`.
 - **Jejak:** Status: selesai (22 November 2026) | Uji: baseline Jinja/API pada 4 kueri-metode menghasilkan urutan ID sama; `pytest -q` 226 lulus, 5 dilewati; lint, tipe, 26 uji frontend, build Vite lulus; ZIP 62 entri dengan manifest SHA-256 valid, tanpa aset Jinja atau data; smoke ZIP tanpa Node melewati login–dashboard–cari–detail–banding, route SPA dan galat JSON; browser lokal melewati alur yang sama, Enter pada pencarian, dan halaman perbandingan tanpa overflow pada viewport 390/820/1440 px | Commit: `8b1f008` | Catatan: ZIP `output/releases/pm-web-20261122-105559.zip` (SHA-256 `76d32d6d86f1422ed9142b49d0c50bd63b7e6722ddc428366b909a64fd22ffa3`); UI lama dihapus, `PM_SERVE_REACT` otomatis aktif jika build ada.
 
-## Tiket fitur penelitian dan pengelolaan
+## Jalur Operasional — Fokus Petugas & Admin (Prioritas Aktif)
 
 ### PM-15 — Impor salinan data melalui web
 
@@ -241,6 +256,51 @@ tampilan atau klaim dokumen saja.
   verifikasi cadangan; uji UI sukses/gagal; lint/tipe/build.
 - **Commit:** `feat(import): tambah impor salinan terkontrol [PM-15]`.
 - **Jejak:** Status: selesai (23 November 2026) | Uji: dump valid/rusak, hash berubah, path traversal, peran, CSRF, rollback saat angka acuan tidak cocok dan ID duplikat, cadangan berisi data lama, akun/log dan riwayat tetap ada; `pytest -q` 231 lulus, 5 dilewati; lint/tipe/format, 29 uji frontend dan build lulus; smoke ZIP hasil ekstraksi tanpa Node melewati impor dan pembaruan arsip; UI browser berhasil pada data contoh dan tidak overflow di viewport 390/820/1440 px | Commit: `3e52b1c` | Catatan: ZIP `output/releases/pm-web-20261123-174759.zip` (SHA-256 `c124e7783bc153f6e89fc2048467a675ff89f3fc65ef827cd6b42ead4cf8fdb8`); default verifikasi angka acuan aktif; sumber hanya dari `PM_IMPORT_DIR`, maksimal 100 MB.
+
+### PM-26 — Finalisasi pemisahan ruang operasional (`/app`) dan ruang penelitian (`/app/research`)
+
+- **Dependensi:** PM-14, PM-18. **PRD:** pemisahan operasional dan penelitian.
+- **Selesai saat:** sidebar dan rute `/app` hanya menampilkan menu operasional
+  petugas/admin (Dashboard, Pencarian, Detail Arsip, Impor, dan Akun setelah
+  PM-21); seluruh alat penelitian terisolasi di `/app/research` dengan sidebar
+  tersendiri; menu `Status` tidak berdiri sebagai halaman menu terpisah di
+  sidebar operasional (disederhanakan atau dihilangkan dari navigasi utama);
+  tidak ada tautan riset di sidebar operasional; rute lama dialihkan aman ke
+  `/app/research/*`.
+- **Uji:** uji rute dan peran frontend, uji redirect rute lama, cek tampilan
+  desktop/tablet/ponsel, lint/tipe/build.
+- **Commit:** `refactor(frontend): pisahkan ruang operasional dan penelitian [PM-26]`.
+- **Jejak:** Status: selesai (23 November 2026) | Uji: `npm run lint`, `npm run typecheck`, `npm test` (37 uji frontend pada 10 berkas lulus), `npm run format:check`, `npm run build` lulus; `python -m pytest -q` 245 lulus, 5 dilewati | Commit: `0e0dedb` | Catatan: ruang `/app` dan `/app/research` terpisah dengan sidebar masing-masing, menu `Status` dihapus dari sidebar operasional (`/app/status` tetap dapat dibuka langsung), dan redirect rute lama mempertahankan query string.
+
+### PM-27 — Matangkan alur Pencarian fuzzy, Dashboard, dan Detail untuk Petugas
+
+- **Dependensi:** PM-26. **PRD:** FR-02, FR-03, FR-04.
+- **Selesai saat:** pencarian operasional menggunakan metode fuzzy bawaan yang
+  dikonfigurasi di server (bukan lagi default `like`) dan tidak menampilkan
+  dropdown pemilihan algoritma riset di halaman pencarian operasional;
+  Dashboard menampilkan tautan langsung dari arsip terbaru ke detail arsip
+  (`/app/archives/:id`), akses cepat ke pencarian, serta info pembaruan
+  data/impor terakhir dari data nyata; Detail arsip menonjolkan lokasi fisik,
+  metadata hasil ekstraksi, dan status secara ringkas dan mudah dipindai
+  petugas.
+- **Uji:** uji API konfigurasi metode bawaan dan respons dashboard, uji
+  frontend Dashboard/Pencarian/Detail, cek desktop/tablet/ponsel,
+  lint/tipe/build.
+- **Commit:** `feat(app): matangkan pencarian fuzzy dan dashboard petugas [PM-27]`.
+- **Jejak:** Status: belum dimulai | Uji: — | Commit: — | Catatan: fokus pengalaman pengguna operasional sebelum UAT/SUS.
+
+### PM-21 — Administrasi akun dan log aktivitas
+
+- **Dependensi:** PM-02, PM-26. **PRD:** FR-01, P1.
+- **Selesai saat:** admin dapat menambah/nonaktifkan/reset akun; tidak dapat
+  menonaktifkan dirinya sendiri; tindakan penting masuk log; petugas tidak
+  dapat membuka endpoint atau UI admin.
+- **Uji:** tiap operasi sukses/gagal, self-disable, 401/403, CSRF, log,
+  dan tidak ada kata sandi di respons/log; lint/tipe/build.
+- **Commit:** `feat(admin): tambah akun dan log aktivitas [PM-21]`.
+- **Jejak:** Status: belum dimulai | Uji: — | Commit: — | Catatan: diprioritaskan di jalur operasional untuk pengelolaan akun petugas dan admin tanpa bergantung pada CLI.
+
+## Jalur Ruang Penelitian (`/app/research` — Ruang Pribadi Peneliti)
 
 ### PM-16 — Audit ekstraksi dan kamus SPM
 
@@ -284,7 +344,7 @@ tampilan atau klaim dokumen saja.
 - **Uji:** contoh hitung tangan, semua setuju, tak seimbang, kosong,
   sebagian terisi, serta kesesuaian CLI/UI; lint/tipe/build.
 - **Commit:** `feat(research): laporkan kesepakatan penilai [PM-19]`.
-- **Jejak:** Status: belum dimulai | Uji: — | Commit: — | Catatan: —
+- **Jejak:** Status: ditunda | Uji: — | Commit: — | Catatan: ditunda sampai jalur operasional (`PM-26`, `PM-27`, `PM-21`) selesai; akan ditinjau apakah cukup lewat skrip CLI (`scripts/evaluate_relevance_agreement.py`).
 
 ### PM-20 — Evaluasi dan bukti run di web
 
@@ -296,22 +356,13 @@ tampilan atau klaim dokumen saja.
 - **Uji:** run kosong/draft/final, izin admin, angka cocok dengan ekspor CLI,
   uji anti-kebocoran dan tabel alternatif grafik; lint/tipe/build.
 - **Commit:** `feat(evaluation): tampilkan run dan metrik terlacak [PM-20]`.
-- **Jejak:** Status: belum dimulai | Uji: — | Commit: — | Catatan: —
+- **Jejak:** Status: ditunda | Uji: — | Commit: — | Catatan: ditunda sampai jalur operasional selesai; akan ditinjau apakah perlu UI web atau cukup melalui skrip CLI/notebook.
 
-### PM-21 — Administrasi akun dan log aktivitas
-
-- **Dependensi:** PM-02, PM-08. **PRD:** FR-01, P1.
-- **Selesai saat:** admin dapat menambah/nonaktifkan/reset akun; tidak dapat
-  menonaktifkan dirinya sendiri; tindakan penting masuk log; petugas tidak
-  dapat membuka endpoint atau UI admin.
-- **Uji:** tiap operasi sukses/gagal, self-disable, 401/403, CSRF, log,
-  dan tidak ada kata sandi di respons/log; lint/tipe/build.
-- **Commit:** `feat(admin): tambah akun dan log aktivitas [PM-21]`.
-- **Jejak:** Status: belum dimulai | Uji: — | Commit: — | Catatan: —
+## Uji Lapangan, Lanjutan Opsional (P2), dan Laporan
 
 ### PM-22 — Uji lapangan, UAT, dan SUS
 
-- **Dependensi:** PM-14 dan fitur yang menjadi cakupan uji. **PRD:** gerbang
+- **Dependensi:** PM-26, PM-27, PM-21 (cakupan operasional). **PRD:** gerbang
   uji petugas.
 - **Selesai saat:** daftar tugas uji, peserta aktual, hasil Black Box/UAT,
   kuesioner SUS, dan batas interpretasi tercatat; tidak ada angka contoh
@@ -324,8 +375,6 @@ tampilan atau klaim dokumen saja.
   hanya untuk ringkasan yang boleh masuk Git; data mentah tetap di luar Git.
 - **Jejak:** Status: belum dimulai | Uji: — | Commit: — | Catatan: —
 
-## Tiket lanjutan dan laporan
-
 ### PM-23 — Tinjauan kualitas metadata
 
 - **Dependensi:** PM-14. **PRD:** P2.
@@ -334,7 +383,7 @@ tampilan atau klaim dokumen saja.
 - **Uji:** kategori dengan data/kosong, filter, izin, konsistensi hitungan,
   ponsel/tablet, lint/tipe/build.
 - **Commit:** `feat(quality): tampilkan masalah metadata [PM-23]`.
-- **Jejak:** Status: belum dimulai | Uji: — | Commit: — | Catatan: —
+- **Jejak:** Status: ditunda (P2 opsional) | Uji: — | Commit: — | Catatan: ditunda hingga fitur inti operasional dan evaluasi utama selesai.
 
 ### PM-24 — Tinjauan kandidat duplikat
 
@@ -344,7 +393,7 @@ tampilan atau klaim dokumen saja.
 - **Uji:** kandidat sama/berbeda, keputusan dan koreksi, izin, daftar kosong,
   tidak ada perubahan arsip sumber, ponsel/tablet, lint/tipe/build.
 - **Commit:** `feat(duplicates): tambah tinjauan kandidat [PM-24]`.
-- **Jejak:** Status: belum dimulai | Uji: — | Commit: — | Catatan: —
+- **Jejak:** Status: ditunda (P2 opsional) | Uji: — | Commit: — | Catatan: ditunda hingga fitur inti operasional dan evaluasi utama selesai.
 
 ### PM-25 — Selaraskan bukti implementasi untuk laporan
 
@@ -366,16 +415,17 @@ tampilan atau klaim dokumen saja.
 | Kebutuhan | Tiket |
 |---|---|
 | FR-01 sesi dan peran | PM-01, PM-02, PM-08, PM-21 |
-| FR-02 dashboard | PM-03, PM-09 |
-| FR-03 pencarian | PM-04, PM-10 |
-| FR-04 detail dan lokasi | PM-05, PM-11 |
+| FR-02 dashboard | PM-03, PM-09, PM-27 |
+| FR-03 pencarian | PM-04, PM-10, PM-27 |
+| FR-04 detail dan lokasi | PM-05, PM-11, PM-27 |
 | FR-05 perbandingan/evaluasi | PM-06, PM-12, PM-17, PM-20 |
 | FR-06 audit dan penilaian | PM-16, PM-18, PM-19 |
 | FR-07 impor dan keamanan data | PM-15 |
+| Pemisahan ruang operasional & penelitian | PM-26 |
 | Portabilitas, aksesibilitas, responsif | PM-07–PM-14, diperiksa lagi di tiap fitur UI |
 | UAT/SUS dan laporan | PM-22, PM-25 |
 
-**Urutan minimum untuk aplikasi React yang dapat diuji:** PM-00 → PM-01/02/07
-→ PM-03/04/05/06 → PM-08/09/10/11/12 → PM-13 → PM-14. Tiket P1 dapat
-dikerjakan bertahap setelah fondasi API dan UI tersedia; P2 tetap opsional
-hingga kebutuhan utama dan bukti penelitian lengkap.
+**Urutan aktif fokus pengguna operasional:** `PM-26 → PM-27 → PM-21 → PM-22`.
+Tiket ruang penelitian (`PM-19`, `PM-20`) dan P2 (`PM-23`, `PM-24`) dipisahkan
+serta ditunda hingga jalur operasional siap dan kebutuhan UI webnya ditinjau
+ulang terhadap skrip CLI.
