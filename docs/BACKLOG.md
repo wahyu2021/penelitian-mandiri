@@ -273,7 +273,7 @@ tampilan atau klaim dokumen saja.
 - **Uji:** kebutaan data pada API/DOM, dua sesi penilai, reload, konflik
   perubahan, jawaban parsial, ekspor, tablet/ponsel; lint/tipe/build.
 - **Commit:** `feat(judgment): tambah penilaian buta dua penilai [PM-18]`.
-- **Jejak:** Status: belum dimulai | Uji: — | Commit: — | Catatan: —
+- **Jejak:** Selesai 23 November 2026 | Uji dua sesi, data buta API/DOM, isian parsial, konflik revisi, koreksi, migrasi tanpa timpa, penguncian penyerahan dan ekspor kompatibel dengan skrip | 245 uji Python lulus, 5 dilewati, 36 uji frontend lulus, lint/tipe/format/build lulus | Chrome headless pada 390 dan 820 px tanpa gulir horizontal, simpan serta reload berhasil | Smoke ZIP dengan data penelitian memverifikasi 119 pasangan unik dari 120 baris, 119 jawaban peneliti dapat diimpor, penilai kedua 0 | Commit `8f270e0` | Rilis `output/releases/pm-web-pm18.zip`, SHA-256 `599ef4f2e460c94d94f817cd81e4164a3e333a986a7d2ad0b01251c36131e4bc`.
 
 ### PM-19 — Ringkasan kesepakatan dan status validasi
 
