@@ -1,230 +1,17 @@
-import { useState } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Download, FileUp } from 'lucide-react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { Download } from 'lucide-react'
+import { ErrorStateCard } from '@/components/shared/ErrorStateCard'
+import { ForbiddenCard } from '@/components/shared/ForbiddenCard'
+import { LoadingState } from '@/components/shared/LoadingState'
+import { PageHeader } from '@/components/shared/PageHeader'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
-import { Skeleton } from '@/components/ui/skeleton'
+import { RelevanceLegacyImportForm } from '@/features/relevance/RelevanceLegacyImportForm'
+import { RelevanceSetupCard } from '@/features/relevance/RelevanceSetupCard'
 import { useSession } from '@/features/auth/useSession'
 import { reviewError, useReviewExpiry } from '@/features/relevance/useReviewSession'
-import {
-  createReview,
-  getRelevanceAdmin,
-  migrateReview,
-  relevanceExportUrl,
-  type RelevanceAdmin,
-} from '@/lib/api/relevance'
-
-function Setup({
-  data,
-  csrf,
-  refresh,
-}: {
-  data: RelevanceAdmin
-  csrf: string
-  refresh: () => Promise<unknown>
-}) {
-  const [selection, setSelection] = useState('')
-  const version = data.available_versions.includes(selection) ? selection : ''
-  const [first, setFirst] = useState('')
-  const [second, setSecond] = useState('')
-  const [file, setFile] = useState<File>()
-  const mutation = useMutation({
-    mutationFn: (selectedFile: File) => createReview(version, first, second, selectedFile, csrf),
-    onSuccess: () => {
-      setFile(undefined)
-      return refresh()
-    },
-  })
-  useReviewExpiry(mutation.error)
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>
-          <h2>Siapkan penugasan</h2>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4 text-sm">
-        {data.available_versions.length === 0 ? (
-          <p className="text-muted-foreground">Belum ada versi terkunci yang siap ditugaskan.</p>
-        ) : (
-          <form
-            className="space-y-4"
-            onSubmit={(event) => {
-              event.preventDefault()
-              if (file && version && first && second && first !== second) mutation.mutate(file)
-            }}
-          >
-            <p>
-              Pilih set uji terkunci dan unggah sampel verifikasi CSV. Pastikan akun penilai tepat
-              sebelum menyimpan.
-            </p>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="space-y-1">
-                <label htmlFor="review-version" className="block font-medium">
-                  Versi terkunci
-                </label>
-                <NativeSelect
-                  id="review-version"
-                  className="w-full"
-                  value={version}
-                  onChange={(event) => setSelection(event.target.value)}
-                >
-                  <NativeSelectOption value="">Pilih versi</NativeSelectOption>
-                  {data.available_versions.map((name) => (
-                    <NativeSelectOption value={name} key={name}>
-                      {name}
-                    </NativeSelectOption>
-                  ))}
-                </NativeSelect>
-              </div>
-              <div className="space-y-1">
-                <label htmlFor="review-sample" className="block font-medium">
-                  Sampel verifikasi CSV
-                </label>
-                <Input
-                  key={mutation.isSuccess ? mutation.submittedAt : 'sample'}
-                  id="review-sample"
-                  type="file"
-                  accept=".csv,text/csv"
-                  onChange={(event) => setFile(event.target.files?.[0])}
-                />
-              </div>
-              <div className="space-y-1">
-                <label htmlFor="review-first" className="block font-medium">
-                  Penilai pertama
-                </label>
-                <NativeSelect
-                  id="review-first"
-                  className="w-full"
-                  value={first}
-                  onChange={(event) => setFirst(event.target.value)}
-                >
-                  <NativeSelectOption value="">Pilih akun</NativeSelectOption>
-                  {data.accounts.map((account) => (
-                    <NativeSelectOption key={account.id} value={account.id}>
-                      {account.username}
-                    </NativeSelectOption>
-                  ))}
-                </NativeSelect>
-              </div>
-              <div className="space-y-1">
-                <label htmlFor="review-second" className="block font-medium">
-                  Penilai kedua (Petugas)
-                </label>
-                <NativeSelect
-                  id="review-second"
-                  className="w-full"
-                  value={second}
-                  onChange={(event) => setSecond(event.target.value)}
-                >
-                  <NativeSelectOption value="">Pilih akun</NativeSelectOption>
-                  {data.accounts
-                    .filter((account) => account.role === 'petugas')
-                    .map((account) => (
-                      <NativeSelectOption
-                        key={account.id}
-                        value={account.id}
-                        disabled={first === String(account.id)}
-                      >
-                        {account.username}
-                      </NativeSelectOption>
-                    ))}
-                </NativeSelect>
-              </div>
-            </div>
-            <Button
-              type="submit"
-              className="min-h-11"
-              disabled={
-                !version || !file || !first || !second || first === second || mutation.isPending
-              }
-            >
-              <FileUp aria-hidden="true" /> {mutation.isPending ? 'Menyiapkan…' : 'Buat penugasan'}
-            </Button>
-          </form>
-        )}
-        {mutation.isSuccess && (
-          <p role="status">
-            Penugasan dibuat. {mutation.data.pairs} pasangan unik dari {mutation.data.sample_rows}{' '}
-            baris.
-          </p>
-        )}
-        {mutation.error && (
-          <p role="alert" className="text-destructive">
-            {reviewError(mutation.error, 'Penugasan gagal dibuat.')}
-          </p>
-        )}
-      </CardContent>
-    </Card>
-  )
-}
-
-function LegacyImport({
-  version,
-  slot,
-  csrf,
-  refresh,
-}: {
-  version: string
-  slot: 1 | 2
-  csrf: string
-  refresh: () => Promise<unknown>
-}) {
-  const [file, setFile] = useState<File>()
-  const inputId = `legacy-${version}-${slot}`
-  const mutation = useMutation({
-    mutationFn: (selectedFile: File) => migrateReview(version, slot, selectedFile, csrf),
-    onSuccess: refresh,
-  })
-  useReviewExpiry(mutation.error)
-  return (
-    <form
-      className="space-y-2"
-      onSubmit={(event) => {
-        event.preventDefault()
-        if (file) mutation.mutate(file)
-      }}
-    >
-      <label htmlFor={inputId} className="block text-sm">
-        CSV jawaban lama · Penilai {slot}
-      </label>
-      <div className="flex flex-wrap items-end gap-2">
-        <Input
-          id={inputId}
-          type="file"
-          accept=".csv,text/csv"
-          className="w-auto max-w-full"
-          onChange={(event) => {
-            mutation.reset()
-            setFile(event.target.files?.[0])
-          }}
-        />
-        <Button
-          type="submit"
-          variant="outline"
-          className="min-h-11"
-          disabled={!file || mutation.isPending}
-        >
-          Impor jawaban
-        </Button>
-      </div>
-      {mutation.isSuccess && (
-        <p role="status">
-          {mutation.data.inserted} dimigrasikan · {mutation.data.preserved} isian web dipertahankan
-          · {mutation.data.outside_rows} baris di luar sampel.
-        </p>
-      )}
-      {mutation.error && (
-        <p role="alert" className="text-destructive">
-          {reviewError(mutation.error, 'Jawaban lama gagal diimpor.')}
-        </p>
-      )}
-    </form>
-  )
-}
+import { getRelevanceAdmin, relevanceExportUrl } from '@/lib/api/relevance'
 
 export function RelevanceAdminPage() {
   const { data: session } = useSession()
@@ -233,33 +20,31 @@ export function RelevanceAdminPage() {
   const key = ['relevance-admin', session?.user?.id] as const
   const overview = useQuery({ queryKey: key, queryFn: getRelevanceAdmin, enabled: admin })
   useReviewExpiry(overview.error)
-  if (!admin || !session)
-    return (
-      <main className="py-8">
-        <h1 className="text-xl font-semibold">403 · Akses ditolak</h1>
-        <p>Kelola penilaian hanya tersedia untuk admin.</p>
-      </main>
-    )
+
+  if (!admin || !session) {
+    return <ForbiddenCard message="Kelola penilaian hanya tersedia untuk admin." />
+  }
+
   const refresh = () => client.invalidateQueries({ queryKey: key })
   return (
-    <main className="space-y-6 py-7 sm:py-9">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-          Kelola penilaian relevansi
-        </h1>
-      </header>
-      {overview.isPending && <Skeleton className="h-40" />}
+    <main className="space-y-6 py-5 sm:py-6">
+      <PageHeader
+        eyebrow="Evaluasi relevansi"
+        title="Kelola penilaian relevansi"
+        description="Siapkan penugasan penilai dan migrasi jawaban lama tanpa menimpa isian web."
+      />
+      {overview.isPending && (
+        <LoadingState label="Memuat data penugasan" rows={1} rowClassName="h-40 w-full" />
+      )}
       {overview.isError && (
-        <p role="alert" className="text-sm text-destructive">
-          {reviewError(overview.error, 'Daftar penugasan gagal dimuat.')}{' '}
-          <Button variant="outline" onClick={() => void overview.refetch()}>
-            Coba lagi
-          </Button>
-        </p>
+        <ErrorStateCard
+          title={reviewError(overview.error, 'Daftar penugasan gagal dimuat.')}
+          onRetry={() => void overview.refetch()}
+        />
       )}
       {overview.data && (
         <>
-          <Setup data={overview.data} csrf={session.csrf_token} refresh={refresh} />
+          <RelevanceSetupCard data={overview.data} csrf={session.csrf_token} refresh={refresh} />
           {overview.data.reviews.map((review) => {
             const exportReady = review.reviewers.every((person) => person.submitted_at)
             return (
@@ -276,15 +61,19 @@ export function RelevanceAdminPage() {
                   </p>
                   {review.reviewers.map((person) => (
                     <section key={person.slot} className="space-y-2 border-t pt-3">
-                      <h3 className="font-medium">
-                        Penilai {person.slot} · {person.username}
-                      </h3>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="font-medium">
+                          Penilai {person.slot} · {person.username}
+                        </h3>
+                        <Badge variant={person.submitted_at ? 'outline' : 'secondary'}>
+                          {person.submitted_at ? 'Sudah diserahkan' : 'Belum diserahkan'}
+                        </Badge>
+                      </div>
                       <p>
-                        {person.rated}/{person.total} dinilai ·{' '}
-                        {person.submitted_at ? 'Sudah diserahkan' : 'Belum diserahkan'}
+                        {person.rated}/{person.total} dinilai
                       </p>
                       {!person.submitted_at && (
-                        <LegacyImport
+                        <RelevanceLegacyImportForm
                           version={review.version}
                           slot={person.slot}
                           csrf={session.csrf_token}

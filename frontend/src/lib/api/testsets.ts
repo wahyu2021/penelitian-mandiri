@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { apiGet } from '@/lib/api/client'
 import { readResponse } from '@/lib/api/session'
 
 const summary = z.object({
@@ -28,6 +29,9 @@ const detail = summary.extend({
     }),
   ),
 })
+const summaryListResponseSchema = z.object({ data: z.array(summary) })
+const detailResponseSchema = z.object({ data: detail })
+const summaryResponseSchema = z.object({ data: summary })
 
 export type TestsetSummary = z.infer<typeof summary>
 export type TestsetDetail = z.infer<typeof detail>
@@ -38,14 +42,12 @@ const versionUrl = (version: string) => `${base}/${encodeURIComponent(version)}`
 
 export const testsetExportUrl = (version: string) => `${versionUrl(version)}/export`
 
-export async function getTestsets() {
-  const response = await fetch(base, requestOptions)
-  return z.object({ data: z.array(summary) }).parse(await readResponse(response)).data
+export function getTestsets() {
+  return apiGet(base, summaryListResponseSchema)
 }
 
-export async function getTestset(version: string) {
-  const response = await fetch(versionUrl(version), requestOptions)
-  return z.object({ data: detail }).parse(await readResponse(response)).data
+export function getTestset(version: string) {
+  return apiGet(versionUrl(version), detailResponseSchema)
 }
 
 export async function saveTestset(file: File, csrf: string, draft?: TestsetSummary) {
@@ -57,7 +59,7 @@ export async function saveTestset(file: File, csrf: string, draft?: TestsetSumma
     headers,
     body: file,
   })
-  return z.object({ data: summary }).parse(await readResponse(response)).data
+  return summaryResponseSchema.parse(await readResponse(response)).data
 }
 
 export async function lockTestset(draft: TestsetSummary, csrf: string) {
@@ -66,5 +68,5 @@ export async function lockTestset(draft: TestsetSummary, csrf: string) {
     method: 'POST',
     headers: { 'X-CSRF-Token': csrf, 'If-Match': `"${draft.content_sha256}"` },
   })
-  return z.object({ data: summary }).parse(await readResponse(response)).data
+  return summaryResponseSchema.parse(await readResponse(response)).data
 }

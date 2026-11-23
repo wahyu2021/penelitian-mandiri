@@ -1,10 +1,20 @@
 import { useState, type FormEvent } from 'react'
 import { RotateCcw, Search } from 'lucide-react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import type { SearchFilters } from '@/lib/api/search'
+
+const ALL_VALUE = '__all__'
 
 export type CompareFormValues = {
   q: string
@@ -52,9 +62,7 @@ export function CompareForm({
       <CardContent>
         <form onSubmit={submit} className="space-y-5">
           <div className="space-y-2">
-            <label htmlFor="compare-query" className="text-sm font-medium">
-              Kata kunci
-            </label>
+            <Label htmlFor="compare-query">Kata kunci</Label>
             <Input
               id="compare-query"
               type="search"
@@ -62,32 +70,30 @@ export function CompareForm({
               onChange={(event) => update('q', event.target.value)}
               maxLength={200}
               placeholder="Contoh: pembangunan jembatan"
-              className="h-10"
             />
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div className="space-y-2">
-              <label htmlFor="compare-opd" className="text-sm font-medium">
-                OPD
-              </label>
-              <NativeSelect
-                className="w-full"
-                id="compare-opd"
-                value={form.opd_id}
-                onChange={(event) => update('opd_id', event.target.value)}
+              <Label htmlFor="compare-opd">OPD</Label>
+              <Select
+                value={form.opd_id || ALL_VALUE}
+                onValueChange={(value) => update('opd_id', value === ALL_VALUE ? '' : value)}
               >
-                <NativeSelectOption value="">Semua OPD</NativeSelectOption>
-                {options?.opds.map((opd) => (
-                  <NativeSelectOption key={opd.id} value={String(opd.id)}>
-                    {opd.name}
-                  </NativeSelectOption>
-                ))}
-              </NativeSelect>
+                <SelectTrigger id="compare-opd" className="w-full">
+                  <SelectValue placeholder="Semua OPD" />
+                </SelectTrigger>
+                <SelectContent position="popper">
+                  <SelectItem value={ALL_VALUE}>Semua OPD</SelectItem>
+                  {options?.opds.map((opd) => (
+                    <SelectItem key={opd.id} value={String(opd.id)}>
+                      {opd.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
-              <label htmlFor="compare-year" className="text-sm font-medium">
-                Tahun
-              </label>
+              <Label htmlFor="compare-year">Tahun</Label>
               <Input
                 id="compare-year"
                 type="number"
@@ -96,50 +102,50 @@ export function CompareForm({
                 value={form.year}
                 onChange={(event) => update('year', event.target.value)}
                 placeholder="Semua tahun"
-                className="h-10"
               />
             </div>
             <div className="space-y-2">
-              <label htmlFor="compare-status" className="text-sm font-medium">
-                Status
-              </label>
-              <NativeSelect
-                className="w-full"
-                id="compare-status"
-                value={form.status}
-                onChange={(event) => update('status', event.target.value)}
+              <Label htmlFor="compare-status">Status</Label>
+              <Select
+                value={form.status || ALL_VALUE}
+                onValueChange={(value) => update('status', value === ALL_VALUE ? '' : value)}
               >
-                <NativeSelectOption value="">Semua status</NativeSelectOption>
-                <NativeSelectOption value="1">Aktif</NativeSelectOption>
-                <NativeSelectOption value="2">Nonaktif</NativeSelectOption>
-                <NativeSelectOption value="3">Lainnya</NativeSelectOption>
-              </NativeSelect>
+                <SelectTrigger id="compare-status" className="w-full">
+                  <SelectValue placeholder="Semua status" />
+                </SelectTrigger>
+                <SelectContent position="popper">
+                  <SelectItem value={ALL_VALUE}>Semua status</SelectItem>
+                  <SelectItem value="1">Aktif</SelectItem>
+                  <SelectItem value="2">Nonaktif</SelectItem>
+                  <SelectItem value="3">Lainnya</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
-              <label htmlFor="compare-limit" className="text-sm font-medium">
-                Hasil per metode
-              </label>
-              <NativeSelect
-                className="w-full"
-                id="compare-limit"
-                value={form.limit}
-                onChange={(event) => update('limit', event.target.value)}
-              >
-                {[5, 10, 20].map((limit) => (
-                  <NativeSelectOption key={limit} value={String(limit)}>
-                    {limit}
-                  </NativeSelectOption>
-                ))}
-              </NativeSelect>
+              <Label htmlFor="compare-limit">Hasil per metode</Label>
+              <Select value={form.limit} onValueChange={(value) => update('limit', value)}>
+                <SelectTrigger id="compare-limit" className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent position="popper">
+                  {[5, 10, 20].map((limit) => (
+                    <SelectItem key={limit} value={String(limit)}>
+                      {limit}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
           {optionsError && (
-            <p role="alert" className="text-sm text-destructive">
-              Pilihan OPD belum dapat dimuat.{' '}
-              <button type="button" className="underline" onClick={retryOptions}>
-                Coba lagi
-              </button>
-            </p>
+            <Alert variant="destructive">
+              <AlertDescription className="flex flex-wrap items-center gap-2">
+                <span>Pilihan OPD belum dapat dimuat.</span>
+                <button type="button" className="underline" onClick={retryOptions}>
+                  Coba lagi
+                </button>
+              </AlertDescription>
+            </Alert>
           )}
           <div className="flex flex-wrap gap-2">
             <Button type="submit">

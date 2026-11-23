@@ -87,7 +87,8 @@ it('mendaftarkan draf, menyaring kueri, lalu mengunci dengan hash yang ditinjau'
     file,
   )
   expect(screen.getByText('1 sintetis · 1 nyata (arsiparis)')).toBeInTheDocument()
-  await user.selectOptions(screen.getByLabelText('Asal kueri'), 'arsiparis')
+  await user.click(screen.getByRole('combobox', { name: 'Asal kueri' }))
+  await user.click(await screen.findByRole('option', { name: 'Nyata (arsiparis)' }))
   expect(screen.queryByText('Perbaikan jalan')).not.toBeInTheDocument()
   expect(screen.getByText('Pengadaan pipa')).toBeInTheDocument()
   const lock = screen.getByRole('button', { name: 'Kunci versi' })

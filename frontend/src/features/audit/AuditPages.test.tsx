@@ -103,7 +103,8 @@ describe('audit ekstraksi dan kamus SPM', () => {
     const fetchMock = setup('/app/extraction-audit')
     expect(await screen.findByText(/0 dari 5 sel dinilai/)).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: /Unduh CSV/ })).not.toBeInTheDocument()
-    await user.selectOptions(screen.getByLabelText('Penilaian Nomor SPM'), 'benar')
+    await user.click(screen.getByRole('combobox', { name: 'Penilaian Nomor SPM' }))
+    await user.click(await screen.findByRole('option', { name: 'Benar' }))
     await user.click(screen.getByRole('button', { name: 'Simpan Nomor SPM' }))
     expect(await screen.findByText(/1 dari 5 sel dinilai/)).toBeInTheDocument()
     const patch = fetchMock.mock.calls.find(

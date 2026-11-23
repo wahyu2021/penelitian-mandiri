@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { readResponse } from '@/lib/api/session'
+import { apiGet, apiMutate } from '@/lib/api/client'
 
 export const fields = ['spm', 'sp2d', 'date', 'amount', 'party'] as const
 export type AuditField = (typeof fields)[number]
@@ -67,17 +67,14 @@ const spmTypeSchema = z.object({
   archive_count: z.number(),
 })
 const spmTypesSchema = z.object({ data: z.array(spmTypeSchema) })
+const voidResponseSchema = z.object({ data: z.unknown() })
 
 export type AuditState = z.infer<typeof stateSchema>['data']
 export type Reviewer = z.infer<typeof reviewerSchema>
 export type SpmType = z.infer<typeof spmTypeSchema>
 
-export async function getAuditState(index: number): Promise<AuditState> {
-  const response = await fetch(`/api/v1/extraction-audit?index=${index}`, {
-    credentials: 'same-origin',
-    cache: 'no-store',
-  })
-  return stateSchema.parse(await readResponse(response)).data
+export function getAuditState(index: number): Promise<AuditState> {
+  return apiGet(`/api/v1/extraction-audit?index=${index}`, stateSchema)
 }
 
 export async function saveAuditField(
@@ -88,22 +85,19 @@ export async function saveAuditField(
   fingerprint: string,
   csrfToken: string,
 ): Promise<void> {
-  const response = await fetch(`/api/v1/extraction-audit/${archiveId}/fields/${field}`, {
-    method: 'PATCH',
-    credentials: 'same-origin',
-    cache: 'no-store',
-    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
-    body: JSON.stringify({ verdict, note, fingerprint }),
-  })
-  await readResponse(response)
+  await apiMutate(
+    `/api/v1/extraction-audit/${archiveId}/fields/${field}`,
+    'PATCH',
+    voidResponseSchema,
+    {
+      csrfToken,
+      body: { verdict, note, fingerprint },
+    },
+  )
 }
 
-export async function getAuditReviewers(): Promise<Reviewer[]> {
-  const response = await fetch('/api/v1/extraction-audit/reviewers', {
-    credentials: 'same-origin',
-    cache: 'no-store',
-  })
-  return reviewersSchema.parse(await readResponse(response)).data
+export function getAuditReviewers(): Promise<Reviewer[]> {
+  return apiGet('/api/v1/extraction-audit/reviewers', reviewersSchema)
 }
 
 export async function setAuditReviewer(
@@ -111,21 +105,16 @@ export async function setAuditReviewer(
   assigned: boolean,
   csrfToken: string,
 ): Promise<void> {
-  const response = await fetch(`/api/v1/extraction-audit/reviewers/${id}`, {
-    method: assigned ? 'PUT' : 'DELETE',
-    credentials: 'same-origin',
-    cache: 'no-store',
-    headers: { 'X-CSRF-Token': csrfToken },
-  })
-  await readResponse(response)
+  await apiMutate(
+    `/api/v1/extraction-audit/reviewers/${id}`,
+    assigned ? 'PUT' : 'DELETE',
+    voidResponseSchema,
+    { csrfToken },
+  )
 }
 
-export async function getSpmTypes(): Promise<SpmType[]> {
-  const response = await fetch('/api/v1/spm-types', {
-    credentials: 'same-origin',
-    cache: 'no-store',
-  })
-  return spmTypesSchema.parse(await readResponse(response)).data
+export function getSpmTypes(): Promise<SpmType[]> {
+  return apiGet('/api/v1/spm-types', spmTypesSchema)
 }
 
 export async function confirmSpmType(
@@ -134,12 +123,13 @@ export async function confirmSpmType(
   sourceNote: string,
   csrfToken: string,
 ): Promise<void> {
-  const response = await fetch(`/api/v1/spm-types/${encodeURIComponent(code)}/confirm`, {
-    method: 'POST',
-    credentials: 'same-origin',
-    cache: 'no-store',
-    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
-    body: JSON.stringify({ label, source_note: sourceNote }),
-  })
-  await readResponse(response)
+  await apiMutate(
+    `/api/v1/spm-types/${encodeURIComponent(code)}/confirm`,
+    'POST',
+    voidResponseSchema,
+    {
+      csrfToken,
+      body: { label, source_note: sourceNote },
+    },
+  )
 }

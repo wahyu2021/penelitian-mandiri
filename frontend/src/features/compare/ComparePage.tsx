@@ -1,13 +1,15 @@
-import { useEffect } from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { RefreshCw } from 'lucide-react'
-import { useNavigate, useSearchParams } from 'react-router'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useQuery } from '@tanstack/react-query'
+import { useSearchParams } from 'react-router'
+import { ErrorStateCard } from '@/components/shared/ErrorStateCard'
+import { ForbiddenCard } from '@/components/shared/ForbiddenCard'
+import { PageHeader } from '@/components/shared/PageHeader'
+import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { sessionKey, useSession } from '@/features/auth/useSession'
+import { useSession } from '@/features/auth/useSession'
 import { CompareForm, type CompareFormValues } from '@/features/compare/CompareForm'
-import { getComparison, type CompareResults } from '@/lib/api/compare'
+import { ComparisonResults } from '@/features/compare/ComparisonResults'
+import { useUnauthorizedRedirect } from '@/hooks/useUnauthorizedRedirect'
+import { getComparison } from '@/lib/api/compare'
 import { getSearchFilters } from '@/lib/api/search'
 import { ApiError } from '@/lib/api/session'
 
@@ -46,19 +48,8 @@ export function ComparePage() {
     queryFn: () => getComparison(request),
     enabled: isAdmin && Boolean(submittedQuery),
   })
-  const queryClient = useQueryClient()
-  const navigate = useNavigate()
 
-  useEffect(() => {
-    if (
-      [options.error, comparison.error].some(
-        (error) => error instanceof ApiError && error.status === 401,
-      )
-    ) {
-      queryClient.removeQueries({ queryKey: sessionKey })
-      navigate('/login', { replace: true })
-    }
-  }, [options.error, comparison.error, queryClient, navigate])
+  useUnauthorizedRedirect([options.error, comparison.error])
 
   function submit(form: CompareFormValues) {
     const next = new URLSearchParams()
@@ -72,31 +63,16 @@ export function ComparePage() {
   }
 
   if (!isAdmin) {
-    return (
-      <main className="py-8 sm:py-10">
-        <Card role="alert">
-          <CardContent>
-            <h1 className="text-xl font-semibold">403 · Akses ditolak</h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Perbandingan metode hanya tersedia untuk admin.
-            </p>
-          </CardContent>
-        </Card>
-      </main>
-    )
+    return <ForbiddenCard message="Perbandingan metode hanya tersedia untuk admin." />
   }
 
   return (
-    <main className="space-y-6 py-8 sm:py-10">
-      <header>
-        <p className="text-sm font-medium text-muted-foreground">Analisis pencarian</p>
-        <h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">
-          Perbandingan metode
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Bandingkan urutan arsip untuk kueri dan filter yang sama.
-        </p>
-      </header>
+    <main className="space-y-6 py-5 sm:py-6">
+      <PageHeader
+        eyebrow="Analisis pencarian"
+        title="Perbandingan metode"
+        description="Bandingkan urutan arsip untuk kueri dan filter yang sama."
+      />
       <CompareForm
         key={urlParams.toString()}
         initial={valuesFromUrl(urlParams)}
@@ -124,96 +100,15 @@ export function ComparePage() {
             </CardContent>
           </Card>
         ) : (
-          <Card role="alert">
-            <CardContent className="space-y-3">
-              <p className="font-medium">Perbandingan belum dapat ditampilkan.</p>
-              <p className="text-sm text-muted-foreground">
-                Periksa kueri, filter, dan sambungan layanan lalu coba lagi.
-              </p>
-              <Button variant="outline" onClick={() => void comparison.refetch()}>
-                <RefreshCw aria-hidden="true" /> Coba lagi
-              </Button>
-            </CardContent>
-          </Card>
+          <ErrorStateCard
+            title="Perbandingan belum dapat ditampilkan."
+            description="Periksa kueri, filter, dan sambungan layanan lalu coba lagi."
+            onRetry={() => void comparison.refetch()}
+          />
         )
       ) : (
         <ComparisonResults data={comparison.data} />
       )}
     </main>
-  )
-}
-
-function ComparisonResults({ data }: { data: CompareResults }) {
-  return (
-    <section aria-labelledby="comparison-title" className="space-y-4">
-      <div>
-        <h2 id="comparison-title" className="text-lg font-semibold">
-          Hasil per metode
-        </h2>
-        <p className="text-sm text-muted-foreground">
-          Kueri: “{data.query}” · Maksimal {data.limit} arsip per metode
-        </p>
-      </div>
-      <p className="rounded-md border border-border bg-muted/50 px-4 py-3 text-sm leading-6">
-        {data.score_note} Bandingkan urutan dan arsip yang ditemukan, bukan nilai skor lintas
-        metode.
-      </p>
-      <div className="grid items-start gap-4 lg:grid-cols-2">
-        {data.methods.map((method) => (
-          <Card key={method.name}>
-            <CardHeader className="border-b border-border">
-              <CardTitle>
-                <h3>{method.label}</h3>
-              </CardTitle>
-              <p className="text-xs text-muted-foreground">
-                {method.items.length} hasil dalam daftar metode ini
-              </p>
-            </CardHeader>
-            <CardContent>
-              {method.items.length === 0 ? (
-                <p className="py-3 text-sm text-muted-foreground">
-                  Tidak ada arsip yang cocok untuk metode ini.
-                </p>
-              ) : (
-                <table className="w-full table-fixed text-left text-sm">
-                  <caption className="sr-only">Urutan hasil {method.label}</caption>
-                  <thead className="text-xs text-muted-foreground">
-                    <tr>
-                      <th scope="col" className="w-10 py-2 font-medium">
-                        No.
-                      </th>
-                      <th scope="col" className="py-2 font-medium">
-                        Arsip dan ringkasan
-                      </th>
-                      <th scope="col" className="w-20 py-2 text-right font-medium">
-                        {method.name === 'like' ? 'Status' : 'Skor'}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {method.items.map((item, index) => (
-                      <tr key={item.id}>
-                        <td className="py-3 align-top tabular-nums text-muted-foreground">
-                          {index + 1}
-                        </td>
-                        <td className="min-w-0 break-words py-3 pr-2 align-top">
-                          <span className="font-medium">#{item.id}</span>
-                          <span className="mt-1 block text-xs leading-5 text-muted-foreground">
-                            {item.summary_raw || 'Ringkasan tidak tersedia'}
-                          </span>
-                        </td>
-                        <td className="py-3 text-right align-top tabular-nums">
-                          {method.name === 'like' ? 'Cocok' : item.score.toFixed(3)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </section>
   )
 }

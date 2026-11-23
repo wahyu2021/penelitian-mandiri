@@ -91,12 +91,14 @@ describe('perbandingan metode React', () => {
     expect(
       await screen.findByText('Masukkan kata kunci untuk membandingkan metode.'),
     ).toBeInTheDocument()
-    await screen.findByRole('option', { name: 'Dinas PU' })
     await user.type(screen.getByLabelText('Kata kunci'), 'jembatan')
-    await user.selectOptions(screen.getByLabelText('OPD'), '1')
+    await user.click(screen.getByRole('combobox', { name: 'OPD' }))
+    await user.click(await screen.findByRole('option', { name: 'Dinas PU' }))
     await user.type(screen.getByLabelText('Tahun'), '2020')
-    await user.selectOptions(screen.getByLabelText('Status'), '1')
-    await user.selectOptions(screen.getByLabelText('Hasil per metode'), '5')
+    await user.click(screen.getByRole('combobox', { name: 'Status' }))
+    await user.click(await screen.findByRole('option', { name: 'Aktif' }))
+    await user.click(screen.getByRole('combobox', { name: 'Hasil per metode' }))
+    await user.click(await screen.findByRole('option', { name: '5' }))
     await user.click(screen.getByRole('button', { name: 'Bandingkan' }))
     expect(await screen.findByRole('heading', { name: 'Hasil per metode' })).toBeInTheDocument()
     expect(Object.fromEntries(new URLSearchParams(window.location.search))).toEqual({

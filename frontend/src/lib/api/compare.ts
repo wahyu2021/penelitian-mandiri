@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { readResponse } from '@/lib/api/session'
+import { apiGet } from '@/lib/api/client'
 
 const compareSchema = z.object({
   data: z.object({
@@ -29,10 +29,6 @@ const compareSchema = z.object({
 
 export type CompareResults = z.infer<typeof compareSchema>['data']
 
-export async function getComparison(params: string): Promise<CompareResults> {
-  const response = await fetch(`/api/v1/search/compare?${params}`, {
-    credentials: 'same-origin',
-    cache: 'no-store',
-  })
-  return compareSchema.parse(await readResponse(response)).data
+export function getComparison(params: string): Promise<CompareResults> {
+  return apiGet(`/api/v1/search/compare?${params}`, compareSchema)
 }
