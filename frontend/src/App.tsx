@@ -1,6 +1,8 @@
+import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router'
 import { AppProviders } from '@/app/providers'
 import { AppShell } from '@/components/shared/AppShell'
+import { LoadingState } from '@/components/shared/LoadingState'
 import { ProtectedRoute, RootRedirect } from '@/features/auth/AuthRoutes'
 import { LoginPage } from '@/features/auth/LoginPage'
 import { DashboardPage } from '@/features/dashboard/DashboardPage'
@@ -18,6 +20,12 @@ import { ResearchOverviewPage } from '@/features/research/ResearchOverviewPage'
 import { SearchPage } from '@/features/search/SearchPage'
 import { StatusPage } from '@/features/status/StatusPage'
 import { NotFoundPage } from '@/features/status/NotFoundPage'
+
+const EvaluationPage = lazy(() =>
+  import('@/features/evaluation/EvaluationPage').then((module) => ({
+    default: module.EvaluationPage,
+  })),
+)
 
 function ResearchRedirect({ to }: { to: string }) {
   const { search } = useLocation()
@@ -40,6 +48,22 @@ export default function App() {
             <Route path="relevance" element={<RelevancePage />} />
             <Route path="relevance-admin" element={<RelevanceAdminPage />} />
             <Route path="agreement" element={<AgreementPage />} />
+            <Route
+              path="evaluation"
+              element={
+                <Suspense
+                  fallback={
+                    <LoadingState
+                      label="Memuat halaman evaluasi"
+                      rows={2}
+                      rowClassName="h-44 w-full"
+                    />
+                  }
+                >
+                  <EvaluationPage />
+                </Suspense>
+              }
+            />
           </Route>
           <Route path="/app" element={<AppShell />}>
             <Route index element={<Navigate to="dashboard" replace />} />

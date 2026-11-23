@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import {
   ArrowRight,
+  BarChart3,
   BookOpen,
   ClipboardCheck,
   ClipboardList,
@@ -58,12 +59,14 @@ const WORKFLOW_STEPS = [
   },
   {
     step: 'Langkah 4',
-    title: 'Demo perbandingan 5 metode',
+    title: 'Hasil evaluasi & demo perbandingan',
     description:
-      'Bandingkan hasil SQL LIKE, TF-IDF, BM25, Levenshtein, dan Hybrid secara berdampingan untuk satu kueri.',
-    to: '/app/research/compare',
-    cta: 'Buka perbandingan',
-    icon: Columns2,
+      'Lihat grafik dan metrik resmi per metode dari bundle run, atau uji langsung 5 metode pada satu kueri.',
+    to: '/app/research/evaluation',
+    secondaryTo: '/app/research/compare',
+    cta: 'Hasil evaluasi',
+    secondaryCta: 'Demo perbandingan',
+    icon: BarChart3,
   },
 ] as const
 

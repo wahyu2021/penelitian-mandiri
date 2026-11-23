@@ -38,6 +38,9 @@ def create_app(test_config=None):
         AUDIT_MANIFEST=Path(os.environ.get(
             "PM_AUDIT_MANIFEST", str(PROJECT_ROOT / "output" / "audit_strata_summary.json")
         )),
+        EVALUATION_BUNDLE_DIR=Path(os.environ.get(
+            "PM_EVALUATION_BUNDLE_DIR", str(PROJECT_ROOT / "output" / "colab_bundle")
+        )),
     )
     if test_config:
         app.config.update(test_config)

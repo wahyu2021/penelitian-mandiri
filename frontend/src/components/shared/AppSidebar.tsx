@@ -1,5 +1,6 @@
 import {
   Archive,
+  BarChart3,
   BookOpen,
   ClipboardCheck,
   ClipboardList,
@@ -56,6 +57,7 @@ const researchGroups: SidebarGroup[] = [
     items: [
       { path: '', label: 'Ringkasan', icon: FlaskConical },
       { path: 'compare', label: 'Perbandingan', icon: Columns2, adminOnly: true },
+      { path: 'evaluation', label: 'Hasil evaluasi', icon: BarChart3, adminOnly: true },
       { path: 'agreement', label: 'Kesepakatan', icon: Scale, adminOnly: true },
     ],
   },
