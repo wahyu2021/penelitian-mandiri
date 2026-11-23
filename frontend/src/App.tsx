@@ -13,6 +13,7 @@ import { SpmTypesPage } from '@/features/audit/SpmTypesPage'
 import { TestsetsPage } from '@/features/testsets/TestsetsPage'
 import { RelevancePage } from '@/features/relevance/RelevancePage'
 import { RelevanceAdminPage } from '@/features/relevance/RelevanceAdminPage'
+import { AgreementPage } from '@/features/agreement/AgreementPage'
 import { SearchPage } from '@/features/search/SearchPage'
 import { StatusPage } from '@/features/status/StatusPage'
 import { NotFoundPage } from '@/features/status/NotFoundPage'
@@ -37,6 +38,7 @@ export default function App() {
             <Route path="testsets" element={<TestsetsPage />} />
             <Route path="relevance" element={<RelevancePage />} />
             <Route path="relevance-admin" element={<RelevanceAdminPage />} />
+            <Route path="agreement" element={<AgreementPage />} />
           </Route>
           <Route path="/app" element={<AppShell />}>
             <Route index element={<Navigate to="dashboard" replace />} />

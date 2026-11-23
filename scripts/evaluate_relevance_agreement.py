@@ -3,7 +3,6 @@ import argparse
 import csv
 import json
 import sys
-from collections import defaultdict
 from pathlib import Path
 from typing import Dict, List
 
@@ -11,7 +10,7 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
-from core.evaluation.audit_metrics import calculate_percentage_agreement
+from core.evaluation.agreement import binary_agreement_summary
 
 DEFAULT_MAIN_CSV = Path("output/relevance_pool.csv")
 DEFAULT_VERIF_CSV = Path("output/relevance_verification_sample.csv")
@@ -50,8 +49,7 @@ def evaluate_relevance_agreement(
 
     ratings_researcher: List[str] = []
     ratings_archivist: List[str] = []
-    by_type_researcher: Dict[str, List[str]] = defaultdict(list)
-    by_type_archivist: Dict[str, List[str]] = defaultdict(list)
+    query_types_list: List[str] = []
 
     seen_verification = set()
     for idx, r in enumerate(verif_rows, start=1):
@@ -80,55 +78,38 @@ def evaluate_relevance_agreement(
 
         ratings_researcher.append(val_res)
         ratings_archivist.append(val_arch)
-        by_type_researcher[q_type].append(val_res)
-        by_type_archivist[q_type].append(val_arch)
+        query_types_list.append(q_type)
 
-    overall_agreement = calculate_percentage_agreement(ratings_researcher, ratings_archivist)
-    both_relevant = sum(a == b == "1" for a, b in zip(ratings_researcher, ratings_archivist))
-    researcher_only = sum(a == "1" and b == "0" for a, b in zip(ratings_researcher, ratings_archivist))
-    archivist_only = sum(a == "0" and b == "1" for a, b in zip(ratings_researcher, ratings_archivist))
-    both_irrelevant = len(ratings_researcher) - both_relevant - researcher_only - archivist_only
-    n = len(ratings_researcher)
-    positive_denominator = 2 * both_relevant + researcher_only + archivist_only
-    relevant_class_agreement = (
-        2 * both_relevant / positive_denominator if positive_denominator else None
+    summary = binary_agreement_summary(
+        list(zip(ratings_researcher, ratings_archivist)),
+        n_expected=len(ratings_researcher),
+        query_types=query_types_list,
     )
-    expected_agreement = (
-        (both_relevant + researcher_only) * (both_relevant + archivist_only)
-        + (both_irrelevant + archivist_only) * (both_irrelevant + researcher_only)
-    ) / (n * n)
-    cohen_kappa = (
-        (overall_agreement - expected_agreement) / (1 - expected_agreement)
-        if expected_agreement < 1 else None
+    matrix = summary["confusion_matrix"]
+    notes = (
+        "Kappa tidak terdefinisi karena kedua penilai hanya memakai satu kelas."
+        if summary["cohen_kappa"] is None
+        else "Dihitung dari penilaian biner 0/1 pada pasangan kueri-arsip yang sama."
     )
-
-    agreement_by_type = {}
-    for q_type, r_list in by_type_researcher.items():
-        a_list = by_type_archivist[q_type]
-        agreement_by_type[q_type] = {
-            "n_samples": len(r_list),
-            "agreement": calculate_percentage_agreement(r_list, a_list),
-        }
 
     return {
-        "status": "complete" if cohen_kappa is not None else "complete_kappa_undefined",
-        "n_samples": n,
-        "n_verification_samples": n,
-        "percentage_agreement": overall_agreement,
-        "overall_percentage_agreement": overall_agreement,
-        "relevant_class_agreement": relevant_class_agreement,
-        "cohen_kappa": cohen_kappa,
+        "status": summary["status"],
+        "n_samples": summary["n_paired"],
+        "n_verification_samples": summary["n_paired"],
+        "n_agreed": summary["n_agreed"],
+        "percentage_agreement": summary["percentage_agreement"],
+        "overall_percentage_agreement": summary["percentage_agreement"],
+        "relevant_class_agreement": summary["relevant_class_agreement"],
+        "cohen_kappa": summary["cohen_kappa"],
         "confusion_matrix": {
-            "both_relevant": both_relevant,
-            "researcher_only_relevant": researcher_only,
-            "archivist_only_relevant": archivist_only,
-            "both_irrelevant": both_irrelevant,
+            "both_relevant": matrix["both_relevant"],
+            "researcher_only_relevant": matrix["rater1_only_relevant"],
+            "archivist_only_relevant": matrix["rater2_only_relevant"],
+            "both_irrelevant": matrix["both_irrelevant"],
         },
-        "notes": (
-            "Kappa tidak terdefinisi karena kedua penilai hanya memakai satu kelas."
-            if cohen_kappa is None else "Dihitung dari penilaian biner 0/1 pada pasangan kueri-arsip yang sama."
-        ),
-        "agreement_by_query_type": agreement_by_type,
+        "notes": notes,
+        "limitations": summary["limitations"],
+        "agreement_by_query_type": summary["agreement_by_query_type"],
     }
 
 

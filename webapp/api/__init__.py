@@ -44,4 +44,5 @@ from webapp.api import imports as _imports  # noqa: E402,F401
 from webapp.api import extraction_audit as _extraction_audit  # noqa: E402,F401
 from webapp.api import testsets as _testsets  # noqa: E402,F401
 from webapp.api import relevance_reviews as _relevance_reviews  # noqa: E402,F401
+from webapp.api import agreement as _agreement  # noqa: E402,F401
 from webapp.api import admin_users as _admin_users  # noqa: E402,F401
