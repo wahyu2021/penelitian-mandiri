@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { Download } from 'lucide-react'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { ErrorStateCard } from '@/components/shared/ErrorStateCard'
@@ -28,6 +28,7 @@ export function EvaluationPage() {
   const { data: session } = useSession()
   const isAdmin = session?.user?.role === 'admin'
   const [split, setSplit] = useState<EvaluationSplit>('test')
+  const [activeTab, setActiveTab] = useState('overview')
   const [filters, setFilters] = useState<PerQueryFilters>({})
   const [page, setPage] = useState(1)
   const [perPage, setPerPage] = useState(25)
@@ -53,6 +54,7 @@ export function EvaluationPage() {
         page,
         perPage,
       }),
+    placeholderData: keepPreviousData,
     enabled: isAdmin,
   })
 
@@ -162,7 +164,7 @@ export function EvaluationPage() {
 
           <EvaluationKpiStrip items={run.method_summary} />
 
-          <Tabs defaultValue="overview" className="space-y-4">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
             <TabsList className="h-auto w-full flex-wrap justify-start gap-1">
               <TabsTrigger value="overview" className="flex-none px-3 py-1.5">
                 Ringkasan &amp; Grafik

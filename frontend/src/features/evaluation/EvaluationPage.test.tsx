@@ -175,6 +175,11 @@ it('menampilkan KPI, tab, tabel alternatif grafik, pindah split, dan ekspor untu
   await user.click(screen.getByRole('combobox', { name: 'Baris per halaman' }))
   await user.click(await screen.findByRole('option', { name: '50' }))
   expect(fetchMock.mock.calls.some(([url]) => String(url).includes('per_page=50'))).toBe(true)
+  expect(screen.getByRole('tab', { name: /Rincian per Kueri/i })).toHaveAttribute(
+    'aria-selected',
+    'true',
+  )
+  expect(await screen.findByText('Q001')).toBeInTheDocument()
 
   await user.click(screen.getByRole('tab', { name: /Bukti & Integritas/i }))
   expect(await screen.findByText('Commit Git')).toBeInTheDocument()
