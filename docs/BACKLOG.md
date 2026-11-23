@@ -373,7 +373,7 @@ tampilan atau klaim dokumen saja.
   tiket bug, dan pastikan naskah hanya memakai hasil nyata.
 - **Commit:** `docs(research): catat metode dan bukti uji petugas [PM-22]`
   hanya untuk ringkasan yang boleh masuk Git; data mentah tetap di luar Git.
-- **Jejak:** Status: belum dimulai | Uji: — | Commit: — | Catatan: —
+- **Jejak:** Status: sedang berjalan — instrumen siap (23 November 2026) | Uji: contoh hitung tangan SUS (100/0/50/82,5), penolakan input tidak sah, ringkasan kosong vs multi-peserta, ringkasan UAT, deteksi selisih peserta UAT/SUS, dan pembuatan template CSV (`tests/test_sus_uat.py`); `python -m pytest -q` 271 lulus, 5 dilewati | Commit: — | Catatan: instrumen tugas `T01`–`T07` & `A01`–`A04` (`docs/instrumen_uat_sus.md`), kalkulator (`core/evaluation/sus.py`), dan skrip (`scripts/evaluate_uat_sus.py`) telah siap; menunggu pelaksanaan sesi petugas aktual dan pengisian berkas CSV di luar Git.
 
 ### PM-23 — Tinjauan kualitas metadata
 
