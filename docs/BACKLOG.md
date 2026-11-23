@@ -287,7 +287,7 @@ tampilan atau klaim dokumen saja.
   frontend Dashboard/Pencarian/Detail, cek desktop/tablet/ponsel,
   lint/tipe/build.
 - **Commit:** `feat(app): matangkan pencarian fuzzy dan dashboard petugas [PM-27]`.
-- **Jejak:** Status: belum dimulai | Uji: — | Commit: — | Catatan: fokus pengalaman pengguna operasional sebelum UAT/SUS.
+- **Jejak:** Status: selesai (23 November 2026) | Uji: `npm run lint`, `npm run typecheck`, `npm test` (38 uji frontend pada 10 berkas lulus), `npm run format:check`, `npm run build` lulus; `python -m pytest -q` 246 lulus, 5 dilewati | Commit: `ef5ab45` | Catatan: pencarian operasional memakai `levenshtein` sebagai bawaan server atau nilai `app_setting.default_search_method`, dropdown pemilih algoritma dihapus dari `/app/search`, Dashboard menampilkan pencarian cepat, info impor terakhir, dan tautan langsung ke detail arsip, serta Detail Arsip menonjolkan status, berkas digital, dan grid lokasi fisik.
 
 ### PM-21 — Administrasi akun dan log aktivitas
 
