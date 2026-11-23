@@ -1,6 +1,6 @@
 import { Navigate, Route, Routes, useLocation } from 'react-router'
 import { AppProviders } from '@/app/providers'
-import { AppShell } from '@/features/auth/AppShell'
+import { AppShell } from '@/components/shared/AppShell'
 import { ProtectedRoute, RootRedirect } from '@/features/auth/AuthRoutes'
 import { LoginPage } from '@/features/auth/LoginPage'
 import { DashboardPage } from '@/features/dashboard/DashboardPage'

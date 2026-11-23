@@ -1,16 +1,16 @@
 import { useQuery } from '@tanstack/react-query'
-import { ArrowLeft, FileText, Info, MapPin } from 'lucide-react'
+import { ArrowLeft, FileText } from 'lucide-react'
 import { Link, useLocation, useParams } from 'react-router'
-import { ErrorStateCard } from '@/components/shared/PageLayout'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { ErrorStateCard } from '@/components/shared/ErrorStateCard'
+import { LoadingState } from '@/components/shared/LoadingState'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
+import { ArchiveLocationCard } from '@/features/archives/ArchiveLocationCard'
+import { ArchiveMetadataCard } from '@/features/archives/ArchiveMetadataCard'
 import { useUnauthorizedRedirect } from '@/hooks/useUnauthorizedRedirect'
 import { getArchiveDetail, type ArchiveDetail } from '@/lib/api/archives'
 import { ApiError } from '@/lib/api/session'
-import { formatCurrencyIdr } from '@/lib/format'
 
 const statusLabels: Record<number, string> = { 1: 'Aktif', 2: 'Nonaktif', 3: 'Lainnya' }
 const searchKeys = ['q', 'opd_id', 'year', 'status', 'method', 'limit', 'offset'] as const
@@ -19,7 +19,7 @@ function display(value: string | number | null) {
   return value === null || value === '' ? 'Tidak tersedia' : String(value)
 }
 
-function Fact({ label, value }: { label: string; value: string | number | null }) {
+function ArchiveInfoRow({ label, value }: { label: string; value: string | number | null }) {
   return (
     <div className="grid gap-1 border-t border-border py-3 first:border-t-0 sm:grid-cols-[11rem_minmax(0,1fr)] sm:gap-4">
       <dt className="text-sm text-muted-foreground">{label}</dt>
@@ -80,15 +80,12 @@ export function ArchiveDetailPage() {
       </div>
 
       {id === null ? (
-        <Message text="ID arsip pada alamat tidak valid." />
+        <InvalidArchiveCard text="ID arsip pada alamat tidak valid." />
       ) : query.isPending ? (
-        <div role="status" aria-label="Memuat detail arsip" className="space-y-4">
-          <Skeleton className="h-32 w-full" />
-          <Skeleton className="h-48 w-full" />
-        </div>
+        <LoadingState label="Memuat detail arsip" rows={2} rowClassName="h-36 w-full" />
       ) : query.isError ? (
         query.error instanceof ApiError && query.error.status === 404 ? (
-          <Message text="Arsip ini tidak ditemukan dalam salinan data." />
+          <InvalidArchiveCard text="Arsip ini tidak ditemukan dalam salinan data." />
         ) : (
           <ErrorStateCard
             title="Detail arsip belum dapat dimuat."
@@ -103,7 +100,7 @@ export function ArchiveDetailPage() {
   )
 }
 
-function Message({ text }: { text: string }) {
+function InvalidArchiveCard({ text }: { text: string }) {
   return (
     <Card>
       <CardContent>
@@ -115,17 +112,7 @@ function Message({ text }: { text: string }) {
   )
 }
 
-function LocationCell({ label, value }: { label: string; value: string | null }) {
-  return (
-    <div className="rounded-lg border border-border bg-stone-50/70 px-3 py-2.5">
-      <dt className="text-xs text-muted-foreground">{label}</dt>
-      <dd className="mt-1 break-words text-sm font-semibold">{display(value)}</dd>
-    </div>
-  )
-}
-
 function ArchiveContent({ archive }: { archive: ArchiveDetail }) {
-  const type = archive.extraction.spm_type
   return (
     <div className="grid items-start gap-4 lg:grid-cols-2">
       <div className="space-y-4">
@@ -143,26 +130,7 @@ function ArchiveContent({ archive }: { archive: ArchiveDetail }) {
             </p>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              <h2 className="flex items-center gap-2">
-                <MapPin aria-hidden="true" className="size-4" /> Lokasi fisik
-              </h2>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <LocationCell label="Blok" value={archive.location.block} />
-              <LocationCell label="Rak" value={archive.location.rack} />
-              <LocationCell label="Baris" value={archive.location.row} />
-              <LocationCell label="Nomor boks" value={archive.location.box_number} />
-            </dl>
-            <p className="mt-3 text-xs text-muted-foreground">
-              Lokasi mengikuti data yang tersedia pada salinan arsip.
-            </p>
-          </CardContent>
-        </Card>
+        <ArchiveLocationCard location={archive.location} />
         <Card>
           <CardHeader>
             <CardTitle>
@@ -171,60 +139,24 @@ function ArchiveContent({ archive }: { archive: ArchiveDetail }) {
           </CardHeader>
           <CardContent>
             <dl>
-              <Fact
+              <ArchiveInfoRow
                 label="Status"
                 value={statusLabels[archive.status] ?? `Kode ${archive.status}`}
               />
-              <Fact label="OPD" value={archive.opd_name} />
-              <Fact label="Tahun" value={archive.year} />
-              <Fact label="Klasifikasi" value={archive.classification_label} />
-              <Fact label="Nomor berkas" value={archive.file_number} />
-              <Fact label="Indeks" value={archive.index_label} />
-              <Fact label="Berkas digital" value={archive.has_document ? 'Ada' : 'Tidak ada'} />
+              <ArchiveInfoRow label="OPD" value={archive.opd_name} />
+              <ArchiveInfoRow label="Tahun" value={archive.year} />
+              <ArchiveInfoRow label="Klasifikasi" value={archive.classification_label} />
+              <ArchiveInfoRow label="Nomor berkas" value={archive.file_number} />
+              <ArchiveInfoRow label="Indeks" value={archive.index_label} />
+              <ArchiveInfoRow
+                label="Berkas digital"
+                value={archive.has_document ? 'Ada' : 'Tidak ada'}
+              />
             </dl>
           </CardContent>
         </Card>
       </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            <h2>Metadata hasil ekstraksi</h2>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <dl>
-            <Fact label="Nomor SPM" value={archive.extraction.spm_number} />
-            <Fact
-              label="Jenis SPM"
-              value={type ? `${type.code}${type.label ? ` · ${type.label}` : ''}` : null}
-            />
-            <Fact label="Status jenis SPM" value={type?.confidence ?? null} />
-            <Fact label="Nomor SP2D" value={archive.extraction.sp2d_number} />
-            <Fact label="Tanggal dokumen" value={archive.extraction.document_date} />
-            <Fact
-              label="Nominal"
-              value={
-                archive.extraction.amount_rp === null
-                  ? null
-                  : formatCurrencyIdr(archive.extraction.amount_rp)
-              }
-            />
-            <Fact label="Pihak" value={archive.extraction.party_name} />
-          </dl>
-          {type?.confidence === 'dugaan' && (
-            <Alert role="note" className="mt-3 border-amber-200 bg-amber-50 text-amber-950">
-              <AlertDescription className="text-amber-950">
-                Jenis SPM masih dugaan. Cocokkan dengan ringkasan asli.
-              </AlertDescription>
-            </Alert>
-          )}
-          <p className="mt-4 flex items-start gap-2 text-xs leading-5 text-muted-foreground">
-            <Info aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
-            Nilai ini dibuat oleh ekstraktor. Bandingkan dengan ringkasan asli sebelum dipakai
-            sebagai bukti.
-          </p>
-        </CardContent>
-      </Card>
+      <ArchiveMetadataCard extraction={archive.extraction} />
     </div>
   )
 }

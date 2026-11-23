@@ -1,13 +1,13 @@
 import { useState, type FormEvent } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { KeyRound, ShieldCheck, Users } from 'lucide-react'
-import { ErrorStateCard } from '@/components/shared/PageLayout'
+import { ErrorStateCard } from '@/components/shared/ErrorStateCard'
+import { LoadingState } from '@/components/shared/LoadingState'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Skeleton } from '@/components/ui/skeleton'
 import {
   Table,
   TableBody,
@@ -100,10 +100,7 @@ export function UsersTableCard({
       </CardHeader>
       <CardContent>
         {isPending ? (
-          <div role="status" aria-label="Memuat daftar akun" className="space-y-2">
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
-          </div>
+          <LoadingState label="Memuat daftar akun" rows={2} rowClassName="h-10 w-full" />
         ) : isError ? (
           <ErrorStateCard title="Daftar akun belum dapat dimuat." onRetry={onRetry} />
         ) : (

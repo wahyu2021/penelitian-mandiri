@@ -1,10 +1,11 @@
 import { useState, type FormEvent } from 'react'
-import { ErrorStateCard } from '@/components/shared/PageLayout'
+import { EmptyState } from '@/components/shared/EmptyState'
+import { ErrorStateCard } from '@/components/shared/ErrorStateCard'
+import { LoadingState } from '@/components/shared/LoadingState'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Skeleton } from '@/components/ui/skeleton'
 import {
   Table,
   TableBody,
@@ -100,14 +101,11 @@ export function ActivityLogCard({
         </form>
 
         {isPending ? (
-          <div role="status" aria-label="Memuat log aktivitas" className="space-y-2">
-            <Skeleton className="h-8 w-full" />
-            <Skeleton className="h-8 w-full" />
-          </div>
+          <LoadingState label="Memuat log aktivitas" rows={2} rowClassName="h-8 w-full" />
         ) : isError ? (
           <ErrorStateCard title="Log aktivitas belum dapat dimuat." onRetry={onRetry} />
         ) : !items || items.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Belum ada catatan aktivitas yang cocok.</p>
+          <EmptyState message="Belum ada catatan aktivitas yang cocok." />
         ) : (
           <Table className="min-w-[36rem]">
             <TableHeader>

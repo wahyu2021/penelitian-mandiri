@@ -1,24 +1,18 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { DatabaseBackup, FileInput } from 'lucide-react'
-import { ErrorStateCard, ForbiddenCard, PageHeader } from '@/components/shared/PageLayout'
+import { FileInput } from 'lucide-react'
+import { ErrorStateCard } from '@/components/shared/ErrorStateCard'
+import { ForbiddenCard } from '@/components/shared/ForbiddenCard'
+import { LoadingState } from '@/components/shared/LoadingState'
+import { PageHeader } from '@/components/shared/PageHeader'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
-import { Skeleton } from '@/components/ui/skeleton'
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
 import { useSession } from '@/features/auth/useSession'
+import { ImportHistoryCard } from '@/features/imports/ImportHistoryCard'
 import { useUnauthorizedRedirect } from '@/hooks/useUnauthorizedRedirect'
 import { getImportOverview, getImportPreview, runImport } from '@/lib/api/imports'
 import { ApiError } from '@/lib/api/session'
@@ -68,7 +62,7 @@ export function ImportPage() {
         description="Pilih dump SQL yang telah ditempatkan pengelola di direktori impor server."
       />
       {overview.isPending ? (
-        <Skeleton className="h-48 w-full" />
+        <LoadingState label="Memuat data impor" rows={1} rowClassName="h-48 w-full" />
       ) : overview.isError ? (
         <ErrorStateCard
           title="Daftar impor belum dapat dimuat."
@@ -119,7 +113,11 @@ export function ImportPage() {
                   </div>
                   {source &&
                     (preview.isPending ? (
-                      <Skeleton className="h-32 w-full" />
+                      <LoadingState
+                        label="Memuat pratinjau dump"
+                        rows={1}
+                        rowClassName="h-32 w-full"
+                      />
                     ) : preview.isError ? (
                       <Alert variant="destructive">
                         <AlertDescription>
@@ -159,18 +157,18 @@ export function ImportPage() {
                     ) : null)}
                   {preview.data && !strictMismatch && (
                     <>
-                      <label className="flex items-start gap-3 text-sm">
-                        <input
-                          type="checkbox"
+                      <div className="flex items-start gap-3">
+                        <Checkbox
+                          id="import-confirm"
                           checked={confirmed}
-                          onChange={(event) => setConfirmed(event.target.checked)}
-                          className="mt-1 size-4 accent-primary"
+                          onCheckedChange={(value) => setConfirmed(value === true)}
+                          className="mt-0.5"
                         />
-                        <span>
+                        <Label htmlFor="import-confirm" className="font-normal leading-5">
                           Saya memahami bahwa data arsip pada salinan lokal akan diganti. Sistem
                           membuat cadangan SQLite sebelum impor ulang.
-                        </span>
-                      </label>
+                        </Label>
+                      </div>
                       <Button disabled={!canImport} onClick={() => mutation.mutate()}>
                         <FileInput aria-hidden="true" />{' '}
                         {mutation.isPending ? 'Mengimpor…' : 'Impor salinan'}
@@ -205,52 +203,7 @@ export function ImportPage() {
               )}
             </CardContent>
           </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                <h2 className="flex items-center gap-2">
-                  <DatabaseBackup aria-hidden="true" className="size-4" /> Riwayat impor
-                </h2>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {overview.data.history.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Belum ada impor.</p>
-              ) : (
-                <Table className="min-w-[600px]">
-                  <TableCaption className="sr-only">Riwayat 20 batch impor terakhir</TableCaption>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead scope="col">Waktu</TableHead>
-                      <TableHead scope="col">Berkas</TableHead>
-                      <TableHead scope="col">Arsip</TableHead>
-                      <TableHead scope="col">Status</TableHead>
-                      <TableHead scope="col">Pengimpor</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {overview.data.history.map((row) => (
-                      <TableRow key={row.id}>
-                        <TableCell className="tabular-nums">{row.imported_at}</TableCell>
-                        <TableCell className="whitespace-normal break-all">
-                          {row.source_filename}
-                        </TableCell>
-                        <TableCell className="tabular-nums">
-                          {formatNumber(row.clean_count)}
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={row.status === 'completed' ? 'outline' : 'secondary'}>
-                            {row.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{row.imported_by}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              )}
-            </CardContent>
-          </Card>
+          <ImportHistoryCard history={overview.data.history} />
         </>
       )}
     </main>
