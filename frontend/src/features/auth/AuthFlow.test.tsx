@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import App from '@/App'
 
@@ -97,8 +97,24 @@ describe('alur sesi React', () => {
     )
     render(<App />)
     expect(await screen.findByText('petugas · Petugas')).toBeInTheDocument()
-    expect(screen.queryByText('Analisis · segera hadir')).not.toBeInTheDocument()
-    expect(screen.getByRole('navigation', { name: 'Navigasi utama' })).toBeInTheDocument()
+    const nav = within(screen.getByRole('navigation', { name: 'Navigasi utama' }))
+    expect(nav.getByRole('link', { name: 'Status' })).toHaveAttribute('aria-current', 'page')
+    expect(nav.getByRole('link', { name: 'Audit ekstraksi' })).toBeInTheDocument()
+    expect(nav.queryByRole('region', { name: 'Pengelolaan data' })).not.toBeInTheDocument()
+    expect(nav.queryByRole('link', { name: 'Perbandingan' })).not.toBeInTheDocument()
+
+    const user = userEvent.setup()
+    const trigger = screen.getByRole('button', { name: 'Buka menu' })
+    await user.click(trigger)
+    let dialog = within(await screen.findByRole('dialog', { name: 'Menu aplikasi' }))
+    expect(dialog.getByRole('region', { name: 'Akun' })).toHaveTextContent('petugas · Petugas')
+    await user.keyboard('{Escape}')
+    await waitFor(() => expect(trigger).toHaveFocus())
+
+    await user.click(trigger)
+    dialog = within(await screen.findByRole('dialog', { name: 'Menu aplikasi' }))
+    await user.click(dialog.getByRole('link', { name: 'Status' }))
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
   })
 
   it('mengalihkan sesi anonim dan menampilkan galat login', async () => {

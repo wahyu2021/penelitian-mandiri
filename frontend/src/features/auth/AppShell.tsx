@@ -1,7 +1,10 @@
+import { useEffect, useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Archive, ClipboardCheck, LogOut } from 'lucide-react'
-import { NavLink, Outlet, useNavigate } from 'react-router'
+import { Menu, X } from 'lucide-react'
+import { Dialog } from 'radix-ui'
+import { Outlet, useNavigate } from 'react-router'
 import { Button } from '@/components/ui/button'
+import { AppBrand, AppSidebar } from '@/features/auth/AppSidebar'
 import { sessionKey, useSession } from '@/features/auth/useSession'
 import { ApiError, logout } from '@/lib/api/session'
 
@@ -9,135 +12,81 @@ export function AppShell() {
   const { data } = useSession()
   const queryClient = useQueryClient()
   const navigate = useNavigate()
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  useEffect(() => {
+    const desktop = window.matchMedia?.('(min-width: 64rem)')
+    const closeOnDesktop = (event: MediaQueryListEvent) => {
+      if (event.matches) setMenuOpen(false)
+    }
+    desktop?.addEventListener('change', closeOnDesktop)
+    return () => desktop?.removeEventListener('change', closeOnDesktop)
+  }, [])
+
+  const endSession = () => {
+    queryClient.removeQueries({ queryKey: sessionKey })
+    navigate('/login', { replace: true })
+  }
   const mutation = useMutation({
     mutationFn: () => logout(data!.csrf_token),
-    onSuccess: () => {
-      queryClient.removeQueries({ queryKey: sessionKey })
-      navigate('/login', { replace: true })
-    },
+    onSuccess: endSession,
     onError: (error) => {
-      if (error instanceof ApiError && error.status === 401) {
-        queryClient.removeQueries({ queryKey: sessionKey })
-        navigate('/login', { replace: true })
-      }
+      if (error instanceof ApiError && error.status === 401) endSession()
     },
   })
-  const user = data?.user
+  const sidebarProps = {
+    user: data?.user ?? null,
+    onLogout: () => mutation.mutate(),
+    loggingOut: mutation.isPending,
+    logoutFailed: mutation.isError,
+  }
 
   return (
-    <div className="min-h-svh bg-stone-50">
-      <header className="border-b border-border bg-card">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6">
-          <div className="flex items-center gap-3">
-            <span className="flex size-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Archive aria-hidden="true" className="size-5" />
-            </span>
-            <div>
-              <p className="text-sm font-semibold">Sistem Pencarian Arsip</p>
-              <p className="text-xs text-muted-foreground">Salinan data penelitian</p>
-            </div>
-          </div>
-          <div className="flex w-full items-center justify-between gap-3 sm:w-auto">
-            <span className="text-sm text-muted-foreground">
-              {user?.username} · {user?.role === 'admin' ? 'Admin' : 'Petugas'}
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={mutation.isPending}
-              onClick={() => mutation.mutate()}
-            >
-              <LogOut aria-hidden="true" /> Keluar
-            </Button>
-          </div>
+    <div className="min-h-svh bg-stone-50 lg:grid lg:grid-cols-[15rem_minmax(0,1fr)]">
+      <aside className="sticky top-0 hidden h-dvh flex-col self-start border-r border-sidebar-border bg-sidebar lg:flex">
+        <div className="border-b border-sidebar-border px-4 py-5">
+          <AppBrand />
         </div>
-      </header>
-      <div className="mx-auto max-w-5xl px-4 sm:px-6">
-        <nav
-          aria-label="Navigasi utama"
-          className="flex flex-wrap gap-x-6 gap-y-2 border-b border-border py-3 text-sm"
-        >
-          <NavLink
-            to="/app/dashboard"
-            className={({ isActive }) =>
-              isActive
-                ? 'font-semibold text-primary underline underline-offset-8'
-                : 'text-muted-foreground hover:text-foreground'
-            }
-          >
-            Dashboard
-          </NavLink>
-          <NavLink
-            to="/app/status"
-            className={({ isActive }) =>
-              isActive
-                ? 'font-semibold text-primary underline underline-offset-8'
-                : 'text-muted-foreground hover:text-foreground'
-            }
-          >
-            Status
-          </NavLink>
-          <NavLink
-            to="/app/search"
-            className={({ isActive }) =>
-              isActive
-                ? 'font-semibold text-primary underline underline-offset-8'
-                : 'text-muted-foreground hover:text-foreground'
-            }
-          >
-            Pencarian
-          </NavLink>
-          <NavLink
-            to="/app/extraction-audit"
-            className={({ isActive }) =>
-              isActive
-                ? 'font-semibold text-primary underline underline-offset-8'
-                : 'text-muted-foreground hover:text-foreground'
-            }
-          >
-            <ClipboardCheck aria-hidden="true" className="mr-1 inline size-4" /> Audit ekstraksi
-          </NavLink>
-          {user?.role === 'admin' && (
-            <>
-              <NavLink
-                to="/app/compare"
-                className={({ isActive }) =>
-                  isActive
-                    ? 'font-semibold text-primary underline underline-offset-8'
-                    : 'text-muted-foreground hover:text-foreground'
-                }
+        <AppSidebar {...sidebarProps} />
+      </aside>
+
+      <div className="min-w-0">
+        <header className="sticky top-0 z-20 flex items-center justify-between gap-4 border-b border-border bg-card px-4 py-3 sm:px-6 lg:hidden">
+          <AppBrand />
+          <Dialog.Root open={menuOpen} onOpenChange={setMenuOpen}>
+            <Dialog.Trigger asChild>
+              <Button variant="outline" size="icon-lg" className="size-11" aria-label="Buka menu">
+                <Menu aria-hidden="true" />
+              </Button>
+            </Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Overlay className="fixed inset-0 z-40 bg-foreground/35 lg:hidden" />
+              <Dialog.Content
+                aria-describedby={undefined}
+                className="fixed inset-y-0 left-0 z-50 flex w-72 max-w-[calc(100%-2rem)] flex-col border-r border-sidebar-border bg-sidebar shadow-xl lg:hidden"
               >
-                Perbandingan
-              </NavLink>
-              <NavLink
-                to="/app/imports"
-                className={({ isActive }) =>
-                  isActive
-                    ? 'font-semibold text-primary underline underline-offset-8'
-                    : 'text-muted-foreground hover:text-foreground'
-                }
-              >
-                Impor
-              </NavLink>
-              <NavLink
-                to="/app/spm-types"
-                className={({ isActive }) =>
-                  isActive
-                    ? 'font-semibold text-primary underline underline-offset-8'
-                    : 'text-muted-foreground hover:text-foreground'
-                }
-              >
-                Kamus SPM
-              </NavLink>
-            </>
-          )}
-        </nav>
-        {mutation.isError && (
-          <p role="alert" className="mt-4 text-sm text-destructive">
-            Gagal keluar. Coba lagi.
-          </p>
-        )}
-        <Outlet />
+                <div className="flex items-center justify-between gap-3 border-b border-sidebar-border px-4 py-3">
+                  <Dialog.Title className="text-sm font-semibold">Menu aplikasi</Dialog.Title>
+                  <Dialog.Close asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon-lg"
+                      className="size-11"
+                      aria-label="Tutup menu"
+                    >
+                      <X aria-hidden="true" />
+                    </Button>
+                  </Dialog.Close>
+                </div>
+                <AppSidebar {...sidebarProps} onNavigate={() => setMenuOpen(false)} />
+              </Dialog.Content>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </header>
+
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+          <Outlet />
+        </div>
       </div>
     </div>
   )

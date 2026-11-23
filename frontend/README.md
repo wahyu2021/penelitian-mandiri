@@ -14,6 +14,11 @@ Halaman `/app/extraction-audit` menilai lima bidang ekstraksi per sampel dan
 menampilkan progres per akun; `/app/spm-types` memberi admin formulir konfirmasi
 kode dugaan beserta sumbernya.
 
+Navigasi utama berada di sidebar pada desktop dan dibuka dari tombol menu
+pada tablet dan ponsel. Menu dikelompokkan menjadi Arsip, Evaluasi,
+Pengelolaan Data, dan Sistem. Identitas dan tombol Keluar berada di bagian
+Akun. Pilihan menu mengikuti peran pengguna.
+
 ## Jalankan di laptop pengembang
 
 Dari `D:\Coding\PM`, jalankan Flask/Waitress di port 8000. Lalu pada terminal
