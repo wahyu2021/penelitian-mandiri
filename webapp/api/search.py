@@ -5,7 +5,7 @@ import sqlite3
 from flask import abort, current_app, request
 from flask_login import current_user
 
-from services.web_search import DEFAULT_METHOD, METHODS, search_archives
+from services.web_search import METHODS, get_default_search_method, search_archives
 from webapp.api import api, success
 from webapp.api.query_params import optional_int, reject_duplicate_params
 from webapp.api.session import require_api_user
@@ -22,15 +22,21 @@ def search():
     requested_method = request.args.get("method")
     if requested_method and requested_method not in METHODS:
         abort(400, description="Metode pencarian tidak dikenal.")
-    if current_user.role != "admin" and requested_method not in (None, "", DEFAULT_METHOD):
-        abort(403, description="Pemilihan metode hanya tersedia untuk admin.")
-    method = requested_method or DEFAULT_METHOD
 
     opd_id = optional_int("opd_id", minimum=1)
     year = optional_int("year", minimum=1900, maximum=2100)
     status = optional_int("status", minimum=1, maximum=3)
     limit = optional_int("limit", minimum=1, maximum=100, default=20)
     offset = optional_int("offset", minimum=0, default=0)
+
+    try:
+        default_method = get_default_search_method(current_app.config["DATABASE"])
+    except (OSError, sqlite3.Error):
+        abort(500, description="Pencarian arsip tidak dapat dijalankan.")
+
+    if current_user.role != "admin" and requested_method not in (None, "", default_method):
+        abort(403, description="Pemilihan metode hanya tersedia untuk admin.")
+    method = requested_method or default_method
 
     try:
         # Mesin pencarian mengurutkan semua hasil sebelum dipotong. Hitung total

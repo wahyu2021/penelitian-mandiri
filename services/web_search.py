@@ -10,7 +10,21 @@ from core.search.matchers import FUZZY_METHOD_NAMES, create_matcher
 from core.search.ranker import FieldRanker, equal_weights
 
 METHODS = ("like", *FUZZY_METHOD_NAMES)
-DEFAULT_METHOD = "like"
+DEFAULT_METHOD = "levenshtein"
+
+
+def get_default_search_method(db_path: Path) -> str:
+    """Baca metode pencarian bawaan dari app_setting jika tersedia dan valid."""
+    connection = sqlite3.connect(str(db_path))
+    try:
+        row = connection.execute(
+            "SELECT value FROM app_setting WHERE key = 'default_search_method'"
+        ).fetchone()
+    finally:
+        connection.close()
+    if row is not None and row[0] in METHODS:
+        return str(row[0])
+    return DEFAULT_METHOD
 
 
 @lru_cache(maxsize=4)

@@ -14,8 +14,17 @@ const dashboardSchema = z.object({
         id: z.number().int().positive(),
         year: z.number().int().nullable(),
         summary_raw: z.string().nullable(),
+        opd_name: z.string().nullable().optional(),
       }),
     ),
+    latest_import: z
+      .object({
+        source_filename: z.string(),
+        imported_at: z.string(),
+        clean_count: z.number().int().nonnegative(),
+      })
+      .nullable()
+      .optional(),
   }),
 })
 

@@ -5,7 +5,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { sessionKey, useSession } from '@/features/auth/useSession'
+import { sessionKey } from '@/features/auth/useSession'
 import { HighlightedText } from '@/features/search/HighlightedText'
 import { SearchForm, type FormValues } from '@/features/search/SearchForm'
 import { getSearchFilters, getSearchResults, type SearchResults } from '@/lib/api/search'
@@ -17,27 +17,23 @@ function valuesFromUrl(params: URLSearchParams): FormValues {
     opd_id: params.get('opd_id') ?? '',
     year: params.get('year') ?? '',
     status: params.get('status') ?? '',
-    method: params.get('method') ?? '',
     limit: params.get('limit') ?? '20',
   }
 }
 
-function requestFromUrl(params: URLSearchParams, isAdmin: boolean) {
+function requestFromUrl(params: URLSearchParams) {
   const next = new URLSearchParams()
   for (const key of ['q', 'opd_id', 'year', 'status', 'limit', 'offset']) {
     const value = params.get(key)
     if (value) next.set(key, value)
   }
-  if (isAdmin && params.get('method')) next.set('method', params.get('method')!)
   return next.toString()
 }
 
 export function SearchPage() {
   const [urlParams, setUrlParams] = useSearchParams()
-  const session = useSession()
-  const isAdmin = session.data?.user?.role === 'admin'
   const options = useQuery({ queryKey: ['search-filters'], queryFn: getSearchFilters })
-  const request = requestFromUrl(urlParams, isAdmin)
+  const request = requestFromUrl(urlParams)
   const submittedQuery = urlParams.get('q')?.trim() ?? ''
   const results = useQuery({
     queryKey: ['search', request],
@@ -66,7 +62,6 @@ export function SearchPage() {
     for (const key of ['opd_id', 'year', 'status'] as const) {
       if (form[key]) next.set(key, form[key])
     }
-    if (isAdmin && form.method) next.set('method', form.method)
     if (form.limit !== '20') next.set('limit', form.limit)
     setUrlParams(next)
   }
@@ -95,7 +90,6 @@ export function SearchPage() {
       <SearchForm
         key={urlKey}
         initial={valuesFromUrl(urlParams)}
-        isAdmin={isAdmin}
         options={options.data}
         optionsError={options.isError}
         retryOptions={() => void options.refetch()}
@@ -149,9 +143,7 @@ function SearchResultList({
           <h2 id="results-title" className="text-lg font-semibold">
             Hasil pencarian
           </h2>
-          <p className="text-sm text-muted-foreground">
-            {total} arsip cocok · {data.method.replaceAll('_', ' ')}
-          </p>
+          <p className="text-sm text-muted-foreground">{total} arsip cocok</p>
         </div>
         {data.items.length > 0 && (
           <p className="text-sm text-muted-foreground">
@@ -161,8 +153,8 @@ function SearchResultList({
       </div>
       <p className="text-xs leading-5 text-muted-foreground">
         {data.method === 'like'
-          ? 'LIKE menunjukkan kecocokan kata, tanpa peringkat kemiripan.'
-          : 'Skor kemiripan hanya untuk mengurutkan hasil metode ini; bukan probabilitas relevansi.'}
+          ? 'Menampilkan kecocokan kata tepat, tanpa peringkat kemiripan.'
+          : 'Diurutkan berdasarkan kemiripan kata kunci; skor hanya untuk urutan hasil.'}
       </p>
       {data.items.length === 0 ? (
         <Card>

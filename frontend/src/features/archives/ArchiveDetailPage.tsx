@@ -68,9 +68,17 @@ export function ArchiveDetailPage() {
             {id === null ? 'Arsip tidak ditemukan' : `Arsip #${id}`}
           </h1>
           {query.data && (
-            <p className="mt-2 text-sm text-muted-foreground">
-              {display(query.data.opd_name)} · {query.data.year ?? 'Tahun tidak tersedia'}
-            </p>
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+              <span>
+                {display(query.data.opd_name)} · {query.data.year ?? 'Tahun tidak tersedia'}
+              </span>
+              <span className="rounded-md border border-border bg-card px-2 py-0.5 text-xs font-medium text-foreground">
+                Status: {statusLabels[query.data.status] ?? `Kode ${query.data.status}`}
+              </span>
+              <span className="rounded-md border border-border bg-card px-2 py-0.5 text-xs font-medium text-foreground">
+                {query.data.has_document ? 'Ada berkas digital' : 'Tanpa berkas digital'}
+              </span>
+            </div>
           )}
         </div>
         <Button asChild variant="outline">
@@ -122,6 +130,15 @@ function Message({ text }: { text: string }) {
   )
 }
 
+function LocationCell({ label, value }: { label: string; value: string | null }) {
+  return (
+    <div className="rounded-lg border border-border bg-stone-50/70 px-3 py-2.5">
+      <dt className="text-xs text-muted-foreground">{label}</dt>
+      <dd className="mt-1 break-words text-sm font-semibold">{display(value)}</dd>
+    </div>
+  )
+}
+
 function ArchiveContent({ archive }: { archive: ArchiveDetail }) {
   const type = archive.extraction.spm_type
   return (
@@ -144,6 +161,26 @@ function ArchiveContent({ archive }: { archive: ArchiveDetail }) {
         <Card>
           <CardHeader>
             <CardTitle>
+              <h2 className="flex items-center gap-2">
+                <MapPin aria-hidden="true" className="size-4" /> Lokasi fisik
+              </h2>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <LocationCell label="Blok" value={archive.location.block} />
+              <LocationCell label="Rak" value={archive.location.rack} />
+              <LocationCell label="Baris" value={archive.location.row} />
+              <LocationCell label="Nomor boks" value={archive.location.box_number} />
+            </dl>
+            <p className="mt-3 text-xs text-muted-foreground">
+              Lokasi mengikuti data yang tersedia pada salinan arsip.
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>
               <h2>Data arsip</h2>
             </CardTitle>
           </CardHeader>
@@ -160,26 +197,6 @@ function ArchiveContent({ archive }: { archive: ArchiveDetail }) {
               <Fact label="Indeks" value={archive.index_label} />
               <Fact label="Berkas digital" value={archive.has_document ? 'Ada' : 'Tidak ada'} />
             </dl>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              <h2 className="flex items-center gap-2">
-                <MapPin aria-hidden="true" className="size-4" /> Lokasi fisik
-              </h2>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <dl>
-              <Fact label="Blok" value={archive.location.block} />
-              <Fact label="Rak" value={archive.location.rack} />
-              <Fact label="Baris" value={archive.location.row} />
-              <Fact label="Nomor boks" value={archive.location.box_number} />
-            </dl>
-            <p className="mt-3 text-xs text-muted-foreground">
-              Lokasi mengikuti data yang tersedia pada salinan arsip.
-            </p>
           </CardContent>
         </Card>
       </div>

@@ -75,6 +75,7 @@ def test_dashboard_empty_database_has_zero_counts(dashboard_app, role):
     assert response.get_json() == {"data": {
         "counts": {"total": 0, "active": 0, "inactive": 0, "with_file": 0},
         "recent": [],
+        "latest_import": None,
     }}
 
 
@@ -97,10 +98,13 @@ def test_dashboard_matches_database_counts_and_jinja(dashboard_app):
     finally:
         connection.close()
     assert data["recent"] == [
-        {"id": 13, "year": 2022, "summary_raw": "Surat izin"},
-        {"id": 9, "year": None, "summary_raw": None},
-        {"id": 7, "year": 2020, "summary_raw": "Jembatan kota"},
+        {"id": 13, "year": 2022, "summary_raw": "Surat izin", "opd_name": None},
+        {"id": 9, "year": None, "summary_raw": None, "opd_name": None},
+        {"id": 7, "year": 2020, "summary_raw": "Jembatan kota", "opd_name": None},
     ]
+    assert data["latest_import"]["source_filename"] == "sample.sql"
+    assert data["latest_import"]["clean_count"] == 0
+    assert data["latest_import"]["imported_at"]
 
 
 def test_dashboard_database_failure_does_not_leak_sql_error(dashboard_app):

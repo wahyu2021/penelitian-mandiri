@@ -1,19 +1,30 @@
-import { useEffect } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { Archive, CircleCheck, FileText, RefreshCw, CircleSlash } from 'lucide-react'
-import { useNavigate } from 'react-router'
+import { Archive, CircleCheck, CircleSlash, FileText, RefreshCw, Search } from 'lucide-react'
+import { Link, useNavigate } from 'react-router'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { sessionKey } from '@/features/auth/useSession'
 import { getDashboard, type Dashboard } from '@/lib/api/dashboard'
 import { ApiError } from '@/lib/api/session'
 
 const numberFormat = new Intl.NumberFormat('id-ID')
+const dateFormat = new Intl.DateTimeFormat('id-ID', {
+  dateStyle: 'medium',
+  timeStyle: 'short',
+})
+
+function formatImportTime(value: string) {
+  const parsed = new Date(value)
+  return Number.isNaN(parsed.getTime()) ? value : dateFormat.format(parsed)
+}
 
 export function DashboardPage() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const [quickQuery, setQuickQuery] = useState('')
   const query = useQuery({ queryKey: ['dashboard'], queryFn: getDashboard })
 
   useEffect(() => {
@@ -23,22 +34,59 @@ export function DashboardPage() {
     }
   }, [query.error, queryClient, navigate])
 
+  function submitQuickSearch(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const trimmed = quickQuery.trim()
+    navigate(trimmed ? `/app/search?q=${encodeURIComponent(trimmed)}` : '/app/search')
+  }
+
   return (
     <main className="py-8 sm:py-10">
-      <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-sm font-medium text-muted-foreground">Ikhtisar korpus</p>
           <h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">
             Dashboard arsip
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Angka langsung dari basis data lokal.
+            {query.data?.latest_import
+              ? `Pembaruan data terakhir: ${formatImportTime(query.data.latest_import.imported_at)} (${query.data.latest_import.source_filename})`
+              : query.data
+                ? 'Belum ada riwayat impor data.'
+                : 'Angka langsung dari basis data lokal.'}
           </p>
         </div>
         <Button variant="outline" onClick={() => void query.refetch()} disabled={query.isFetching}>
           <RefreshCw aria-hidden="true" /> Perbarui
         </Button>
       </div>
+
+      <Card className="mb-6">
+        <CardContent>
+          <form
+            onSubmit={submitQuickSearch}
+            className="flex flex-col gap-3 sm:flex-row sm:items-end"
+          >
+            <div className="min-w-0 flex-1 space-y-2">
+              <label htmlFor="dashboard-quick-search" className="text-sm font-medium">
+                Pencarian cepat arsip
+              </label>
+              <Input
+                id="dashboard-quick-search"
+                type="search"
+                value={quickQuery}
+                onChange={(event) => setQuickQuery(event.target.value)}
+                maxLength={200}
+                placeholder="Cari nomor SPM, pekerjaan, atau nama pihak…"
+                className="h-10"
+              />
+            </div>
+            <Button type="submit" className="h-10 shrink-0">
+              <Search aria-hidden="true" /> Cari arsip
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
 
       {query.isPending ? (
         <DashboardLoading />
@@ -126,19 +174,26 @@ function DashboardContent({ data }: { data: Dashboard }) {
           ) : (
             <ol className="divide-y divide-border">
               {data.recent.map((item) => (
-                <li
-                  key={item.id}
-                  className="flex flex-col gap-1 py-3 text-sm sm:flex-row sm:items-start sm:gap-4"
-                >
-                  <span className="w-16 shrink-0 font-mono text-xs text-muted-foreground">
-                    #{item.id}
-                  </span>
-                  <span className="min-w-0 flex-1 break-words">
-                    {item.summary_raw || 'Ringkasan tidak tersedia'}
-                  </span>
-                  <span className="shrink-0 text-muted-foreground">
-                    {item.year ?? 'Tahun tidak tersedia'}
-                  </span>
+                <li key={item.id}>
+                  <Link
+                    to={`/app/archives/${item.id}`}
+                    className="-mx-2 flex flex-col gap-1 rounded-lg px-2 py-3 text-sm transition-colors hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary sm:flex-row sm:items-start sm:gap-4"
+                  >
+                    <span className="w-16 shrink-0 font-mono text-xs font-medium text-primary">
+                      #{item.id}
+                    </span>
+                    <span className="min-w-0 flex-1 space-y-1">
+                      <span className="block break-words text-foreground">
+                        {item.summary_raw || 'Ringkasan tidak tersedia'}
+                      </span>
+                      {item.opd_name && (
+                        <span className="block text-xs text-muted-foreground">{item.opd_name}</span>
+                      )}
+                    </span>
+                    <span className="shrink-0 text-muted-foreground">
+                      {item.year ?? 'Tahun tidak tersedia'}
+                    </span>
+                  </Link>
                 </li>
               ))}
             </ol>

@@ -31,7 +31,7 @@ function searchResult(url: string, items = [item(1)], total = items.length) {
   return json({
     data: {
       query: params.get('q') ?? '',
-      method: params.get('method') ?? 'like',
+      method: params.get('method') ?? 'levenshtein',
       items,
       pagination: {
         limit: Number(params.get('limit') ?? 20),
@@ -70,7 +70,7 @@ function renderSearch(
           json({
             data: {
               opds: [{ id: 1, name: 'Dinas PU' }],
-              default_method: 'like',
+              default_method: 'levenshtein',
               methods:
                 role === 'admin'
                   ? [
@@ -87,13 +87,13 @@ function renderSearch(
     throw new Error(`Permintaan tidak terduga: ${url}`)
   })
   vi.stubGlobal('fetch', fetchMock)
-  return render(<App />)
+  return { view: render(<App />), fetchMock }
 }
 
 describe('pencarian arsip React', () => {
   it('petugas mencari dengan filter tanpa pemilih metode dan URL tanpa sesi', async () => {
     const user = userEvent.setup()
-    const view = renderSearch({ role: 'petugas' })
+    const { view } = renderSearch({ role: 'petugas' })
     expect(await screen.findByText('Masukkan kata kunci untuk mulai mencari.')).toBeInTheDocument()
     await screen.findByRole('option', { name: 'Dinas PU' })
     expect(screen.queryByLabelText('Metode pencarian')).not.toBeInTheDocument()
@@ -119,20 +119,27 @@ describe('pencarian arsip React', () => {
     )
     expect(view.container.querySelector('mark')?.textContent).toBe('Jembatan')
     expect(
-      screen.getByText('LIKE menunjukkan kecocokan kata, tanpa peringkat kemiripan.'),
+      screen.getByText(
+        'Diurutkan berdasarkan kemiripan kata kunci; skor hanya untuk urutan hasil.',
+      ),
     ).toBeInTheDocument()
   })
 
-  it('admin membuka URL fuzzy dan melihat skor tanpa mengubah teks mentah menjadi HTML', async () => {
-    const view = renderSearch({
+  it('admin tidak melihat pemilih metode riset dan teks mentah tidak menjadi HTML', async () => {
+    const { view, fetchMock } = renderSearch({
+      role: 'admin',
       path: '/app/search?q=jembatan&method=levenshtein',
       search: (url) =>
         Promise.resolve(searchResult(url, [item(5, 'Jembatan <script>alert(1)</script>')])),
     })
     expect(await screen.findByText('Arsip #5')).toBeInTheDocument()
-    expect(screen.getByLabelText('Metode pencarian')).toHaveValue('levenshtein')
+    expect(screen.queryByLabelText('Metode pencarian')).not.toBeInTheDocument()
+    const searchCall = fetchMock.mock.calls.find(([url]) =>
+      String(url).startsWith('/api/v1/search?'),
+    )
+    expect(String(searchCall?.[0])).not.toContain('method=')
     expect(screen.getByText('Skor 0.730')).toBeInTheDocument()
-    expect(screen.getByText(/bukan probabilitas relevansi/)).toBeInTheDocument()
+    expect(screen.getByText(/skor hanya untuk urutan hasil/)).toBeInTheDocument()
     expect(view.container.querySelector('mark')?.textContent).toBe('Jembatan')
     expect(view.container.querySelector('script')).toBeNull()
     expect(view.container.textContent).toContain('<script>alert(1)</script>')

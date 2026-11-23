@@ -63,7 +63,7 @@ def test_search_requires_login_and_returns_empty_for_blank_query(search_app):
     response = client.get("/api/v1/search?q=%20%20")
     assert response.status_code == 200
     assert response.get_json() == {"data": {
-        "query": "", "method": "like", "items": [],
+        "query": "", "method": "levenshtein", "items": [],
         "pagination": {"limit": 20, "offset": 0, "total": 0},
     }}
 
@@ -71,7 +71,7 @@ def test_search_requires_login_and_returns_empty_for_blank_query(search_app):
 def test_search_pagination_order_and_minimum_fields(search_app):
     client = search_app.test_client()
     login(client)
-    response = client.get("/api/v1/search?q=arsip&limit=2&offset=1")
+    response = client.get("/api/v1/search?q=arsip&method=like&limit=2&offset=1")
     assert response.status_code == 200
     assert response.headers["Cache-Control"] == "no-store"
     data = response.get_json()["data"]
@@ -96,7 +96,8 @@ def test_search_filters_and_typo_matcher_use_service_results(search_app):
     expected = search_archives(search_app.config["DATABASE"], "jembatn", "levenshtein", limit=None)
     assert [row["id"] for row in data["items"]] == [row["id"] for row in expected]
     assert [row["score"] for row in data["items"]] == [row["score"] for row in expected]
-    assert client.get("/api/v1/search?q=tidak-ada-000").get_json()["data"]["pagination"]["total"] == 0
+    assert client.get("/api/v1/search?q=zzzzqqqq").get_json()["data"]["pagination"]["total"] == 0
+    assert client.get("/api/v1/search?q=tidak-ada-000&opd_id=999").get_json()["data"]["pagination"]["total"] == 0
 
 
 @pytest.mark.parametrize(("method", "query", "legacy_ids"), [
@@ -131,12 +132,36 @@ def test_search_rejects_invalid_parameters(search_app, parameter):
 def test_petugas_cannot_choose_fuzzy_method(search_app):
     client = search_app.test_client()
     login(client, "petugas")
-    default = client.get("/api/v1/search?q=jembatan")
+    default = client.get("/api/v1/search?q=jembatn")
     assert default.status_code == 200
-    assert default.get_json()["data"]["method"] == "like"
-    denied = client.get("/api/v1/search?q=jembatan&method=levenshtein")
-    assert denied.status_code == 403
-    assert denied.get_json()["error"]["code"] == "forbidden"
+    data = default.get_json()["data"]
+    assert data["method"] == "levenshtein"
+    assert [row["id"] for row in data["items"]][:2] == [10, 13]
+    for disallowed in ("like", "ngram"):
+        denied = client.get(f"/api/v1/search?q=jembatan&method={disallowed}")
+        assert denied.status_code == 403
+        assert denied.get_json()["error"]["code"] == "forbidden"
+
+
+def test_search_respects_app_setting_default_method(search_app):
+    connection = get_connection(search_app.config["DATABASE"])
+    with connection:
+        connection.execute(
+            "INSERT OR REPLACE INTO app_setting(key, value) VALUES ('default_search_method', 'jaro_winkler')"
+        )
+    connection.close()
+
+    client = search_app.test_client()
+    login(client, "petugas")
+    filters = client.get("/api/v1/search/filters")
+    assert filters.status_code == 200
+    assert filters.get_json()["data"]["default_method"] == "jaro_winkler"
+
+    result = client.get("/api/v1/search?q=jembatn")
+    assert result.status_code == 200
+    data = result.get_json()["data"]
+    assert data["method"] == "jaro_winkler"
+    assert [row["id"] for row in data["items"]] == [10, 13]
 
 
 def test_search_database_error_is_safe_json(search_app):
@@ -245,7 +270,7 @@ def test_search_filter_options_use_local_opds_and_admin_methods(search_app):
         {"id": 2, "name": "Dinas Kesehatan"},
         {"id": 1, "name": "Dinas Pekerjaan Umum"},
     ]
-    assert data["default_method"] == "like"
+    assert data["default_method"] == "levenshtein"
     assert [option["name"] for option in data["methods"]] == list(METHODS)
     assert all(option["label"] for option in data["methods"])
 
@@ -255,7 +280,7 @@ def test_petugas_filter_options_hide_admin_methods(search_app):
     login(client, "petugas")
     data = client.get("/api/v1/search/filters").get_json()["data"]
     assert data["methods"] == []
-    assert data["default_method"] == "like"
+    assert data["default_method"] == "levenshtein"
     assert len(data["opds"]) == 2
 
 

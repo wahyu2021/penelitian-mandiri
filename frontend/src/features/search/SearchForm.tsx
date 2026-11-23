@@ -11,13 +11,11 @@ export type FormValues = {
   opd_id: string
   year: string
   status: string
-  method: string
   limit: string
 }
 
 type SearchFormProps = {
   initial: FormValues
-  isAdmin: boolean
   options?: SearchFilters
   optionsError: boolean
   retryOptions: () => void
@@ -27,7 +25,6 @@ type SearchFormProps = {
 
 export function SearchForm({
   initial,
-  isAdmin,
   options,
   optionsError,
   retryOptions,
@@ -46,7 +43,7 @@ export function SearchForm({
   }
 
   function clear() {
-    setForm({ q: '', opd_id: '', year: '', status: '', method: '', limit: '20' })
+    setForm({ q: '', opd_id: '', year: '', status: '', limit: '20' })
     onClear()
   }
 
@@ -64,7 +61,7 @@ export function SearchForm({
               value={form.q}
               onChange={(event) => update('q', event.target.value)}
               maxLength={200}
-              placeholder="Contoh: pembangunan jembatan"
+              placeholder="Contoh: pembangunan jembatan, nomor SPM, atau nama pihak"
               className="h-10"
             />
           </div>
@@ -136,28 +133,6 @@ export function SearchForm({
               </NativeSelect>
             </div>
           </div>
-          {isAdmin && options && (
-            <div className="max-w-xs space-y-2">
-              <label htmlFor="filter-method" className="text-sm font-medium">
-                Metode pencarian
-              </label>
-              <NativeSelect
-                className="w-full"
-                id="filter-method"
-                value={form.method}
-                onChange={(event) => update('method', event.target.value)}
-              >
-                <NativeSelectOption value="">
-                  Bawaan ({options.default_method.toUpperCase()})
-                </NativeSelectOption>
-                {options.methods.map((method) => (
-                  <NativeSelectOption key={method.name} value={method.name}>
-                    {method.label}
-                  </NativeSelectOption>
-                ))}
-              </NativeSelect>
-            </div>
-          )}
           {optionsError && (
             <p role="alert" className="text-sm text-destructive">
               Pilihan OPD belum dapat dimuat.{' '}
