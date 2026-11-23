@@ -12,6 +12,7 @@ import {
   LogOut,
   Scale,
   Search,
+  ShieldAlert,
   UserRoundCheck,
   UserRound,
   Users,
@@ -74,6 +75,7 @@ const researchGroups: SidebarGroup[] = [
     items: [
       { path: 'extraction-audit', label: 'Audit ekstraksi', icon: ClipboardCheck },
       { path: 'spm-types', label: 'Kamus SPM', icon: BookOpen, adminOnly: true },
+      { path: 'quality', label: 'Kualitas metadata', icon: ShieldAlert, adminOnly: true },
     ],
   },
 ]

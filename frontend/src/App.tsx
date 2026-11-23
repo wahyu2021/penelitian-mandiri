@@ -26,6 +26,11 @@ const EvaluationPage = lazy(() =>
     default: module.EvaluationPage,
   })),
 )
+const QualityPage = lazy(() =>
+  import('@/features/quality/QualityPage').then((module) => ({
+    default: module.QualityPage,
+  })),
+)
 
 function ResearchRedirect({ to }: { to: string }) {
   const { search } = useLocation()
@@ -61,6 +66,22 @@ export default function App() {
                   }
                 >
                   <EvaluationPage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="quality"
+              element={
+                <Suspense
+                  fallback={
+                    <LoadingState
+                      label="Memuat kualitas metadata"
+                      rows={2}
+                      rowClassName="h-44 w-full"
+                    />
+                  }
+                >
+                  <QualityPage />
                 </Suspense>
               }
             />
