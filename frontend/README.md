@@ -65,5 +65,5 @@ menjalankannya ada di `../docs/runbook_web_release.md`.
 fitur memerlukannya, misalnya `npx shadcn add input`; tinjau diff hasil CLI
 sebelum commit. Jangan memakai `add --all` atau menimpa penyesuaian lokal.
 
-Kontrak HTTP ada di `../docs/api_contract.md` dan aturan kerja di
-`../AGENTS.md`.
+Kontrak HTTP ada di `../docs/api_contract.md`, panduan TypeScript/DRY/`shadcn/ui`
+ada di `../docs/panduan_frontend_typescript.md`, dan aturan kerja di `../AGENTS.md`.
