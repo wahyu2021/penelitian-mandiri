@@ -53,6 +53,21 @@ function sampleRun(split: 'test' | 'tuning', status: 'final' | 'pending' | 'draf
     agreement: null,
     method_summary: [
       {
+        method: 'like_baseline',
+        config: 'baseline',
+        label: 'like_baseline (baseline)',
+        n_queries: split === 'test' ? 80 : 32,
+        mean_p5: 0.15,
+        mean_r10: 0.25,
+        mrr_at_10: 0.2,
+        hit_at_5_rate: 0.3,
+        hit_at_10_rate: 0.35,
+        zero_result_rate: 0.6,
+        mean_latency_ms: 4.5,
+        median_latency_ms: 3.2,
+        mean_unjudged_top10: 0.1,
+      },
+      {
         method: 'levenshtein',
         config: 'tuned',
         label: 'levenshtein (tuned)',
@@ -81,8 +96,8 @@ function sampleRun(split: 'test' | 'tuning', status: 'final' | 'pending' | 'draf
       },
     ],
     filters: {
-      methods: ['levenshtein'],
-      configs: ['tuned'],
+      methods: ['like_baseline', 'levenshtein'],
+      configs: ['baseline', 'tuned'],
       query_types: ['topik'],
       noise_types: ['tanpa_gangguan'],
       sources: ['sintetis'],
@@ -116,7 +131,7 @@ function sampleRun(split: 'test' | 'tuning', status: 'final' | 'pending' | 'draf
   }
 }
 
-it('menampilkan run evaluasi, tabel alternatif grafik, pindah split, dan ekspor untuk admin', async () => {
+it('menampilkan KPI, tab, tabel alternatif grafik, pindah split, dan ekspor untuk admin', async () => {
   vi.stubGlobal(
     'fetch',
     vi.fn(async (url: string) => {
@@ -140,10 +155,10 @@ it('menampilkan run evaluasi, tabel alternatif grafik, pindah split, dan ekspor 
   ).toBeInTheDocument()
   expect(screen.getByText('Manifest SHA-256 valid')).toBeInTheDocument()
   expect(screen.getByText('Tuning/test terpisah')).toBeInTheDocument()
-  // Tabel alternatif aksesibel untuk grafik
+  expect(screen.getByText('+0,4875')).toBeInTheDocument()
+  expect(screen.getByText('Terbaik')).toBeInTheDocument()
   expect(screen.getByText('Tabel metrik lengkap per metode')).toBeInTheDocument()
-  expect(screen.getByText('0,6875')).toBeInTheDocument()
-  expect(screen.getByText('Q001')).toBeInTheDocument()
+  expect(screen.getAllByText('0,6875').length).toBeGreaterThanOrEqual(1)
 
   expect(screen.getByRole('link', { name: /Ekspor CSV/i })).toHaveAttribute(
     'href',
@@ -154,9 +169,16 @@ it('menampilkan run evaluasi, tabel alternatif grafik, pindah split, dan ekspor 
     '/api/v1/research/evaluation/export?split=test&format=json',
   )
 
+  await user.click(screen.getByRole('tab', { name: /Rincian per Kueri/i }))
+  expect(await screen.findByText('Q001')).toBeInTheDocument()
+
+  await user.click(screen.getByRole('tab', { name: /Bukti & Integritas/i }))
+  expect(await screen.findByText('Commit Git')).toBeInTheDocument()
+
   await user.click(screen.getByRole('button', { name: 'Split Tuning' }))
   expect((await screen.findAllByText('0,8100')).length).toBeGreaterThanOrEqual(1)
-  expect(screen.getByText('Q090')).toBeInTheDocument()
+  await user.click(screen.getByRole('tab', { name: /Rincian per Kueri/i }))
+  expect(await screen.findByText('Q090')).toBeInTheDocument()
 }, 10000)
 
 it('menampilkan empty state saat bundle belum tersedia dan menolak petugas 403', async () => {

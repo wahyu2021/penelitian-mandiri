@@ -6,18 +6,23 @@ import { ErrorStateCard } from '@/components/shared/ErrorStateCard'
 import { ForbiddenCard } from '@/components/shared/ForbiddenCard'
 import { LoadingState } from '@/components/shared/LoadingState'
 import { PageHeader } from '@/components/shared/PageHeader'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useSession } from '@/features/auth/useSession'
+import { EvaluationKpiStrip } from '@/features/evaluation/EvaluationKpiStrip'
 import { EvaluationMetricsChart } from '@/features/evaluation/EvaluationMetricsChart'
 import {
   EvaluationPerQueryTable,
   type PerQueryFilters,
 } from '@/features/evaluation/EvaluationPerQueryTable'
 import { EvaluationProvenanceCard } from '@/features/evaluation/EvaluationProvenanceCard'
+import { EvaluationStatusBadge } from '@/features/evaluation/EvaluationStatusBadge'
 import { EvaluationTuningCard } from '@/features/evaluation/EvaluationTuningCard'
 import { useUnauthorizedRedirect } from '@/hooks/useUnauthorizedRedirect'
 import { type EvaluationSplit, evaluationExportUrl, fetchEvaluationRun } from '@/lib/api/evaluation'
 import { ApiError } from '@/lib/api/session'
+import { formatNumber } from '@/lib/format'
 
 export function EvaluationPage() {
   const { data: session } = useSession()
@@ -68,6 +73,9 @@ export function EvaluationPage() {
     setPage(1)
   }
 
+  const run = query.data
+  const noLeakage = run ? run.split_counts.split_leakage_count === 0 : true
+
   return (
     <main className="space-y-6 py-5 sm:py-6">
       <PageHeader
@@ -98,7 +106,7 @@ export function EvaluationPage() {
                 Split Tuning
               </Button>
             </div>
-            {query.data?.available && (
+            {run?.available && (
               <>
                 <Button asChild variant="outline">
                   <a href={evaluationExportUrl(split, 'csv')}>
@@ -124,24 +132,78 @@ export function EvaluationPage() {
         <ErrorStateCard title={errorMessage} onRetry={() => void query.refetch()} />
       )}
 
-      {query.data && !query.data.available && (
-        <EmptyState
-          asCard
-          message={query.data.status_reasons[0] ?? 'Artefak run belum tersedia.'}
-        />
+      {run && !run.available && (
+        <EmptyState asCard message={run.status_reasons[0] ?? 'Artefak run belum tersedia.'} />
       )}
 
-      {query.data && query.data.available && (
+      {run && run.available && (
         <div className="space-y-6">
-          <EvaluationProvenanceCard run={query.data} />
-          <EvaluationMetricsChart items={query.data.method_summary} split={query.data.split} />
-          <EvaluationTuningCard items={query.data.tuning_best} />
-          <EvaluationPerQueryTable
-            run={query.data}
-            filters={filters}
-            onFiltersChange={handleFiltersChange}
-            onPageChange={setPage}
-          />
+          <div
+            aria-label="Status validasi artefak run"
+            className="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-card px-4 py-3 text-xs"
+          >
+            <div className="flex flex-wrap items-center gap-2">
+              <EvaluationStatusBadge status={run.status} />
+              <Badge variant={run.manifest.valid ? 'outline' : 'secondary'}>
+                {run.manifest.valid ? 'Manifest SHA-256 valid' : 'Manifest tak valid'}
+              </Badge>
+              <Badge variant={noLeakage ? 'outline' : 'destructive'}>
+                {noLeakage
+                  ? 'Tuning/test terpisah'
+                  : `${formatNumber(run.split_counts.split_leakage_count)} kebocoran`}
+              </Badge>
+            </div>
+            <p className="text-muted-foreground">
+              {run.status_reasons[0] ?? 'Artefak evaluasi dimuat.'}
+            </p>
+          </div>
+
+          <EvaluationKpiStrip items={run.method_summary} />
+
+          <Tabs defaultValue="overview" className="space-y-4">
+            <TabsList className="h-auto w-full flex-wrap justify-start gap-1">
+              <TabsTrigger value="overview" className="flex-none px-3 py-1.5">
+                Ringkasan &amp; Grafik
+              </TabsTrigger>
+              <TabsTrigger value="tuning" className="flex-none px-3 py-1.5">
+                Bobot Tuning
+              </TabsTrigger>
+              <TabsTrigger value="queries" className="flex-none px-3 py-1.5">
+                Rincian per Kueri ({formatNumber(run.per_query.total)})
+              </TabsTrigger>
+              <TabsTrigger value="provenance" className="flex-none px-3 py-1.5">
+                Bukti &amp; Integritas
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="overview">
+              <EvaluationMetricsChart items={run.method_summary} split={run.split} />
+            </TabsContent>
+
+            <TabsContent value="tuning">
+              {run.tuning_best.length > 0 ? (
+                <EvaluationTuningCard items={run.tuning_best} />
+              ) : (
+                <EmptyState
+                  asCard
+                  message="Data bobot grid search tidak tersedia pada bundle ini."
+                />
+              )}
+            </TabsContent>
+
+            <TabsContent value="queries">
+              <EvaluationPerQueryTable
+                run={run}
+                filters={filters}
+                onFiltersChange={handleFiltersChange}
+                onPageChange={setPage}
+              />
+            </TabsContent>
+
+            <TabsContent value="provenance">
+              <EvaluationProvenanceCard run={run} />
+            </TabsContent>
+          </Tabs>
         </div>
       )}
     </main>

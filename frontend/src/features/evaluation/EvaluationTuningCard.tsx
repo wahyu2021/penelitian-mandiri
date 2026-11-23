@@ -7,6 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { formatDecimal, formatMethodName } from '@/features/evaluation/formatters'
 import type { TuningBestItem } from '@/lib/api/evaluation'
 import { formatNumber } from '@/lib/format'
 
@@ -38,21 +39,21 @@ export function EvaluationTuningCard({ items }: { items: TuningBestItem[] }) {
             <TableBody>
               {items.map((item) => (
                 <TableRow key={item.matcher}>
-                  <TableCell className="font-medium">{item.matcher}</TableCell>
+                  <TableCell className="font-medium">{formatMethodName(item.matcher)}</TableCell>
                   <TableCell className="text-right tabular-nums">
-                    {item.summary_weight.toFixed(1).replace('.', ',')}
+                    {formatDecimal(item.summary_weight, 1)}
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
-                    {item.spm_weight.toFixed(1).replace('.', ',')}
+                    {formatDecimal(item.spm_weight, 1)}
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
-                    {item.party_weight.toFixed(1).replace('.', ',')}
+                    {formatDecimal(item.party_weight, 1)}
                   </TableCell>
                   <TableCell className="text-right font-semibold tabular-nums">
-                    {item.mrr_at_10.toFixed(4).replace('.', ',')}
+                    {formatDecimal(item.mrr_at_10, 4)}
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
-                    {item.precision_at_5.toFixed(4).replace('.', ',')}
+                    {formatDecimal(item.precision_at_5, 4)}
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
                     {formatNumber(item.grid_size)}
