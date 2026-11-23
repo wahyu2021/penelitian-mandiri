@@ -14,6 +14,7 @@ import { TestsetsPage } from '@/features/testsets/TestsetsPage'
 import { RelevancePage } from '@/features/relevance/RelevancePage'
 import { RelevanceAdminPage } from '@/features/relevance/RelevanceAdminPage'
 import { AgreementPage } from '@/features/agreement/AgreementPage'
+import { ResearchOverviewPage } from '@/features/research/ResearchOverviewPage'
 import { SearchPage } from '@/features/search/SearchPage'
 import { StatusPage } from '@/features/status/StatusPage'
 import { NotFoundPage } from '@/features/status/NotFoundPage'
@@ -31,7 +32,7 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/app/research" element={<AppShell research />}>
-            <Route index element={<Navigate to="relevance" replace />} />
+            <Route index element={<ResearchOverviewPage />} />
             <Route path="compare" element={<ComparePage />} />
             <Route path="extraction-audit" element={<ExtractionAuditPage />} />
             <Route path="spm-types" element={<SpmTypesPage />} />

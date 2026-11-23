@@ -5,6 +5,7 @@ import {
   ClipboardList,
   Columns2,
   DatabaseBackup,
+  FlaskConical,
   LayoutDashboard,
   ListChecks,
   LogOut,
@@ -51,19 +52,27 @@ const operationalGroups: SidebarGroup[] = [
 
 const researchGroups: SidebarGroup[] = [
   {
-    label: 'Evaluasi',
+    label: 'Ringkasan & Demo',
     items: [
+      { path: '', label: 'Ringkasan', icon: FlaskConical },
       { path: 'compare', label: 'Perbandingan', icon: Columns2, adminOnly: true },
-      { path: 'testsets', label: 'Set uji', icon: ListChecks, adminOnly: true },
-      { path: 'relevance', label: 'Penilaian relevansi', icon: ClipboardList },
-      { path: 'relevance-admin', label: 'Kelola penilaian', icon: UserRoundCheck, adminOnly: true },
       { path: 'agreement', label: 'Kesepakatan', icon: Scale, adminOnly: true },
-      { path: 'extraction-audit', label: 'Audit ekstraksi', icon: ClipboardCheck },
     ],
   },
   {
-    label: 'Validasi data',
-    items: [{ path: 'spm-types', label: 'Kamus SPM', icon: BookOpen, adminOnly: true }],
+    label: 'Pengumpulan data',
+    items: [
+      { path: 'testsets', label: 'Set uji', icon: ListChecks, adminOnly: true },
+      { path: 'relevance-admin', label: 'Kelola penilaian', icon: UserRoundCheck, adminOnly: true },
+      { path: 'relevance', label: 'Penilaian relevansi', icon: ClipboardList },
+    ],
+  },
+  {
+    label: 'Validasi ekstraksi',
+    items: [
+      { path: 'extraction-audit', label: 'Audit ekstraksi', icon: ClipboardCheck },
+      { path: 'spm-types', label: 'Kamus SPM', icon: BookOpen, adminOnly: true },
+    ],
   },
 ]
 
@@ -105,24 +114,28 @@ export function AppSidebar({
             <section key={label} aria-label={label}>
               <h2 className="px-3 pb-1.5 text-xs font-medium text-muted-foreground">{label}</h2>
               <ul className="space-y-0.5">
-                {visible.map(({ path, label, icon: Icon }) => (
-                  <li key={path}>
-                    <NavLink
-                      to={`${research ? '/app/research' : '/app'}/${path}`}
-                      onClick={onNavigate}
-                      className={({ isActive }) =>
-                        `flex min-h-11 items-center gap-3 rounded-md px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-                          isActive
-                            ? 'bg-primary/10 font-semibold text-primary'
-                            : 'text-sidebar-foreground hover:bg-sidebar-accent'
-                        }`
-                      }
-                    >
-                      <Icon aria-hidden="true" className="size-4 shrink-0" />
-                      {label}
-                    </NavLink>
-                  </li>
-                ))}
+                {visible.map(({ path, label, icon: Icon }) => {
+                  const basePath = research ? '/app/research' : '/app'
+                  return (
+                    <li key={path || '__index__'}>
+                      <NavLink
+                        to={path ? `${basePath}/${path}` : basePath}
+                        end={path === ''}
+                        onClick={onNavigate}
+                        className={({ isActive }) =>
+                          `flex min-h-11 items-center gap-3 rounded-md px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                            isActive
+                              ? 'bg-primary/10 font-semibold text-primary'
+                              : 'text-sidebar-foreground hover:bg-sidebar-accent'
+                          }`
+                        }
+                      >
+                        <Icon aria-hidden="true" className="size-4 shrink-0" />
+                        {label}
+                      </NavLink>
+                    </li>
+                  )
+                })}
               </ul>
             </section>
           )
