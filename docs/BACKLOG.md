@@ -251,7 +251,7 @@ tampilan atau klaim dokumen saja.
 - **Uji:** simpan/reload, isian parsial, peran, nilai kosong tidak menjadi
   benar/salah, kesesuaian angka dengan skrip audit; lint/tipe/build.
 - **Commit:** `feat(audit): tambah penilaian ekstraksi web [PM-16]`.
-- **Jejak:** Status: belum dimulai | Uji: — | Commit: — | Catatan: —
+- **Jejak:** Status: selesai (23 November 2026) | Uji: simpan/reload, koreksi dan hapus verdict, isian parsial dan kosong, isolasi per penilai, penugasan/peran/CSRF, integritas manifest, paritas CSV ekspor dengan skrip audit, konfirmasi SPM dengan bukti; `pytest -q` 235 lulus, 5 dilewati; 32 uji frontend lulus; lint/tipe/format/build lulus; manifest ZIP diverifikasi | Commit: `2a9eb71` | Catatan: ZIP `output/releases/pm-web-pm16.zip` (SHA-256 `3fd5399fe9e81dd59aaf1ad98ed6a3e7a72625ec9ff80f373412cac55a995e98`); sampel dan manifest audit disediakan terpisah melalui `PM_AUDIT_SAMPLE_CSV`/`PM_AUDIT_MANIFEST`; penilaian web baru per akun tidak menyalin verdict dari CSV sumber.
 
 ### PM-17 — Kelola versi set uji melalui web
 
