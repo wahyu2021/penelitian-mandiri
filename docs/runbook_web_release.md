@@ -92,6 +92,11 @@ Gunakan `--output D:\lokasi\pm-web.zip` bila perlu lokasi lain. Simpan hasil
   penilai mengisi sendiri. Ekspor CSV hasil hanya muncul setelah seluruh sel
   lengkap. Periksa pula `/app/spm-types`: kode dugaan memerlukan label dan
   sumber konfirmasi yang tercatat.
+- Untuk set uji, jalankan `db upgrade` lalu masuk sebagai admin dan buka
+  **Evaluasi → Set uji**. Siapkan JSON penelitian secara terpisah dari ZIP.
+  Daftarkan JSON, periksa daftar kueri, asal, split dan SHA-256, lalu kunci
+  dan unduh salinan. Versi web tersimpan pada SQLite yang sama dan ikut
+  tercakup saat database dicadangkan.
 
 ## 4. Cadangan dan pemulihan
 

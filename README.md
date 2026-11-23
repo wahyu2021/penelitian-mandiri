@@ -42,8 +42,8 @@ dan pemulihan ada di [runbook](docs/runbook_web_release.md).
 
 Aplikasi utama kini menyediakan login, dashboard korpus, pencarian LIKE dan empat metode fuzzy,
 perbandingan hasil untuk admin, detail arsip, impor salinan dump, audit ekstraksi,
-dan konfirmasi kamus SPM melalui web.
-Halaman set uji, evaluasi, dan administrasi pengguna pada `rancangan_aplikasi.md` masih harus dibangun
+konfirmasi kamus SPM, dan pengelolaan versi set uji melalui web.
+Halaman hasil evaluasi dan administrasi pengguna pada `rancangan_aplikasi.md` masih harus dibangun
 sebelum UAT/SUS untuk keseluruhan aplikasi.
 
 Route API berada di `webapp/api/`, mesin pencarian di `services/web_search.py`,
@@ -103,6 +103,15 @@ riwayat perubahan. Angka sebelum seluruh sel terisi berstatus sementara.
 Setelah lengkap, tombol unduh menghasilkan CSV baru untuk dihitung dengan skrip
 audit yang sama; berkas sumber tidak ditimpa. Admin memeriksa kode `dugaan` di
 `/app/spm-types` dan wajib mencatat label serta sumber sebelum konfirmasi.
+
+### Mendaftarkan set uji
+
+Jalankan `flask --app app db upgrade` pada SQLite lokal, lalu masuk sebagai admin.
+Di **Evaluasi → Set uji**, pilih `data/testset/testset_v1.json` untuk mendaftarkan
+set uji penelitian yang sudah ada. Aplikasi menyimpan salinan sebagai versi
+terbuka. Tinjau asal kueri, split, dan SHA-256, lalu kunci versi untuk mengunduh
+JSON dengan format skrip penelitian. Untuk revisi setelah penguncian, daftarkan
+JSON dengan nama versi baru. Berkas JSON sumber hanya dibaca saat dipilih.
 
 ### Jika server dinas memakai XAMPP lama
 

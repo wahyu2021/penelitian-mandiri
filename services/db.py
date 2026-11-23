@@ -196,6 +196,18 @@ SCHEMA_STATEMENTS = [
         changed_at TEXT NOT NULL
     );
     """,
+    """
+    CREATE TABLE IF NOT EXISTS testset_version (
+        version TEXT PRIMARY KEY,
+        payload_json TEXT NOT NULL,
+        content_sha256 TEXT NOT NULL,
+        updated_by INTEGER NOT NULL REFERENCES user(id),
+        updated_at TEXT NOT NULL,
+        locked_by INTEGER REFERENCES user(id),
+        locked_at TEXT,
+        CHECK ((locked_by IS NULL) = (locked_at IS NULL))
+    );
+    """,
 ]
 
 

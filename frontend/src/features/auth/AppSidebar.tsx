@@ -6,6 +6,7 @@ import {
   Columns2,
   DatabaseBackup,
   LayoutDashboard,
+  ListChecks,
   LogOut,
   Search,
   UserRound,
@@ -26,6 +27,7 @@ const groups = [
     label: 'Evaluasi',
     items: [
       { path: 'compare', label: 'Perbandingan', icon: Columns2, adminOnly: true },
+      { path: 'testsets', label: 'Set uji', icon: ListChecks, adminOnly: true },
       { path: 'extraction-audit', label: 'Audit ekstraksi', icon: ClipboardCheck },
     ],
   },

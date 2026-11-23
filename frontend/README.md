@@ -17,7 +17,9 @@ kode dugaan beserta sumbernya.
 Navigasi utama berada di sidebar pada desktop dan dibuka dari tombol menu
 pada tablet dan ponsel. Menu dikelompokkan menjadi Arsip, Evaluasi,
 Pengelolaan Data, dan Sistem. Identitas dan tombol Keluar berada di bagian
-Akun. Pilihan menu mengikuti peran pengguna.
+Akun. Pilihan menu mengikuti peran pengguna. Admin dapat membuka
+`/app/testsets` dari kelompok Evaluasi untuk mendaftarkan, meninjau,
+mengunci, dan mengunduh versi set uji.
 
 ## Jalankan di laptop pengembang
 

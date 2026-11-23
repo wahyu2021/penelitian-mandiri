@@ -171,6 +171,21 @@ database memberi 500 JSON tanpa rincian SQL.
 | `PUT/DELETE /api/v1/extraction-audit/reviewers/{id}` | admin | tugaskan/cabut petugas, header CSRF; tersedia | PM-16 |
 | `GET /api/v1/spm-types` | admin | kode, status, sumber, dan jumlah arsip; tersedia | PM-16 |
 | `POST /api/v1/spm-types/{code}/confirm` | admin | `label`, `source_note`, dan header CSRF; tersedia | PM-16 |
+| `GET /api/v1/testsets`, `GET /api/v1/testsets/{version}` | admin | versi, status, jumlah kueri dasar/varian per split, asal, SHA-256, daftar kueri pada detail | PM-17 |
+| `POST /api/v1/testsets`, `PUT /api/v1/testsets/{version}` | admin | objek JSON set uji (maksimal 4 MiB), header CSRF, serta `If-Match` untuk penggantian | PM-17 |
+| `POST /api/v1/testsets/{version}/lock` | admin | header CSRF dan `If-Match` berisi SHA-256 dalam tanda kutip ganda | PM-17 |
+| `GET /api/v1/testsets/{version}/export` | admin | lampiran JSON versi terkunci dengan `content_sha256` yang dapat diverifikasi CLI | PM-17 |
+
+Versi baru terbuka saat didaftarkan. Field `locked_at` dan `locked_by` bernilai
+`null` sampai admin mengunci versi. Simpan dan kunci dicatat di log aktivitas.
+Perubahan pada versi terkunci, konflik hash, dan unduhan versi terbuka
+menghasilkan 409. JSON tidak valid menghasilkan 400, berkas terlalu besar
+menghasilkan 413, dan validasi struktur, hash, atau split yang gagal menghasilkan
+422. Hash mengikuti serialisasi kanonis CLI dan tidak mencakup metadata web.
+Validasi split mencakup kueri dasar, arsip asal, SPM dan pihak dari metadata
+yang tersedia, serta kelompok duplikat yang dicantumkan dalam JSON. Status kunci
+menandai snapshot yang dapat ditelusuri. Validasi ilmiah desain, realisme, dan
+kesepakatan penilai tetap mengikuti protokol penelitian.
 
 Audit PM-16 membaca CSV sampel serta manifest acuan yang dikonfigurasi melalui
 `PM_AUDIT_SAMPLE_CSV` dan `PM_AUDIT_MANIFEST`. Verdict sumber diabaikan; setiap
