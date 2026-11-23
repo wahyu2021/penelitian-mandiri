@@ -1,4 +1,5 @@
-import { PaginationControls } from '@/components/shared/PaginationControls'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import {
@@ -16,10 +17,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { formatDecimal, formatMethodName } from '@/features/evaluation/formatters'
 import type { EvaluationRun } from '@/lib/api/evaluation'
 import { formatNumber } from '@/lib/format'
 
 const ALL_SENTINEL = '__all__'
+const PAGE_SIZE_OPTIONS = [10, 25, 50, 100] as const
 
 export interface PerQueryFilters {
   method?: string
@@ -31,16 +34,21 @@ export interface PerQueryFilters {
 export function EvaluationPerQueryTable({
   run,
   filters,
+  perPage,
   onFiltersChange,
   onPageChange,
+  onPerPageChange,
 }: {
   run: EvaluationRun
   filters: PerQueryFilters
+  perPage: number
   onFiltersChange: (next: PerQueryFilters) => void
   onPageChange: (page: number) => void
+  onPerPageChange: (perPage: number) => void
 }) {
   const { per_query, filters: available } = run
-  const offset = (per_query.page - 1) * per_query.per_page
+  const startRow = per_query.total === 0 ? 0 : (per_query.page - 1) * per_query.per_page + 1
+  const endRow = Math.min(per_query.page * per_query.per_page, per_query.total)
 
   return (
     <Card>
@@ -68,7 +76,7 @@ export function EvaluationPerQueryTable({
                 <SelectItem value={ALL_SENTINEL}>Semua metode</SelectItem>
                 {available.methods.map((m) => (
                   <SelectItem key={m} value={m}>
-                    {m}
+                    {formatMethodName(m)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -175,7 +183,7 @@ export function EvaluationPerQueryTable({
                 per_query.items.map((row) => (
                   <TableRow key={`${row.query_id}-${row.method}-${row.config}`}>
                     <TableCell className="font-mono text-xs">{row.query_id}</TableCell>
-                    <TableCell>{row.method}</TableCell>
+                    <TableCell>{formatMethodName(row.method)}</TableCell>
                     <TableCell>{row.config}</TableCell>
                     <TableCell>{row.query_type}</TableCell>
                     <TableCell>{row.noise_type}</TableCell>
@@ -183,16 +191,16 @@ export function EvaluationPerQueryTable({
                       {formatNumber(row.n_relevant)}
                     </TableCell>
                     <TableCell className="text-right tabular-nums">
-                      {row.p5.toFixed(4).replace('.', ',')}
+                      {formatDecimal(row.p5, 4)}
                     </TableCell>
                     <TableCell className="text-right tabular-nums">
-                      {row.r10.toFixed(4).replace('.', ',')}
+                      {formatDecimal(row.r10, 4)}
                     </TableCell>
                     <TableCell className="text-right tabular-nums">
-                      {row.rr10.toFixed(4).replace('.', ',')}
+                      {formatDecimal(row.rr10, 4)}
                     </TableCell>
                     <TableCell className="text-right tabular-nums">
-                      {row.latency_ms.toFixed(1).replace('.', ',')}
+                      {formatDecimal(row.latency_ms, 1)}
                     </TableCell>
                   </TableRow>
                 ))
@@ -201,12 +209,59 @@ export function EvaluationPerQueryTable({
           </Table>
         </div>
 
-        <PaginationControls
-          offset={offset}
-          limit={per_query.per_page}
-          total={per_query.total}
-          onPage={(nextOffset) => onPageChange(Math.floor(nextOffset / per_query.per_page) + 1)}
-        />
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-3 text-sm">
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-xs text-muted-foreground tabular-nums">
+              {per_query.total === 0
+                ? '0 baris'
+                : `Menampilkan ${formatNumber(startRow)}–${formatNumber(endRow)} dari ${formatNumber(per_query.total)} baris`}
+            </span>
+            <div className="flex items-center gap-2">
+              <Label htmlFor="eval-per-page" className="text-xs text-muted-foreground">
+                Baris per halaman
+              </Label>
+              <Select
+                value={String(perPage)}
+                onValueChange={(value) => onPerPageChange(Number(value))}
+              >
+                <SelectTrigger id="eval-per-page" aria-label="Baris per halaman" className="w-20">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {PAGE_SIZE_OPTIONS.map((size) => (
+                    <SelectItem key={size} value={String(size)}>
+                      {size}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground tabular-nums">
+              Halaman {formatNumber(per_query.page)} dari {formatNumber(per_query.pages)}
+            </span>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={per_query.page <= 1}
+              onClick={() => onPageChange(Math.max(1, per_query.page - 1))}
+            >
+              <ChevronLeft aria-hidden="true" /> Sebelumnya
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={per_query.page >= per_query.pages}
+              onClick={() => onPageChange(Math.min(per_query.pages, per_query.page + 1))}
+            >
+              Berikutnya <ChevronRight aria-hidden="true" />
+            </Button>
+          </div>
+        </div>
       </CardContent>
     </Card>
   )

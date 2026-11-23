@@ -30,6 +30,7 @@ export function EvaluationPage() {
   const [split, setSplit] = useState<EvaluationSplit>('test')
   const [filters, setFilters] = useState<PerQueryFilters>({})
   const [page, setPage] = useState(1)
+  const [perPage, setPerPage] = useState(25)
 
   const query = useQuery({
     queryKey: [
@@ -40,6 +41,7 @@ export function EvaluationPage() {
       filters.queryType ?? null,
       filters.noiseType ?? null,
       page,
+      perPage,
     ],
     queryFn: () =>
       fetchEvaluationRun({
@@ -49,7 +51,7 @@ export function EvaluationPage() {
         queryType: filters.queryType,
         noiseType: filters.noiseType,
         page,
-        perPage: 25,
+        perPage,
       }),
     enabled: isAdmin,
   })
@@ -195,8 +197,13 @@ export function EvaluationPage() {
               <EvaluationPerQueryTable
                 run={run}
                 filters={filters}
+                perPage={perPage}
                 onFiltersChange={handleFiltersChange}
                 onPageChange={setPage}
+                onPerPageChange={(nextPerPage) => {
+                  setPerPage(nextPerPage)
+                  setPage(1)
+                }}
               />
             </TabsContent>
 

@@ -132,19 +132,17 @@ function sampleRun(split: 'test' | 'tuning', status: 'final' | 'pending' | 'draf
 }
 
 it('menampilkan KPI, tab, tabel alternatif grafik, pindah split, dan ekspor untuk admin', async () => {
-  vi.stubGlobal(
-    'fetch',
-    vi.fn(async (url: string) => {
-      if (url === '/api/v1/session') return stubSession('admin')
-      if (url.startsWith('/api/v1/research/evaluation?split=test')) {
-        return Response.json({ data: sampleRun('test', 'pending') })
-      }
-      if (url.startsWith('/api/v1/research/evaluation?split=tuning')) {
-        return Response.json({ data: sampleRun('tuning', 'pending') })
-      }
-      throw new Error(`Unexpected URL: ${url}`)
-    }),
-  )
+  const fetchMock = vi.fn(async (url: string) => {
+    if (url === '/api/v1/session') return stubSession('admin')
+    if (url.startsWith('/api/v1/research/evaluation?split=test')) {
+      return Response.json({ data: sampleRun('test', 'pending') })
+    }
+    if (url.startsWith('/api/v1/research/evaluation?split=tuning')) {
+      return Response.json({ data: sampleRun('tuning', 'pending') })
+    }
+    throw new Error(`Unexpected URL: ${url}`)
+  })
+  vi.stubGlobal('fetch', fetchMock)
 
   window.history.replaceState(null, '', '/app/research/evaluation')
   const user = userEvent.setup()
@@ -171,6 +169,12 @@ it('menampilkan KPI, tab, tabel alternatif grafik, pindah split, dan ekspor untu
 
   await user.click(screen.getByRole('tab', { name: /Rincian per Kueri/i }))
   expect(await screen.findByText('Q001')).toBeInTheDocument()
+  expect(screen.getByText('Menampilkan 1–1 dari 1 baris')).toBeInTheDocument()
+  expect(screen.getByText('Halaman 1 dari 1')).toBeInTheDocument()
+
+  await user.click(screen.getByRole('combobox', { name: 'Baris per halaman' }))
+  await user.click(await screen.findByRole('option', { name: '50' }))
+  expect(fetchMock.mock.calls.some(([url]) => String(url).includes('per_page=50'))).toBe(true)
 
   await user.click(screen.getByRole('tab', { name: /Bukti & Integritas/i }))
   expect(await screen.findByText('Commit Git')).toBeInTheDocument()
