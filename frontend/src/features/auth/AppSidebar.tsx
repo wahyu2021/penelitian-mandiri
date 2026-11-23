@@ -11,6 +11,7 @@ import {
   Search,
   UserRoundCheck,
   UserRound,
+  Users,
   type LucideIcon,
 } from 'lucide-react'
 import { NavLink } from 'react-router'
@@ -40,6 +41,10 @@ const operationalGroups: SidebarGroup[] = [
   {
     label: 'Pengelolaan data',
     items: [{ path: 'imports', label: 'Impor', icon: DatabaseBackup, adminOnly: true }],
+  },
+  {
+    label: 'Administrasi',
+    items: [{ path: 'users', label: 'Akun & Log', icon: Users, adminOnly: true }],
   },
 ]
 

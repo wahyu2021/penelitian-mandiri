@@ -7,6 +7,7 @@ import { DashboardPage } from '@/features/dashboard/DashboardPage'
 import { ArchiveDetailPage } from '@/features/archives/ArchiveDetailPage'
 import { ComparePage } from '@/features/compare/ComparePage'
 import { ImportPage } from '@/features/imports/ImportPage'
+import { UsersPage } from '@/features/admin/UsersPage'
 import { ExtractionAuditPage } from '@/features/audit/ExtractionAuditPage'
 import { SpmTypesPage } from '@/features/audit/SpmTypesPage'
 import { TestsetsPage } from '@/features/testsets/TestsetsPage'
@@ -44,6 +45,7 @@ export default function App() {
             <Route path="archives/:id" element={<ArchiveDetailPage />} />
             <Route path="compare" element={<ResearchRedirect to="/app/research/compare" />} />
             <Route path="imports" element={<ImportPage />} />
+            <Route path="users" element={<UsersPage />} />
             <Route
               path="extraction-audit"
               element={<ResearchRedirect to="/app/research/extraction-audit" />}

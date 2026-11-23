@@ -16,8 +16,9 @@ kode dugaan beserta sumbernya.
 
 Navigasi utama berada di sidebar pada desktop dan dibuka dari tombol menu
 pada tablet dan ponsel. Sidebar operasional menampilkan Dashboard dan
-Pencarian untuk petugas, ditambah Impor untuk admin (rute `/app/status`
-tetap dapat dibuka langsung untuk pemeriksaan layanan).
+Pencarian untuk petugas, ditambah Impor serta Akun & Log (`/app/users`)
+untuk admin (rute `/app/status` tetap dapat dibuka langsung untuk pemeriksaan
+layanan).
 Ruang `/app/research` memiliki sidebar Evaluasi dan Validasi Data tersendiri.
 Identitas dan tombol Keluar berada di bagian Akun. Admin dapat membuka
 `/app/research/testsets` dari kelompok Evaluasi untuk mendaftarkan, meninjau,

@@ -3,8 +3,9 @@
 ## Arah pengembangan
 
 Web sehari-hari berada di `/app`. Petugas melihat Dashboard dan Pencarian,
-sedangkan admin mendapat tambahan Impor (rute `/app/status` tetap dapat
-dibuka langsung untuk pemeriksaan layanan). Detail arsip dibuka dari hasil pencarian.
+sedangkan admin mendapat tambahan Impor serta Akun & Log (rute `/app/status`
+tetap dapat dibuka langsung untuk pemeriksaan layanan). Detail arsip dibuka
+dari hasil pencarian.
 
 Alat penelitian berada di `/app/research` dengan sidebar tersendiri.
 Untuk mengelola penelitian, admin membuka `/app/research/testsets`.

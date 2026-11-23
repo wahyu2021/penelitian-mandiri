@@ -67,6 +67,7 @@ describe('alur sesi React', () => {
       'Dashboard',
       'Pencarian',
       'Impor',
+      'Akun & Log',
     ])
     expect(mainNav.queryByRole('link', { name: 'Status' })).not.toBeInTheDocument()
     expect(mainNav.queryByRole('link', { name: 'Set uji' })).not.toBeInTheDocument()
