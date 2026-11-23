@@ -261,7 +261,7 @@ tampilan atau klaim dokumen saja.
 - **Uji:** versi terbuka/terkunci, split anti-kebocoran, peran, hash/ekspor,
   dan konsistensi dengan protokol v2; lint/tipe/build.
 - **Commit:** `feat(testset): tampilkan dan kunci versi kueri [PM-17]`.
-- **Jejak:** Status: belum dimulai | Uji: — | Commit: — | Catatan: —
+- **Jejak:** Selesai 23 November 2026 | Uji peran/CSRF, ganti draf, konflik hash, kunci, penolakan perubahan, validasi split, dan ekspor kompatibel CLI | 243 uji Python lulus, 5 dilewati, serta 34 uji frontend lulus | Lint, tipe, format, build, manifest ZIP, dan smoke paket ekstraksi lulus dengan set uji penelitian (112 varian, 56 kueri dasar) | Commit `a03b7d6` | Rilis `output/releases/pm-web-pm17.zip`, SHA-256 `72342db3b3435137c3174a3f496d43ae66042edbf9bda766583ce30d20987a02`.
 
 ### PM-18 — Penilaian relevansi paperless dua penilai
 
