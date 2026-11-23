@@ -240,7 +240,7 @@ tampilan atau klaim dokumen saja.
 - **Uji:** dump valid/rusak, rollback, kontrol path, peran, audit log, serta
   verifikasi cadangan; uji UI sukses/gagal; lint/tipe/build.
 - **Commit:** `feat(import): tambah impor salinan terkontrol [PM-15]`.
-- **Jejak:** Status: selesai (23 November 2026) | Uji: dump valid/rusak, hash berubah, path traversal, peran, CSRF, rollback saat angka acuan tidak cocok dan ID duplikat, cadangan berisi data lama, akun/log dan riwayat tetap ada; `pytest -q` 231 lulus, 5 dilewati; lint/tipe/format, 29 uji frontend dan build lulus; smoke ZIP hasil ekstraksi tanpa Node melewati impor dan pembaruan arsip; UI browser berhasil pada data contoh dan tidak overflow di viewport 390/820/1440 px | Commit: lihat riwayat Git PM-15 | Catatan: ZIP `output/releases/pm-web-20261123-174759.zip` (SHA-256 `c124e7783bc153f6e89fc2048467a675ff89f3fc65ef827cd6b42ead4cf8fdb8`); default verifikasi angka acuan aktif; sumber hanya dari `PM_IMPORT_DIR`, maksimal 100 MB.
+- **Jejak:** Status: selesai (23 November 2026) | Uji: dump valid/rusak, hash berubah, path traversal, peran, CSRF, rollback saat angka acuan tidak cocok dan ID duplikat, cadangan berisi data lama, akun/log dan riwayat tetap ada; `pytest -q` 231 lulus, 5 dilewati; lint/tipe/format, 29 uji frontend dan build lulus; smoke ZIP hasil ekstraksi tanpa Node melewati impor dan pembaruan arsip; UI browser berhasil pada data contoh dan tidak overflow di viewport 390/820/1440 px | Commit: `3e52b1c` | Catatan: ZIP `output/releases/pm-web-20261123-174759.zip` (SHA-256 `c124e7783bc153f6e89fc2048467a675ff89f3fc65ef827cd6b42ead4cf8fdb8`); default verifikasi angka acuan aktif; sumber hanya dari `PM_IMPORT_DIR`, maksimal 100 MB.
 
 ### PM-16 — Audit ekstraksi dan kamus SPM
 
