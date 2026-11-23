@@ -383,7 +383,7 @@ tampilan atau klaim dokumen saja.
 - **Uji:** kategori dengan data/kosong, filter, izin, konsistensi hitungan,
   ponsel/tablet, lint/tipe/build.
 - **Commit:** `feat(quality): tampilkan masalah metadata [PM-23]`.
-- **Jejak:** Status: ditunda (P2 opsional) | Uji: — | Commit: — | Catatan: ditunda hingga fitur inti operasional dan evaluasi utama selesai.
+- **Jejak:** Status: selesai (23 November 2026) | Uji: keadaan kosong/terisi, konsistensi hitungan cakupan 5 field dan kategori `data_issue`, filter jenis masalah/field/status SPM, paginasi & pilihan jumlah baris, izin admin (401/403), penolakan parameter 400; `python -m pytest -q` 273 lulus, 5 dilewati; `npm run lint`, `npm run typecheck`, `npm test` (48 uji frontend pada 15 berkas lulus), `npm run format:check`, dan `npm run build` lulus | Commit: `8fadc48` | Catatan: halaman admin `/app/research/quality` (lazy-loaded) menampilkan cakupan metadata via grafik batang `recharts` + tabel alternatif aksesibel serta menegaskan pemisahan kode SPM `dugaan`.
 
 ### PM-24 — Tinjauan kandidat duplikat
 
