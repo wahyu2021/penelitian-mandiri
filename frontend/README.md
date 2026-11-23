@@ -10,6 +10,9 @@ admin. Halaman perbandingan menampilkan urutan hasil lima metode dari API;
 skor antarmetode tidak digunakan sebagai angka yang sebanding. Halaman
 `/app/imports` memungkinkan admin memilih dump dari direktori server yang
 diizinkan, memeriksa pratinjau, lalu melihat hasil dan riwayat impor.
+Halaman `/app/extraction-audit` menilai lima bidang ekstraksi per sampel dan
+menampilkan progres per akun; `/app/spm-types` memberi admin formulir konfirmasi
+kode dugaan beserta sumbernya.
 
 ## Jalankan di laptop pengembang
 

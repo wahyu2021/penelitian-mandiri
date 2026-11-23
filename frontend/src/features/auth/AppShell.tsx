@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Archive, LogOut } from 'lucide-react'
+import { Archive, ClipboardCheck, LogOut } from 'lucide-react'
 import { NavLink, Outlet, useNavigate } from 'react-router'
 import { Button } from '@/components/ui/button'
 import { sessionKey, useSession } from '@/features/auth/useSession'
@@ -87,6 +87,16 @@ export function AppShell() {
           >
             Pencarian
           </NavLink>
+          <NavLink
+            to="/app/extraction-audit"
+            className={({ isActive }) =>
+              isActive
+                ? 'font-semibold text-primary underline underline-offset-8'
+                : 'text-muted-foreground hover:text-foreground'
+            }
+          >
+            <ClipboardCheck aria-hidden="true" className="mr-1 inline size-4" /> Audit ekstraksi
+          </NavLink>
           {user?.role === 'admin' && (
             <>
               <NavLink
@@ -108,6 +118,16 @@ export function AppShell() {
                 }
               >
                 Impor
+              </NavLink>
+              <NavLink
+                to="/app/spm-types"
+                className={({ isActive }) =>
+                  isActive
+                    ? 'font-semibold text-primary underline underline-offset-8'
+                    : 'text-muted-foreground hover:text-foreground'
+                }
+              >
+                Kamus SPM
               </NavLink>
             </>
           )}

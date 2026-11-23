@@ -32,6 +32,12 @@ def create_app(test_config=None):
         IMPORT_SOURCE_DIR=Path(os.environ["PM_IMPORT_DIR"]) if os.environ.get("PM_IMPORT_DIR") else None,
         IMPORT_BACKUP_DIR=Path(os.environ["PM_IMPORT_BACKUP_DIR"]) if os.environ.get("PM_IMPORT_BACKUP_DIR") else None,
         IMPORT_VERIFY_REFERENCE_COUNTS=os.environ.get("PM_IMPORT_VERIFY_REFERENCE_COUNTS", "1") == "1",
+        AUDIT_SAMPLE_CSV=Path(os.environ.get(
+            "PM_AUDIT_SAMPLE_CSV", str(PROJECT_ROOT / "output" / "audit_extraction_sample.csv")
+        )),
+        AUDIT_MANIFEST=Path(os.environ.get(
+            "PM_AUDIT_MANIFEST", str(PROJECT_ROOT / "output" / "audit_strata_summary.json")
+        )),
     )
     if test_config:
         app.config.update(test_config)

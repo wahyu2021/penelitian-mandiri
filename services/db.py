@@ -157,6 +157,45 @@ SCHEMA_STATEMENTS = [
         detail TEXT
     );
     """,
+    """
+    CREATE TABLE IF NOT EXISTS extraction_audit_dataset (
+        id INTEGER PRIMARY KEY CHECK (id = 1),
+        fingerprint TEXT NOT NULL,
+        sample_count INTEGER NOT NULL,
+        source_filename TEXT NOT NULL,
+        created_at TEXT NOT NULL
+    );
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS extraction_audit_assignment (
+        user_id INTEGER PRIMARY KEY REFERENCES user(id),
+        assigned_by INTEGER NOT NULL REFERENCES user(id),
+        assigned_at TEXT NOT NULL
+    );
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS extraction_audit_judgment (
+        user_id INTEGER NOT NULL REFERENCES user(id),
+        archive_id INTEGER NOT NULL,
+        field_name TEXT NOT NULL CHECK (field_name IN ('spm', 'sp2d', 'date', 'amount', 'party')),
+        verdict TEXT CHECK (verdict IN ('benar', 'salah', 'terlewat', 'tidak_ada_di_teks') OR verdict IS NULL),
+        note TEXT NOT NULL DEFAULT '',
+        updated_at TEXT NOT NULL,
+        PRIMARY KEY (user_id, archive_id, field_name)
+    );
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS extraction_audit_change (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL REFERENCES user(id),
+        archive_id INTEGER NOT NULL,
+        field_name TEXT NOT NULL,
+        old_verdict TEXT,
+        new_verdict TEXT,
+        note TEXT NOT NULL DEFAULT '',
+        changed_at TEXT NOT NULL
+    );
+    """,
 ]
 
 

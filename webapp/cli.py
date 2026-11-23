@@ -12,6 +12,16 @@ from services.db import init_db
 
 
 def register_commands(app):
+    @app.cli.group("db")
+    def db_group():
+        """Inisialisasi atau perbarui skema SQLite lokal."""
+
+    @db_group.command("upgrade")
+    def upgrade_db_command():
+        connection = init_db(current_app.config["DATABASE"])
+        connection.close()
+        click.echo("Skema SQLite lokal siap.")
+
     @app.cli.group("report")
     def report_group():
         """Perintah pelaporan dan ekspor evaluasi."""

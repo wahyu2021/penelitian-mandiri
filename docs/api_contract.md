@@ -164,6 +164,22 @@ database memberi 500 JSON tanpa rincian SQL.
 | `GET /api/v1/imports` | admin | berkas yang diizinkan, mode verifikasi, 20 riwayat batch terakhir; tersedia | PM-15 |
 | `GET /api/v1/imports/preview?source=...` | admin | hash, ukuran, dan jumlah arsip/OPD/klasifikasi; tersedia | PM-15 |
 | `POST /api/v1/imports` | admin | impor dengan `source`, `source_sha256`, dan header CSRF; cadangan serta ringkasan hasil; tersedia | PM-15 |
+| `GET /api/v1/extraction-audit?index=0` | admin, petugas ditugaskan | sampel acuan, verdict akun, progres, metrik sementara/final; tersedia | PM-16 |
+| `PATCH /api/v1/extraction-audit/{archive_id}/fields/{field}` | admin, petugas ditugaskan | `verdict`, `note`, `fingerprint` dan header CSRF; tersedia | PM-16 |
+| `GET /api/v1/extraction-audit/export` | admin, petugas ditugaskan | CSV akun sendiri setelah seluruh sel lengkap; tersedia | PM-16 |
+| `GET /api/v1/extraction-audit/reviewers` | admin | daftar petugas dan penugasan; tersedia | PM-16 |
+| `PUT/DELETE /api/v1/extraction-audit/reviewers/{id}` | admin | tugaskan/cabut petugas, header CSRF; tersedia | PM-16 |
+| `GET /api/v1/spm-types` | admin | kode, status, sumber, dan jumlah arsip; tersedia | PM-16 |
+| `POST /api/v1/spm-types/{code}/confirm` | admin | `label`, `source_note`, dan header CSRF; tersedia | PM-16 |
+
+Audit PM-16 membaca CSV sampel serta manifest acuan yang dikonfigurasi melalui
+`PM_AUDIT_SAMPLE_CSV` dan `PM_AUDIT_MANIFEST`. Verdict sumber diabaikan; setiap
+akun menyimpan penilaiannya sendiri dalam SQLite. `verdict: null` berarti belum
+dinilai, bukan benar atau salah. `fingerprint` mencegah simpan saat sampel acuan
+berubah. Hanya `benar`, `salah`, `terlewat`, dan `tidak_ada_di_teks` yang diterima.
+Ringkasan parsial diberi status `sementara`, ekspor ditolak dengan 409 sampai
+seluruh lima bidang pada setiap sampel lengkap. Konfirmasi SPM hanya menerima
+kode `dugaan` dan mencatat admin, waktu, label, serta sumbernya.
 
 Penamaan field rinci di atas diuji sebelum frontend fitur terkait dibangun.
 Endpoint lain yang belum ada tidak boleh dijadikan contoh respons berhasil

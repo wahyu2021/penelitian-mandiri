@@ -41,8 +41,9 @@ dan pemulihan ada di [runbook](docs/runbook_web_release.md).
 ## Menjalankan aplikasi web
 
 Aplikasi utama kini menyediakan login, dashboard korpus, pencarian LIKE dan empat metode fuzzy,
-perbandingan hasil untuk admin, detail arsip, dan impor salinan dump melalui web.
-Halaman audit, set uji, evaluasi, dan administrasi pengguna pada `rancangan_aplikasi.md` masih harus dibangun
+perbandingan hasil untuk admin, detail arsip, impor salinan dump, audit ekstraksi,
+dan konfirmasi kamus SPM melalui web.
+Halaman set uji, evaluasi, dan administrasi pengguna pada `rancangan_aplikasi.md` masih harus dibangun
 sebelum UAT/SUS untuk keseluruhan aplikasi.
 
 Route API berada di `webapp/api/`, mesin pencarian di `services/web_search.py`,
@@ -53,6 +54,7 @@ Jalankan dari folder `D:\Coding\PM`:
 
 ```powershell
 .\.venv\Scripts\flask.exe --app app user create --username admin --role admin
+.\.venv\Scripts\flask.exe --app app db upgrade
 .\.venv\Scripts\python.exe scripts\build_web_release.py
 .\.venv\Scripts\waitress-serve.exe --listen=127.0.0.1:8000 wsgi:app
 ```
@@ -87,6 +89,20 @@ Verifikasi angka acuan dump aktif secara default; pengelola dapat mengatur
 `PM_IMPORT_VERIFY_REFERENCE_COUNTS=0` hanya saat menggunakan salinan lain yang
 sudah diperiksa. Impor ulang mengganti data arsip lokal, tetapi mempertahankan
 akun, log aktivitas, dan riwayat batch. Cadangan SQLite dibuat lebih dulu.
+
+### Audit ekstraksi dan kamus SPM
+
+Atur `PM_AUDIT_SAMPLE_CSV` ke salinan `output/audit_extraction_sample.csv` dan
+`PM_AUDIT_MANIFEST` ke salinan `output/audit_strata_summary.json` di direktori
+data komputer uji. Kedua berkas **tidak masuk ZIP rilis**. Jalankan `flask --app
+app db upgrade` pada SQLite lokal yang sudah ada, lalu buka
+`/app/extraction-audit`. Admin dapat menugaskan akun petugas dari halaman itu.
+Setiap akun menilai lima bidang per sampel secara terpisah. Verdict lama pada CSV
+sumber tidak disalin ke akun web; penilaian baru disimpan di SQLite beserta
+riwayat perubahan. Angka sebelum seluruh sel terisi berstatus sementara.
+Setelah lengkap, tombol unduh menghasilkan CSV baru untuk dihitung dengan skrip
+audit yang sama; berkas sumber tidak ditimpa. Admin memeriksa kode `dugaan` di
+`/app/spm-types` dan wajib mencatat label serta sumber sebelum konfirmasi.
 
 ### Jika server dinas memakai XAMPP lama
 

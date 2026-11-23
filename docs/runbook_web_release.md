@@ -53,6 +53,8 @@ Gunakan `--output D:\lokasi\pm-web.zip` bila perlu lokasi lain. Simpan hasil
    | `PM_IMPORT_DIR` | Direktori absolut berisi dump `.sql` yang diizinkan; wajib untuk fitur impor web |
    | `PM_IMPORT_BACKUP_DIR` | Direktori absolut cadangan SQLite, di luar folder rilis; default `backups` di samping SQLite |
    | `PM_IMPORT_VERIFY_REFERENCE_COUNTS` | `1` secara default; `0` hanya untuk snapshot lain yang telah diperiksa |
+   | `PM_AUDIT_SAMPLE_CSV` | Path absolut salinan CSV sampel audit ekstraksi; tidak dikemas dalam ZIP |
+   | `PM_AUDIT_MANIFEST` | Path absolut manifest acuan untuk CSV audit; tidak dikemas dalam ZIP |
 
    Contoh untuk terminal uji lokal:
 
@@ -60,6 +62,7 @@ Gunakan `--output D:\lokasi\pm-web.zip` bila perlu lokasi lain. Simpan hasil
    $env:PM_DB_PATH = 'D:\PMData\app.sqlite'
    $env:PM_SECRET_KEY = '<nilai-rahasia-lokal-yang-tetap>'
    $env:PM_COOKIE_SECURE = '0'
+   .\.venv\Scripts\flask.exe --app app db upgrade
    .\.venv\Scripts\waitress-serve.exe --listen=127.0.0.1:8000 wsgi:app
    ```
 
@@ -83,6 +86,12 @@ Gunakan `--output D:\lokasi\pm-web.zip` bila perlu lokasi lain. Simpan hasil
   yang terlihat. Periksa hash dan jumlah pada pratinjau. Uji impor pada salinan
   SQLite terpisah terlebih dahulu; pastikan cadangan, riwayat, dan log tindakan
   tercatat. Jangan menunjuk `PM_DB_PATH` ke basis data SIMANIS asli.
+- Salin CSV sampel audit dan manifest ke direktori data terbatas, atur kedua
+  path absolutnya, dan periksa `/app/extraction-audit`. Admin menugaskan akun
+  petugas. Verdict pada CSV sumber tidak menjadi keputusan akun web; setiap
+  penilai mengisi sendiri. Ekspor CSV hasil hanya muncul setelah seluruh sel
+  lengkap. Periksa pula `/app/spm-types`: kode dugaan memerlukan label dan
+  sumber konfirmasi yang tercatat.
 
 ## 4. Cadangan dan pemulihan
 

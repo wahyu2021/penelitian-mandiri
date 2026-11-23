@@ -7,6 +7,8 @@ import { DashboardPage } from '@/features/dashboard/DashboardPage'
 import { ArchiveDetailPage } from '@/features/archives/ArchiveDetailPage'
 import { ComparePage } from '@/features/compare/ComparePage'
 import { ImportPage } from '@/features/imports/ImportPage'
+import { ExtractionAuditPage } from '@/features/audit/ExtractionAuditPage'
+import { SpmTypesPage } from '@/features/audit/SpmTypesPage'
 import { SearchPage } from '@/features/search/SearchPage'
 import { StatusPage } from '@/features/status/StatusPage'
 import { NotFoundPage } from '@/features/status/NotFoundPage'
@@ -25,6 +27,8 @@ export default function App() {
             <Route path="archives/:id" element={<ArchiveDetailPage />} />
             <Route path="compare" element={<ComparePage />} />
             <Route path="imports" element={<ImportPage />} />
+            <Route path="extraction-audit" element={<ExtractionAuditPage />} />
+            <Route path="spm-types" element={<SpmTypesPage />} />
             <Route path="status" element={<StatusPage />} />
           </Route>
         </Route>
