@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { readResponse } from '@/lib/api/session'
+import { apiGet } from '@/lib/api/client'
 
 const nullableText = z.string().nullable()
 
@@ -35,10 +35,6 @@ const archiveSchema = z.object({
 
 export type ArchiveDetail = z.infer<typeof archiveSchema>['data']
 
-export async function getArchiveDetail(id: number): Promise<ArchiveDetail> {
-  const response = await fetch(`/api/v1/archives/${id}`, {
-    credentials: 'same-origin',
-    cache: 'no-store',
-  })
-  return archiveSchema.parse(await readResponse(response)).data
+export function getArchiveDetail(id: number): Promise<ArchiveDetail> {
+  return apiGet(`/api/v1/archives/${id}`, archiveSchema)
 }

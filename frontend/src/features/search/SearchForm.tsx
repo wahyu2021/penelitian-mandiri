@@ -1,8 +1,10 @@
 import { useState, type FormEvent } from 'react'
 import { RotateCcw, Search } from 'lucide-react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
 import type { SearchFilters } from '@/lib/api/search'
 
@@ -52,9 +54,7 @@ export function SearchForm({
       <CardContent>
         <form onSubmit={submit} className="space-y-5">
           <div className="space-y-2">
-            <label htmlFor="search-query" className="text-sm font-medium">
-              Kata kunci
-            </label>
+            <Label htmlFor="search-query">Kata kunci</Label>
             <Input
               id="search-query"
               type="search"
@@ -67,9 +67,7 @@ export function SearchForm({
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div className="space-y-2">
-              <label htmlFor="filter-opd" className="text-sm font-medium">
-                OPD
-              </label>
+              <Label htmlFor="filter-opd">OPD</Label>
               <NativeSelect
                 className="w-full"
                 id="filter-opd"
@@ -85,9 +83,7 @@ export function SearchForm({
               </NativeSelect>
             </div>
             <div className="space-y-2">
-              <label htmlFor="filter-year" className="text-sm font-medium">
-                Tahun
-              </label>
+              <Label htmlFor="filter-year">Tahun</Label>
               <Input
                 id="filter-year"
                 type="number"
@@ -100,9 +96,7 @@ export function SearchForm({
               />
             </div>
             <div className="space-y-2">
-              <label htmlFor="filter-status" className="text-sm font-medium">
-                Status
-              </label>
+              <Label htmlFor="filter-status">Status</Label>
               <NativeSelect
                 className="w-full"
                 id="filter-status"
@@ -116,9 +110,7 @@ export function SearchForm({
               </NativeSelect>
             </div>
             <div className="space-y-2">
-              <label htmlFor="filter-limit" className="text-sm font-medium">
-                Hasil per halaman
-              </label>
+              <Label htmlFor="filter-limit">Hasil per halaman</Label>
               <NativeSelect
                 className="w-full"
                 id="filter-limit"
@@ -134,12 +126,14 @@ export function SearchForm({
             </div>
           </div>
           {optionsError && (
-            <p role="alert" className="text-sm text-destructive">
-              Pilihan OPD belum dapat dimuat.{' '}
-              <button type="button" className="underline" onClick={retryOptions}>
-                Coba lagi
-              </button>
-            </p>
+            <Alert variant="destructive">
+              <AlertDescription className="flex flex-wrap items-center gap-2">
+                <span>Pilihan OPD belum dapat dimuat.</span>
+                <button type="button" className="underline" onClick={retryOptions}>
+                  Coba lagi
+                </button>
+              </AlertDescription>
+            </Alert>
           )}
           <div className="flex flex-wrap gap-2">
             <Button type="submit">

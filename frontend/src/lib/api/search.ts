@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { readResponse } from '@/lib/api/session'
+import { apiGet } from '@/lib/api/client'
 
 const methodSchema = z.object({ name: z.string(), label: z.string() })
 const filtersSchema = z.object({
@@ -37,18 +37,10 @@ const resultSchema = z.object({
 export type SearchFilters = z.infer<typeof filtersSchema>['data']
 export type SearchResults = z.infer<typeof resultSchema>['data']
 
-export async function getSearchFilters(): Promise<SearchFilters> {
-  const response = await fetch('/api/v1/search/filters', {
-    credentials: 'same-origin',
-    cache: 'no-store',
-  })
-  return filtersSchema.parse(await readResponse(response)).data
+export function getSearchFilters(): Promise<SearchFilters> {
+  return apiGet('/api/v1/search/filters', filtersSchema)
 }
 
-export async function getSearchResults(params: string): Promise<SearchResults> {
-  const response = await fetch(`/api/v1/search?${params}`, {
-    credentials: 'same-origin',
-    cache: 'no-store',
-  })
-  return resultSchema.parse(await readResponse(response)).data
+export function getSearchResults(params: string): Promise<SearchResults> {
+  return apiGet(`/api/v1/search?${params}`, resultSchema)
 }

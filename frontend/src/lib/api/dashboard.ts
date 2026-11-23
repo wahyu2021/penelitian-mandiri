@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { readResponse } from '@/lib/api/session'
+import { apiGet } from '@/lib/api/client'
 
 const dashboardSchema = z.object({
   data: z.object({
@@ -30,10 +30,6 @@ const dashboardSchema = z.object({
 
 export type Dashboard = z.infer<typeof dashboardSchema>['data']
 
-export async function getDashboard(): Promise<Dashboard> {
-  const response = await fetch('/api/v1/dashboard', {
-    credentials: 'same-origin',
-    cache: 'no-store',
-  })
-  return dashboardSchema.parse(await readResponse(response)).data
+export function getDashboard(): Promise<Dashboard> {
+  return apiGet('/api/v1/dashboard', dashboardSchema)
 }

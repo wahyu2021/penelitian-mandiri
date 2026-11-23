@@ -1,15 +1,15 @@
-import { useEffect } from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { FileText } from 'lucide-react'
-import { Link, useNavigate, useSearchParams } from 'react-router'
+import { Link, useSearchParams } from 'react-router'
+import { ErrorStateCard, PageHeader } from '@/components/shared/PageLayout'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { sessionKey } from '@/features/auth/useSession'
 import { HighlightedText } from '@/features/search/HighlightedText'
 import { SearchForm, type FormValues } from '@/features/search/SearchForm'
+import { useUnauthorizedRedirect } from '@/hooks/useUnauthorizedRedirect'
 import { getSearchFilters, getSearchResults, type SearchResults } from '@/lib/api/search'
-import { ApiError } from '@/lib/api/session'
 
 function valuesFromUrl(params: URLSearchParams): FormValues {
   return {
@@ -40,20 +40,9 @@ export function SearchPage() {
     queryFn: () => getSearchResults(request),
     enabled: Boolean(submittedQuery),
   })
-  const queryClient = useQueryClient()
-  const navigate = useNavigate()
   const urlKey = urlParams.toString()
 
-  useEffect(() => {
-    if (
-      [options.error, results.error].some(
-        (error) => error instanceof ApiError && error.status === 401,
-      )
-    ) {
-      queryClient.removeQueries({ queryKey: sessionKey })
-      navigate('/login', { replace: true })
-    }
-  }, [options.error, results.error, queryClient, navigate])
+  useUnauthorizedRedirect([options.error, results.error])
 
   function submit(form: FormValues) {
     const next = new URLSearchParams()
@@ -79,13 +68,11 @@ export function SearchPage() {
 
   return (
     <main className="space-y-6 py-8 sm:py-10">
-      <header>
-        <p className="text-sm font-medium text-muted-foreground">Temu kembali</p>
-        <h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">Pencarian arsip</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Cari berdasarkan nomor SPM, pekerjaan, atau pihak.
-        </p>
-      </header>
+      <PageHeader
+        eyebrow="Temu kembali"
+        title="Pencarian arsip"
+        description="Cari berdasarkan nomor SPM, pekerjaan, atau pihak."
+      />
 
       <SearchForm
         key={urlKey}
@@ -106,17 +93,11 @@ export function SearchPage() {
           <Skeleton className="h-24 w-full" />
         </div>
       ) : results.isError ? (
-        <Card role="alert">
-          <CardContent className="space-y-3">
-            <p className="font-medium">Pencarian belum dapat ditampilkan.</p>
-            <p className="text-sm text-muted-foreground">
-              Periksa filter dan sambungan layanan, lalu coba lagi.
-            </p>
-            <Button variant="outline" onClick={() => void results.refetch()}>
-              Coba lagi
-            </Button>
-          </CardContent>
-        </Card>
+        <ErrorStateCard
+          title="Pencarian belum dapat ditampilkan."
+          description="Periksa filter dan sambungan layanan, lalu coba lagi."
+          onRetry={() => void results.refetch()}
+        />
       ) : (
         <SearchResultList data={results.data} onPage={changePage} returnSearch={request} />
       )}
@@ -183,9 +164,9 @@ function SearchResultList({
                       Arsip #{item.id}
                     </Link>
                   </p>
-                  <span className="rounded-md bg-muted px-2 py-1 text-xs font-medium">
+                  <Badge variant="secondary">
                     {data.method === 'like' ? 'Cocok' : `Skor ${item.score.toFixed(3)}`}
-                  </span>
+                  </Badge>
                 </div>
                 <p className="break-words text-sm leading-6">
                   <HighlightedText

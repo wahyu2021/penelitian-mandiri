@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { readResponse } from '@/lib/api/session'
+import { apiGet, apiMutate } from '@/lib/api/client'
 
 const sourceSchema = z.object({ name: z.string(), size_bytes: z.number().int().nonnegative() })
 const historySchema = z.object({
@@ -53,31 +53,22 @@ export type ImportOverview = z.infer<typeof overviewSchema>['data']
 export type ImportPreview = z.infer<typeof previewSchema>['data']
 export type ImportResult = z.infer<typeof importResultSchema>['data']
 
-export async function getImportOverview(): Promise<ImportOverview> {
-  const response = await fetch('/api/v1/imports', { credentials: 'same-origin', cache: 'no-store' })
-  return overviewSchema.parse(await readResponse(response)).data
+export function getImportOverview(): Promise<ImportOverview> {
+  return apiGet('/api/v1/imports', overviewSchema)
 }
 
-export async function getImportPreview(source: string): Promise<ImportPreview> {
+export function getImportPreview(source: string): Promise<ImportPreview> {
   const params = new URLSearchParams({ source })
-  const response = await fetch(`/api/v1/imports/preview?${params}`, {
-    credentials: 'same-origin',
-    cache: 'no-store',
-  })
-  return previewSchema.parse(await readResponse(response)).data
+  return apiGet(`/api/v1/imports/preview?${params}`, previewSchema)
 }
 
-export async function runImport(
+export function runImport(
   source: string,
   sourceSha256: string,
   csrfToken: string,
 ): Promise<ImportResult> {
-  const response = await fetch('/api/v1/imports', {
-    method: 'POST',
-    credentials: 'same-origin',
-    cache: 'no-store',
-    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
-    body: JSON.stringify({ source, source_sha256: sourceSha256 }),
+  return apiMutate('/api/v1/imports', 'POST', importResultSchema, {
+    csrfToken,
+    body: { source, source_sha256: sourceSha256 },
   })
-  return importResultSchema.parse(await readResponse(response)).data
 }

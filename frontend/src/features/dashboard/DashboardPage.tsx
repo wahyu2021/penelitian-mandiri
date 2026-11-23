@@ -1,38 +1,23 @@
-import { useEffect, useState, type FormEvent } from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState, type FormEvent } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { Archive, CircleCheck, CircleSlash, FileText, RefreshCw, Search } from 'lucide-react'
 import { Link, useNavigate } from 'react-router'
+import { ErrorStateCard, PageHeader } from '@/components/shared/PageLayout'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
-import { sessionKey } from '@/features/auth/useSession'
+import { useUnauthorizedRedirect } from '@/hooks/useUnauthorizedRedirect'
 import { getDashboard, type Dashboard } from '@/lib/api/dashboard'
-import { ApiError } from '@/lib/api/session'
-
-const numberFormat = new Intl.NumberFormat('id-ID')
-const dateFormat = new Intl.DateTimeFormat('id-ID', {
-  dateStyle: 'medium',
-  timeStyle: 'short',
-})
-
-function formatImportTime(value: string) {
-  const parsed = new Date(value)
-  return Number.isNaN(parsed.getTime()) ? value : dateFormat.format(parsed)
-}
+import { formatDateTimeId, formatNumber } from '@/lib/format'
 
 export function DashboardPage() {
   const navigate = useNavigate()
-  const queryClient = useQueryClient()
   const [quickQuery, setQuickQuery] = useState('')
   const query = useQuery({ queryKey: ['dashboard'], queryFn: getDashboard })
 
-  useEffect(() => {
-    if (query.error instanceof ApiError && query.error.status === 401) {
-      queryClient.removeQueries({ queryKey: sessionKey })
-      navigate('/login', { replace: true })
-    }
-  }, [query.error, queryClient, navigate])
+  useUnauthorizedRedirect([query.error])
 
   function submitQuickSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -40,37 +25,37 @@ export function DashboardPage() {
     navigate(trimmed ? `/app/search?q=${encodeURIComponent(trimmed)}` : '/app/search')
   }
 
-  return (
-    <main className="py-8 sm:py-10">
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="text-sm font-medium text-muted-foreground">Ikhtisar korpus</p>
-          <h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">
-            Dashboard arsip
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            {query.data?.latest_import
-              ? `Pembaruan data terakhir: ${formatImportTime(query.data.latest_import.imported_at)} (${query.data.latest_import.source_filename})`
-              : query.data
-                ? 'Belum ada riwayat impor data.'
-                : 'Angka langsung dari basis data lokal.'}
-          </p>
-        </div>
-        <Button variant="outline" onClick={() => void query.refetch()} disabled={query.isFetching}>
-          <RefreshCw aria-hidden="true" /> Perbarui
-        </Button>
-      </div>
+  const subtitle = query.data?.latest_import
+    ? `Pembaruan data terakhir: ${formatDateTimeId(query.data.latest_import.imported_at)} (${query.data.latest_import.source_filename})`
+    : query.data
+      ? 'Belum ada riwayat impor data.'
+      : 'Angka langsung dari basis data lokal.'
 
-      <Card className="mb-6">
+  return (
+    <main className="space-y-6 py-8 sm:py-10">
+      <PageHeader
+        eyebrow="Ikhtisar korpus"
+        title="Dashboard arsip"
+        description={subtitle}
+        actions={
+          <Button
+            variant="outline"
+            onClick={() => void query.refetch()}
+            disabled={query.isFetching}
+          >
+            <RefreshCw aria-hidden="true" /> Perbarui
+          </Button>
+        }
+      />
+
+      <Card>
         <CardContent>
           <form
             onSubmit={submitQuickSearch}
             className="flex flex-col gap-3 sm:flex-row sm:items-end"
           >
             <div className="min-w-0 flex-1 space-y-2">
-              <label htmlFor="dashboard-quick-search" className="text-sm font-medium">
-                Pencarian cepat arsip
-              </label>
+              <Label htmlFor="dashboard-quick-search">Pencarian cepat arsip</Label>
               <Input
                 id="dashboard-quick-search"
                 type="search"
@@ -91,17 +76,11 @@ export function DashboardPage() {
       {query.isPending ? (
         <DashboardLoading />
       ) : query.isError ? (
-        <Card role="alert">
-          <CardContent className="space-y-3">
-            <p className="font-medium">Ringkasan belum dapat dimuat.</p>
-            <p className="text-sm text-muted-foreground">
-              Periksa sambungan layanan lalu coba lagi.
-            </p>
-            <Button variant="outline" onClick={() => void query.refetch()}>
-              Coba lagi
-            </Button>
-          </CardContent>
-        </Card>
+        <ErrorStateCard
+          title="Ringkasan belum dapat dimuat."
+          description="Periksa sambungan layanan lalu coba lagi."
+          onRetry={() => void query.refetch()}
+        />
       ) : (
         <DashboardContent data={query.data} />
       )}
@@ -151,7 +130,7 @@ function DashboardContent({ data }: { data: Dashboard }) {
                 <Icon aria-hidden="true" className="size-4" />
               </div>
               <strong className="block text-3xl font-semibold tabular-nums">
-                {numberFormat.format(value)}
+                {formatNumber(value)}
               </strong>
             </CardContent>
           </Card>

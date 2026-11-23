@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { readResponse } from '@/lib/api/session'
+import { apiGet, apiMutate } from '@/lib/api/client'
 
 const adminUserSchema = z.object({
   id: z.number().int().positive(),
@@ -39,59 +39,43 @@ const activityListSchema = z.object({
 export type AdminUser = z.infer<typeof adminUserSchema>
 export type ActivityLogItem = z.infer<typeof activityItemSchema>
 
-export async function listAdminUsers(): Promise<AdminUser[]> {
-  const response = await fetch('/api/v1/admin/users', {
-    credentials: 'same-origin',
-    cache: 'no-store',
-  })
-  return usersListSchema.parse(await readResponse(response)).data.users
+export function listAdminUsers(): Promise<AdminUser[]> {
+  return apiGet('/api/v1/admin/users', usersListSchema).then((data) => data.users)
 }
 
-export async function createAdminUser(
+export function createAdminUser(
   payload: { username: string; role: 'admin' | 'petugas'; password: string },
   csrfToken: string,
 ): Promise<AdminUser> {
-  const response = await fetch('/api/v1/admin/users', {
-    method: 'POST',
-    credentials: 'same-origin',
-    cache: 'no-store',
-    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
-    body: JSON.stringify(payload),
-  })
-  return singleUserSchema.parse(await readResponse(response)).data.user
+  return apiMutate('/api/v1/admin/users', 'POST', singleUserSchema, {
+    csrfToken,
+    body: payload,
+  }).then((data) => data.user)
 }
 
-export async function updateAdminUserStatus(
+export function updateAdminUserStatus(
   userId: number,
   isActive: boolean,
   csrfToken: string,
 ): Promise<AdminUser> {
-  const response = await fetch(`/api/v1/admin/users/${userId}/status`, {
-    method: 'PATCH',
-    credentials: 'same-origin',
-    cache: 'no-store',
-    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
-    body: JSON.stringify({ is_active: isActive }),
-  })
-  return singleUserSchema.parse(await readResponse(response)).data.user
+  return apiMutate(`/api/v1/admin/users/${userId}/status`, 'PATCH', singleUserSchema, {
+    csrfToken,
+    body: { is_active: isActive },
+  }).then((data) => data.user)
 }
 
-export async function resetAdminUserPassword(
+export function resetAdminUserPassword(
   userId: number,
   password: string,
   csrfToken: string,
 ): Promise<AdminUser> {
-  const response = await fetch(`/api/v1/admin/users/${userId}/reset-password`, {
-    method: 'POST',
-    credentials: 'same-origin',
-    cache: 'no-store',
-    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
-    body: JSON.stringify({ password }),
-  })
-  return singleUserSchema.parse(await readResponse(response)).data.user
+  return apiMutate(`/api/v1/admin/users/${userId}/reset-password`, 'POST', singleUserSchema, {
+    csrfToken,
+    body: { password },
+  }).then((data) => data.user)
 }
 
-export async function listActivityLogs(
+export function listActivityLogs(
   filters: { action?: string; username?: string; limit?: number } = {},
 ): Promise<ActivityLogItem[]> {
   const params = new URLSearchParams()
@@ -99,9 +83,7 @@ export async function listActivityLogs(
   if (filters.username?.trim()) params.set('username', filters.username.trim())
   if (filters.limit) params.set('limit', String(filters.limit))
   const query = params.toString()
-  const response = await fetch(`/api/v1/admin/activity${query ? `?${query}` : ''}`, {
-    credentials: 'same-origin',
-    cache: 'no-store',
-  })
-  return activityListSchema.parse(await readResponse(response)).data.items
+  return apiGet(`/api/v1/admin/activity${query ? `?${query}` : ''}`, activityListSchema).then(
+    (data) => data.items,
+  )
 }
