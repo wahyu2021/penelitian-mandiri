@@ -298,7 +298,7 @@ tampilan atau klaim dokumen saja.
 - **Uji:** tiap operasi sukses/gagal, self-disable, 401/403, CSRF, log,
   dan tidak ada kata sandi di respons/log; lint/tipe/build.
 - **Commit:** `feat(admin): tambah akun dan log aktivitas [PM-21]`.
-- **Jejak:** Status: belum dimulai | Uji: — | Commit: — | Catatan: diprioritaskan di jalur operasional untuk pengelolaan akun petugas dan admin tanpa bergantung pada CLI.
+- **Jejak:** Status: selesai (23 November 2026) | Uji: `npm run lint`, `npm run typecheck`, `npm test` (40 uji frontend pada 11 berkas lulus), `npm run format:check`, `npm run build` lulus; `python -m pytest -q` 250 lulus, 5 dilewati | Commit: `1cd9965` | Catatan: halaman admin `/app/users` (menu `Akun & Log`) dan endpoint `/api/v1/admin/users` serta `/api/v1/admin/activity` mendukung tambah akun, aktif/nonaktif (menolak self-disable 409), reset kata sandi, filter log aktivitas, penolakan petugas/anonim (403/401), CSRF, dan tanpa kebocoran kata sandi di respons maupun log.
 
 ## Jalur Ruang Penelitian (`/app/research` — Ruang Pribadi Peneliti)
 
