@@ -10,7 +10,13 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
-import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { useSession } from '@/features/auth/useSession'
 import { ImportHistoryCard } from '@/features/imports/ImportHistoryCard'
 import { useUnauthorizedRedirect } from '@/hooks/useUnauthorizedRedirect'
@@ -93,23 +99,26 @@ export function ImportPage() {
                 <>
                   <div className="space-y-2">
                     <Label htmlFor="import-source">Berkas dump</Label>
-                    <NativeSelect
-                      className="w-full max-w-md"
-                      id="import-source"
-                      value={source}
-                      onChange={(event) => {
-                        setSource(event.target.value)
+                    <Select
+                      value={source || '__none__'}
+                      onValueChange={(value) => {
+                        setSource(value === '__none__' ? '' : value)
                         setConfirmed(false)
                         mutation.reset()
                       }}
                     >
-                      <NativeSelectOption value="">Pilih berkas</NativeSelectOption>
-                      {overview.data.sources.map((item) => (
-                        <NativeSelectOption key={item.name} value={item.name}>
-                          {item.name}
-                        </NativeSelectOption>
-                      ))}
-                    </NativeSelect>
+                      <SelectTrigger id="import-source" className="w-full max-w-md">
+                        <SelectValue placeholder="Pilih berkas" />
+                      </SelectTrigger>
+                      <SelectContent position="popper">
+                        <SelectItem value="__none__">Pilih berkas</SelectItem>
+                        {overview.data.sources.map((item) => (
+                          <SelectItem key={item.name} value={item.name}>
+                            {item.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   {source &&
                     (preview.isPending ? (

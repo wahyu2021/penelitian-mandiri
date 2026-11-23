@@ -66,7 +66,7 @@ export function ActivityLogCard({
               value={draftAction}
               onChange={(event) => setDraftAction(event.target.value)}
               placeholder="mis. login, user_create"
-              className="h-9 w-48"
+              className="w-48"
             />
           </div>
           <div className="space-y-1.5">
@@ -78,7 +78,7 @@ export function ActivityLogCard({
               value={draftUsername}
               onChange={(event) => setDraftUsername(event.target.value)}
               placeholder="Nama pengguna"
-              className="h-9 w-44"
+              className="w-44"
             />
           </div>
           <Button type="submit" variant="outline" size="sm">

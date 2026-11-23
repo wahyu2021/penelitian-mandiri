@@ -191,7 +191,7 @@ export function UsersTableCard({
                             value={resetPassword}
                             onChange={(event) => setResetPassword(event.target.value)}
                             placeholder="Sandi baru (min. 10)"
-                            className="h-9 w-48"
+                            className="w-48"
                           />
                           <Button type="submit" size="sm" disabled={resetMutation.isPending}>
                             Simpan sandi

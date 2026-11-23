@@ -5,8 +5,16 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import type { SearchFilters } from '@/lib/api/search'
+
+const ALL_VALUE = '__all__'
 
 export type FormValues = {
   q: string
@@ -62,25 +70,27 @@ export function SearchForm({
               onChange={(event) => update('q', event.target.value)}
               maxLength={200}
               placeholder="Contoh: pembangunan jembatan, nomor SPM, atau nama pihak"
-              className="h-10"
             />
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div className="space-y-2">
               <Label htmlFor="filter-opd">OPD</Label>
-              <NativeSelect
-                className="w-full"
-                id="filter-opd"
-                value={form.opd_id}
-                onChange={(event) => update('opd_id', event.target.value)}
+              <Select
+                value={form.opd_id || ALL_VALUE}
+                onValueChange={(value) => update('opd_id', value === ALL_VALUE ? '' : value)}
               >
-                <NativeSelectOption value="">Semua OPD</NativeSelectOption>
-                {options?.opds.map((opd) => (
-                  <NativeSelectOption key={opd.id} value={String(opd.id)}>
-                    {opd.name}
-                  </NativeSelectOption>
-                ))}
-              </NativeSelect>
+                <SelectTrigger id="filter-opd" className="w-full">
+                  <SelectValue placeholder="Semua OPD" />
+                </SelectTrigger>
+                <SelectContent position="popper">
+                  <SelectItem value={ALL_VALUE}>Semua OPD</SelectItem>
+                  {options?.opds.map((opd) => (
+                    <SelectItem key={opd.id} value={String(opd.id)}>
+                      {opd.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="filter-year">Tahun</Label>
@@ -92,37 +102,39 @@ export function SearchForm({
                 value={form.year}
                 onChange={(event) => update('year', event.target.value)}
                 placeholder="Semua tahun"
-                className="h-10"
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="filter-status">Status</Label>
-              <NativeSelect
-                className="w-full"
-                id="filter-status"
-                value={form.status}
-                onChange={(event) => update('status', event.target.value)}
+              <Select
+                value={form.status || ALL_VALUE}
+                onValueChange={(value) => update('status', value === ALL_VALUE ? '' : value)}
               >
-                <NativeSelectOption value="">Semua status</NativeSelectOption>
-                <NativeSelectOption value="1">Aktif</NativeSelectOption>
-                <NativeSelectOption value="2">Nonaktif</NativeSelectOption>
-                <NativeSelectOption value="3">Lainnya</NativeSelectOption>
-              </NativeSelect>
+                <SelectTrigger id="filter-status" className="w-full">
+                  <SelectValue placeholder="Semua status" />
+                </SelectTrigger>
+                <SelectContent position="popper">
+                  <SelectItem value={ALL_VALUE}>Semua status</SelectItem>
+                  <SelectItem value="1">Aktif</SelectItem>
+                  <SelectItem value="2">Nonaktif</SelectItem>
+                  <SelectItem value="3">Lainnya</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="filter-limit">Hasil per halaman</Label>
-              <NativeSelect
-                className="w-full"
-                id="filter-limit"
-                value={form.limit}
-                onChange={(event) => update('limit', event.target.value)}
-              >
-                {[10, 20, 50].map((limit) => (
-                  <NativeSelectOption key={limit} value={String(limit)}>
-                    {limit}
-                  </NativeSelectOption>
-                ))}
-              </NativeSelect>
+              <Select value={form.limit} onValueChange={(value) => update('limit', value)}>
+                <SelectTrigger id="filter-limit" className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent position="popper">
+                  {[10, 20, 50].map((limit) => (
+                    <SelectItem key={limit} value={String(limit)}>
+                      {limit}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
           {optionsError && (

@@ -29,10 +29,9 @@ export function QuickSearchCard() {
               onChange={(event) => setQuickQuery(event.target.value)}
               maxLength={200}
               placeholder="Cari nomor SPM, pekerjaan, atau nama pihak…"
-              className="h-10"
             />
           </div>
-          <Button type="submit" className="h-10 shrink-0">
+          <Button type="submit" className="shrink-0">
             <Search aria-hidden="true" /> Cari arsip
           </Button>
         </form>

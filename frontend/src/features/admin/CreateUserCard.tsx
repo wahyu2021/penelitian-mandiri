@@ -6,7 +6,13 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { createAdminUser } from '@/lib/api/adminUsers'
 import { ApiError } from '@/lib/api/session'
 
@@ -80,20 +86,19 @@ export function CreateUserCard({
               onChange={(event) => setUsername(event.target.value)}
               maxLength={80}
               placeholder="mis. petugas_budi"
-              className="h-10"
             />
           </div>
           <div className="space-y-2">
             <Label htmlFor="new-role">Peran</Label>
-            <NativeSelect
-              id="new-role"
-              value={role}
-              onChange={(event) => setRole(event.target.value as 'admin' | 'petugas')}
-              className="w-full"
-            >
-              <NativeSelectOption value="petugas">Petugas</NativeSelectOption>
-              <NativeSelectOption value="admin">Admin</NativeSelectOption>
-            </NativeSelect>
+            <Select value={role} onValueChange={(value) => setRole(value as 'admin' | 'petugas')}>
+              <SelectTrigger id="new-role" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent position="popper">
+                <SelectItem value="petugas">Petugas</SelectItem>
+                <SelectItem value="admin">Admin</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <Label htmlFor="new-password">Kata sandi (min. 10 karakter)</Label>
@@ -103,7 +108,6 @@ export function CreateUserCard({
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               placeholder="Minimal 10 karakter"
-              className="h-10"
             />
           </div>
           <div className="flex flex-wrap items-center justify-between gap-3 sm:col-span-3">
