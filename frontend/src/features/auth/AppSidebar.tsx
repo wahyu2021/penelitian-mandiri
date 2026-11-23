@@ -1,5 +1,4 @@
 import {
-  Activity,
   Archive,
   BookOpen,
   ClipboardCheck,
@@ -12,12 +11,25 @@ import {
   Search,
   UserRoundCheck,
   UserRound,
+  type LucideIcon,
 } from 'lucide-react'
 import { NavLink } from 'react-router'
 import { Button } from '@/components/ui/button'
 import type { Session } from '@/lib/api/session'
 
-const groups = [
+type SidebarItem = {
+  path: string
+  label: string
+  icon: LucideIcon
+  adminOnly?: boolean
+}
+
+type SidebarGroup = {
+  label: string
+  items: SidebarItem[]
+}
+
+const operationalGroups: SidebarGroup[] = [
   {
     label: 'Arsip',
     items: [
@@ -25,6 +37,13 @@ const groups = [
       { path: 'search', label: 'Pencarian', icon: Search },
     ],
   },
+  {
+    label: 'Pengelolaan data',
+    items: [{ path: 'imports', label: 'Impor', icon: DatabaseBackup, adminOnly: true }],
+  },
+]
+
+const researchGroups: SidebarGroup[] = [
   {
     label: 'Evaluasi',
     items: [
@@ -36,37 +55,34 @@ const groups = [
     ],
   },
   {
-    label: 'Pengelolaan data',
-    items: [
-      { path: 'imports', label: 'Impor', icon: DatabaseBackup, adminOnly: true },
-      { path: 'spm-types', label: 'Kamus SPM', icon: BookOpen, adminOnly: true },
-    ],
-  },
-  {
-    label: 'Sistem',
-    items: [{ path: 'status', label: 'Status', icon: Activity }],
+    label: 'Validasi data',
+    items: [{ path: 'spm-types', label: 'Kamus SPM', icon: BookOpen, adminOnly: true }],
   },
 ]
 
-export function AppBrand() {
+export function AppBrand({ research = false }: { research?: boolean }) {
   return (
     <div className="flex min-w-0 items-center gap-3">
       <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground">
         <Archive aria-hidden="true" className="size-4" />
       </span>
-      <p className="text-sm leading-snug font-semibold">Sistem Pencarian Arsip</p>
+      <p className="text-sm leading-snug font-semibold">
+        {research ? 'Ruang Penelitian' : 'Sistem Pencarian Arsip'}
+      </p>
     </div>
   )
 }
 
 export function AppSidebar({
   user,
+  research = false,
   onNavigate,
   onLogout,
   loggingOut,
   logoutFailed,
 }: {
   user: Session['user']
+  research?: boolean
   onNavigate?: () => void
   onLogout: () => void
   loggingOut: boolean
@@ -75,7 +91,7 @@ export function AppSidebar({
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain">
       <nav aria-label="Navigasi utama" className="flex-1 space-y-5 px-3 py-5">
-        {groups.map(({ label, items }) => {
+        {(research ? researchGroups : operationalGroups).map(({ label, items }) => {
           const visible = items.filter((item) => !item.adminOnly || user?.role === 'admin')
           if (!visible.length) return null
           return (
@@ -85,7 +101,7 @@ export function AppSidebar({
                 {visible.map(({ path, label, icon: Icon }) => (
                   <li key={path}>
                     <NavLink
-                      to={`/app/${path}`}
+                      to={`${research ? '/app/research' : '/app'}/${path}`}
                       onClick={onNavigate}
                       className={({ isActive }) =>
                         `flex min-h-11 items-center gap-3 rounded-md px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring ${
@@ -104,6 +120,15 @@ export function AppSidebar({
             </section>
           )
         })}
+        {research && (
+          <NavLink
+            to="/app/search"
+            onClick={onNavigate}
+            className="flex min-h-11 items-center gap-3 rounded-md px-3 text-sm text-primary focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <Search aria-hidden="true" className="size-4" /> Buka pencarian arsip
+          </NavLink>
+        )}
       </nav>
       <section aria-label="Akun" className="border-t border-sidebar-border px-4 py-4">
         <h2 className="text-xs font-medium text-muted-foreground">Akun</h2>

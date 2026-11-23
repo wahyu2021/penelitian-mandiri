@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from 'react-router'
+import { Navigate, Route, Routes, useLocation } from 'react-router'
 import { AppProviders } from '@/app/providers'
 import { AppShell } from '@/features/auth/AppShell'
 import { ProtectedRoute, RootRedirect } from '@/features/auth/AuthRoutes'
@@ -16,6 +16,11 @@ import { SearchPage } from '@/features/search/SearchPage'
 import { StatusPage } from '@/features/status/StatusPage'
 import { NotFoundPage } from '@/features/status/NotFoundPage'
 
+function ResearchRedirect({ to }: { to: string }) {
+  const { search } = useLocation()
+  return <Navigate to={{ pathname: to, search }} replace />
+}
+
 export default function App() {
   return (
     <AppProviders>
@@ -23,18 +28,33 @@ export default function App() {
         <Route path="/" element={<RootRedirect />} />
         <Route path="/login" element={<LoginPage />} />
         <Route element={<ProtectedRoute />}>
-          <Route path="/app" element={<AppShell />}>
-            <Route index element={<Navigate to="dashboard" replace />} />
-            <Route path="dashboard" element={<DashboardPage />} />
-            <Route path="search" element={<SearchPage />} />
-            <Route path="archives/:id" element={<ArchiveDetailPage />} />
+          <Route path="/app/research" element={<AppShell research />}>
+            <Route index element={<Navigate to="relevance" replace />} />
             <Route path="compare" element={<ComparePage />} />
-            <Route path="imports" element={<ImportPage />} />
             <Route path="extraction-audit" element={<ExtractionAuditPage />} />
             <Route path="spm-types" element={<SpmTypesPage />} />
             <Route path="testsets" element={<TestsetsPage />} />
             <Route path="relevance" element={<RelevancePage />} />
             <Route path="relevance-admin" element={<RelevanceAdminPage />} />
+          </Route>
+          <Route path="/app" element={<AppShell />}>
+            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route path="dashboard" element={<DashboardPage />} />
+            <Route path="search" element={<SearchPage />} />
+            <Route path="archives/:id" element={<ArchiveDetailPage />} />
+            <Route path="compare" element={<ResearchRedirect to="/app/research/compare" />} />
+            <Route path="imports" element={<ImportPage />} />
+            <Route
+              path="extraction-audit"
+              element={<ResearchRedirect to="/app/research/extraction-audit" />}
+            />
+            <Route path="spm-types" element={<ResearchRedirect to="/app/research/spm-types" />} />
+            <Route path="testsets" element={<ResearchRedirect to="/app/research/testsets" />} />
+            <Route path="relevance" element={<ResearchRedirect to="/app/research/relevance" />} />
+            <Route
+              path="relevance-admin"
+              element={<ResearchRedirect to="/app/research/relevance-admin" />}
+            />
             <Route path="status" element={<StatusPage />} />
           </Route>
         </Route>

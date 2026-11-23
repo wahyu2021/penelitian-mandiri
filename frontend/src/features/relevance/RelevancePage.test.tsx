@@ -67,6 +67,12 @@ it('menampilkan kebutuhan asli, menyimpan ragu parsial, lalu memulihkan jawaban 
   const user = userEvent.setup()
   const app = render(<App />)
   expect(await screen.findByText('Perbaikan pipa')).toBeInTheDocument()
+  expect(window.location.pathname).toBe('/app/research/relevance')
+  expect(screen.getAllByText('Ruang Penelitian').length).toBeGreaterThan(0)
+  expect(screen.getByRole('link', { name: 'Buka pencarian arsip' })).toHaveAttribute(
+    'href',
+    '/app/search',
+  )
   expect(screen.getByText('Pembayaran perbaikan jaringan pipa.')).toBeInTheDocument()
   expect(screen.queryByText(/jawaban rahasia|0\.938|typo-rahasia/i)).not.toBeInTheDocument()
   expect(screen.queryByRole('link', { name: 'Kelola penilaian' })).not.toBeInTheDocument()

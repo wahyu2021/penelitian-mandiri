@@ -2,6 +2,16 @@
 
 ## Arah pengembangan
 
+Web sehari-hari berada di `/app`. Petugas melihat Dashboard dan Pencarian,
+sedangkan admin mendapat tambahan Impor (rute `/app/status` tetap dapat
+dibuka langsung untuk pemeriksaan layanan). Detail arsip dibuka dari hasil pencarian.
+
+Alat penelitian berada di `/app/research` dengan sidebar tersendiri.
+Untuk mengelola penelitian, admin membuka `/app/research/testsets`.
+Tautan tugas petugas adalah `/app/research/relevance` atau
+`/app/research/extraction-audit`. Tautan lama dialihkan ke ruang ini.
+Menu Evaluasi yang disebut pada panduan di bawah merujuk ruang penelitian.
+
 Antarmuka web utama memakai **Flask JSON API + React/TypeScript**. Rancangan,
 pilihan library, struktur folder, kontrak API,
 dan urutan migrasi ada di [docs/arsitektur_flask_react.md](docs/arsitektur_flask_react.md).

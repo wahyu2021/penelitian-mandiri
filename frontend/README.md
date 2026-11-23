@@ -15,13 +15,16 @@ menampilkan progres per akun; `/app/spm-types` memberi admin formulir konfirmasi
 kode dugaan beserta sumbernya.
 
 Navigasi utama berada di sidebar pada desktop dan dibuka dari tombol menu
-pada tablet dan ponsel. Menu dikelompokkan menjadi Arsip, Evaluasi,
-Pengelolaan Data, dan Sistem. Identitas dan tombol Keluar berada di bagian
-Akun. Pilihan menu mengikuti peran pengguna. Admin dapat membuka
-`/app/testsets` dari kelompok Evaluasi untuk mendaftarkan, meninjau,
+pada tablet dan ponsel. Sidebar operasional menampilkan Dashboard dan
+Pencarian untuk petugas, ditambah Impor untuk admin (rute `/app/status`
+tetap dapat dibuka langsung untuk pemeriksaan layanan).
+Ruang `/app/research` memiliki sidebar Evaluasi dan Validasi Data tersendiri.
+Identitas dan tombol Keluar berada di bagian Akun. Admin dapat membuka
+`/app/research/testsets` dari kelompok Evaluasi untuk mendaftarkan, meninjau,
 mengunci, dan mengunduh versi set uji.
-Penugasan dan migrasi CSV berada di `/app/relevance-admin`. Penilai membuka
-`/app/relevance` untuk melihat tugas dan jawaban sendiri.
+Penugasan dan migrasi CSV berada di `/app/research/relevance-admin`. Penilai
+membuka `/app/research/relevance` untuk melihat tugas dan jawaban sendiri.
+Tautan lama `/app/...` untuk fitur penelitian diarahkan ke `/app/research/...`.
 
 ## Jalankan di laptop pengembang
 

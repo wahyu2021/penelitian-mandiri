@@ -1,5 +1,24 @@
 # PRD — Sistem Pencarian Arsip SIMANIS
 
+## Pemisahan penggunaan operasional dan penelitian
+
+Koreksi lingkup 23 November 2026 menempatkan pencarian arsip sebagai fungsi
+utama produk. Antarmuka sehari-hari berada di `/app`. Petugas memakai
+Dashboard, Pencarian, dan Detail Arsip. Admin mendapat tambahan Impor
+salinan data. Pengelolaan akun operasional mengikuti
+tiket administrasi pengguna.
+
+Perbandingan metode, set uji, audit ekstraksi, validasi kamus SPM,
+penugasan/penilaian relevansi, kesepakatan, dan hasil eksperimen berada
+di ruang penelitian `/app/research`. Penilai membuka tautan tugas yang
+diberikan peneliti. Ruang ini memakai otorisasi API dan penugasan yang
+sudah tersedia. Akses admin penelitian saat ini memakai akun berperan
+admin yang sama; pemisahan ini membedakan alur dan navigasi produk.
+
+Pengujian operasional/UAT berfokus pada alur mencari dan menemukan arsip,
+detail/lokasi, serta pengelolaan data oleh admin. Penilaian ilmiah
+memiliki alur pengujian tersendiri di ruang penelitian.
+
 **Status:** dokumen kebutuhan produk untuk pengembangan dan penelitian; bukan bukti
 bahwa seluruh fitur telah selesai.
 

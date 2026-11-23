@@ -18,7 +18,6 @@ describe('alur sesi React', () => {
     const user = userEvent.setup()
     let authenticated = false
     const fetchMock = vi.fn().mockImplementation((url: string, options?: RequestInit) => {
-      if (url === '/api/v1/health') return Promise.resolve(json({ data: { status: 'ok' } }))
       if (url === '/api/v1/dashboard')
         return Promise.resolve(
           json({
@@ -63,8 +62,16 @@ describe('alur sesi React', () => {
     await user.click(screen.getByRole('button', { name: 'Masuk' }))
     expect(await screen.findByText('admin · Admin')).toBeInTheDocument()
     expect(await screen.findByRole('heading', { name: 'Dashboard arsip' })).toBeInTheDocument()
-    await user.click(screen.getByRole('link', { name: 'Status' }))
-    expect(await screen.findByText('Layanan tersambung.')).toBeInTheDocument()
+    const mainNav = within(screen.getByRole('navigation', { name: 'Navigasi utama' }))
+    expect(mainNav.getAllByRole('link').map((link) => link.textContent)).toEqual([
+      'Dashboard',
+      'Pencarian',
+      'Impor',
+    ])
+    expect(mainNav.queryByRole('link', { name: 'Status' })).not.toBeInTheDocument()
+    expect(mainNav.queryByRole('link', { name: 'Set uji' })).not.toBeInTheDocument()
+    expect(mainNav.queryByRole('link', { name: 'Audit ekstraksi' })).not.toBeInTheDocument()
+    expect(mainNav.queryByRole('link', { name: 'Perbandingan' })).not.toBeInTheDocument()
     const post = fetchMock.mock.calls.find(([, options]) => options?.method === 'POST')
     expect(post?.[1].headers['X-CSRF-Token']).toBe('awal')
     expect(window.localStorage.length).toBe(0)
@@ -98,8 +105,12 @@ describe('alur sesi React', () => {
     render(<App />)
     expect(await screen.findByText('petugas · Petugas')).toBeInTheDocument()
     const nav = within(screen.getByRole('navigation', { name: 'Navigasi utama' }))
-    expect(nav.getByRole('link', { name: 'Status' })).toHaveAttribute('aria-current', 'page')
-    expect(nav.getByRole('link', { name: 'Audit ekstraksi' })).toBeInTheDocument()
+    expect(nav.getAllByRole('link').map((link) => link.textContent)).toEqual([
+      'Dashboard',
+      'Pencarian',
+    ])
+    expect(nav.queryByRole('link', { name: 'Status' })).not.toBeInTheDocument()
+    expect(nav.queryByRole('link', { name: 'Audit ekstraksi' })).not.toBeInTheDocument()
     expect(nav.queryByRole('region', { name: 'Pengelolaan data' })).not.toBeInTheDocument()
     expect(nav.queryByRole('link', { name: 'Perbandingan' })).not.toBeInTheDocument()
 
@@ -113,7 +124,7 @@ describe('alur sesi React', () => {
 
     await user.click(trigger)
     dialog = within(await screen.findByRole('dialog', { name: 'Menu aplikasi' }))
-    await user.click(dialog.getByRole('link', { name: 'Status' }))
+    await user.click(dialog.getByRole('link', { name: 'Pencarian' }))
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
   })
 
@@ -154,5 +165,65 @@ describe('alur sesi React', () => {
     render(<App />)
     expect(await screen.findByRole('alert')).toHaveTextContent('Sesi belum dapat diperiksa.')
     expect(screen.getByRole('button', { name: 'Coba lagi' })).toBeEnabled()
+  })
+
+  it('mengalihkan rute penelitian lama ke ruang penelitian beserta query string', async () => {
+    window.history.replaceState(null, '', '/app/compare?q=jembatan')
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockImplementation((url: string) => {
+        if (url === '/api/v1/session') {
+          return Promise.resolve(
+            json({
+              data: {
+                authenticated: true,
+                user: { id: 1, username: 'admin', role: 'admin' },
+                csrf_token: 'token',
+              },
+            }),
+          )
+        }
+        if (url === '/api/v1/search/filters') {
+          return Promise.resolve(
+            json({
+              data: {
+                opds: [{ id: 1, name: 'Dinas PU' }],
+                default_method: 'like',
+                methods: [],
+              },
+            }),
+          )
+        }
+        if (url.startsWith('/api/v1/search/compare?')) {
+          return Promise.resolve(
+            json({
+              data: {
+                query: 'jembatan',
+                limit: 10,
+                filters: { opd_id: null, year: null, status: null },
+                methods: [{ name: 'like', label: 'LIKE (pembanding)', items: [] }],
+                score_note: 'Skor antarmetode tidak selalu sebanding.',
+              },
+            }),
+          )
+        }
+        throw new Error(`Permintaan tidak terduga: ${url}`)
+      }),
+    )
+
+    render(<App />)
+
+    expect(await screen.findByRole('heading', { name: 'Perbandingan metode' })).toBeInTheDocument()
+    expect(window.location.pathname).toBe('/app/research/compare')
+    expect(window.location.search).toBe('?q=jembatan')
+    expect(screen.getAllByText('Ruang Penelitian').length).toBeGreaterThan(0)
+    const nav = within(screen.getByRole('navigation', { name: 'Navigasi utama' }))
+    expect(nav.getByRole('link', { name: 'Perbandingan' })).toBeInTheDocument()
+    expect(nav.getByRole('link', { name: 'Set uji' })).toBeInTheDocument()
+    expect(nav.getByRole('link', { name: 'Buka pencarian arsip' })).toHaveAttribute(
+      'href',
+      '/app/search',
+    )
+    expect(nav.queryByRole('link', { name: 'Dashboard' })).not.toBeInTheDocument()
   })
 })

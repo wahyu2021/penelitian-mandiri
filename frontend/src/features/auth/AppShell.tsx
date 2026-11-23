@@ -8,7 +8,7 @@ import { AppBrand, AppSidebar } from '@/features/auth/AppSidebar'
 import { sessionKey, useSession } from '@/features/auth/useSession'
 import { ApiError, logout } from '@/lib/api/session'
 
-export function AppShell() {
+export function AppShell({ research = false }: { research?: boolean }) {
   const { data } = useSession()
   const queryClient = useQueryClient()
   const navigate = useNavigate()
@@ -36,6 +36,7 @@ export function AppShell() {
   })
   const sidebarProps = {
     user: data?.user ?? null,
+    research,
     onLogout: () => mutation.mutate(),
     loggingOut: mutation.isPending,
     logoutFailed: mutation.isError,
@@ -45,14 +46,14 @@ export function AppShell() {
     <div className="min-h-svh bg-stone-50 lg:grid lg:grid-cols-[15rem_minmax(0,1fr)]">
       <aside className="sticky top-0 hidden h-dvh flex-col self-start border-r border-sidebar-border bg-sidebar lg:flex">
         <div className="border-b border-sidebar-border px-4 py-5">
-          <AppBrand />
+          <AppBrand research={research} />
         </div>
         <AppSidebar {...sidebarProps} />
       </aside>
 
       <div className="min-w-0">
         <header className="sticky top-0 z-20 flex items-center justify-between gap-4 border-b border-border bg-card px-4 py-3 sm:px-6 lg:hidden">
-          <AppBrand />
+          <AppBrand research={research} />
           <Dialog.Root open={menuOpen} onOpenChange={setMenuOpen}>
             <Dialog.Trigger asChild>
               <Button variant="outline" size="icon-lg" className="size-11" aria-label="Buka menu">
@@ -66,7 +67,9 @@ export function AppShell() {
                 className="fixed inset-y-0 left-0 z-50 flex w-72 max-w-[calc(100%-2rem)] flex-col border-r border-sidebar-border bg-sidebar shadow-xl lg:hidden"
               >
                 <div className="flex items-center justify-between gap-3 border-b border-sidebar-border px-4 py-3">
-                  <Dialog.Title className="text-sm font-semibold">Menu aplikasi</Dialog.Title>
+                  <Dialog.Title className="text-sm font-semibold">
+                    {research ? 'Menu penelitian' : 'Menu aplikasi'}
+                  </Dialog.Title>
                   <Dialog.Close asChild>
                     <Button
                       variant="ghost"
