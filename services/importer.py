@@ -5,7 +5,9 @@ dan metadata hasil ekstraksi (archive_metadata). Memverifikasi kelima angka acua
 spesifikasi agar integritas data terjamin 100%.
 """
 from collections import Counter
+from contextlib import closing
 from datetime import datetime, timezone
+import json
 from pathlib import Path
 from typing import Dict, Optional, Union
 
@@ -35,6 +37,9 @@ def import_simanis_dump(
     db_path: Optional[Union[str, Path]] = None,
     verify_reference_counts: bool = True,
     imported_by: str = "system",
+    expected_source_sha256: Optional[str] = None,
+    audit_user_id: Optional[int] = None,
+    backup_filename: Optional[str] = None,
 ) -> Dict[str, object]:
     """Impor berkas dump SQL SIMANIS ke database SQLite lokal.
 
@@ -55,12 +60,17 @@ def import_simanis_dump(
         raise FileNotFoundError(f"Berkas dump SQL tidak ditemukan: {dump_path}")
 
     raw_dump = parse_sql_dump(str(dump_file))
+    if expected_source_sha256 and raw_dump["sha256"] != expected_source_sha256:
+        raise ValueError("Dump berubah sejak pratinjau. Pilih dan periksa ulang berkas.")
     conn = init_db(db_path)
 
     now_iso = datetime.now(timezone.utc).isoformat()
     raw_archives = raw_dump["arsip"]
     raw_opd = raw_dump["opd"]
     raw_classifications = raw_dump["klasifikasi"]
+    if not raw_archives:
+        conn.close()
+        raise ValueError("Dump tidak memuat arsip yang dapat diimpor.")
 
     valid_opd_ids = {int(r["id_opd"]) for r in raw_opd}
     valid_class_ids = {int(r["id_klasifikasi"]) for r in raw_classifications}
@@ -71,7 +81,13 @@ def import_simanis_dump(
     clean_count = 0
     issue_count = 0
 
-    with conn:
+    with closing(conn), conn:
+        # Impor ulang mengganti korpus dalam satu transaksi. Akun, log aktivitas,
+        # dan riwayat import_batch tidak disentuh.
+        for table in ("data_issue", "archive_metadata", "archive", "archive_raw",
+                      "opd", "classification"):
+            conn.execute(f"DELETE FROM {table}")
+
         # 1. Simpan Master OPD
         for opd_row in raw_opd:
             opd_id = int(opd_row["id_opd"])
@@ -281,28 +297,32 @@ def import_simanis_dump(
             """,
             (clean_count, issue_count, batch_id),
         )
-
-    # 6. Verifikasi Angka Acuan
-    actual_counts = {
-        "total": len(raw_archives),
-        "in_aktif": stat_counts[1],
-        "statis": stat_counts[2],
-        "orphan_opd": issue_type_counts.get("orphan_opd", 0),
-        "upload_error_documents": issue_type_counts.get("upload_error_document", 0),
-        "has_spm_label": spm_label_count,
-        "zero_input_dates": issue_type_counts.get("invalid_input_date", 0),
-    }
-
-    mismatches = {}
-    for key, expected_val in REFERENCE_COUNTS.items():
-        actual_val = actual_counts.get(key, 0)
-        if actual_val != expected_val:
-            mismatches[key] = {"expected": expected_val, "actual": actual_val}
-
-    if verify_reference_counts and mismatches:
-        raise ValueError(
-            f"Angka acuan dump tidak sesuai: {mismatches}. Impor dibatalkan."
-        )
+        # 6. Periksa acuan sebelum context manager melakukan COMMIT.
+        actual_counts = {
+            "total": len(raw_archives),
+            "in_aktif": stat_counts[1],
+            "statis": stat_counts[2],
+            "orphan_opd": issue_type_counts.get("orphan_opd", 0),
+            "upload_error_documents": issue_type_counts.get("upload_error_document", 0),
+            "has_spm_label": spm_label_count,
+            "zero_input_dates": issue_type_counts.get("invalid_input_date", 0),
+        }
+        mismatches = {
+            key: {"expected": expected, "actual": actual_counts.get(key, 0)}
+            for key, expected in REFERENCE_COUNTS.items()
+            if actual_counts.get(key, 0) != expected
+        }
+        if verify_reference_counts and mismatches:
+            raise ValueError(f"Angka acuan dump tidak sesuai: {mismatches}. Impor dibatalkan.")
+        if audit_user_id is not None:
+            conn.execute(
+                """INSERT INTO activity_log(user_id, action, detail, created_at)
+                   VALUES (?, 'import_completed', ?, ?)""",
+                (audit_user_id, json.dumps({
+                    "batch_id": batch_id, "source": dump_file.name,
+                    "sha256": raw_dump["sha256"], "backup_filename": backup_filename,
+                }), now_iso),
+            )
 
     return {
         "batch_id": batch_id,

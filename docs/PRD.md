@@ -53,7 +53,8 @@ persyaratan TI serta keamanan diperiksa.
 | Web utama: login, dashboard, pencarian, perbandingan admin, detail arsip | Ada dalam React + Flask API; belum mencakup semua halaman rancangan |
 | Aplikasi pelabelan relevansi internal | Ada di `scripts/relevance_labeler_app.py`; terpisah dari web utama |
 | Flask JSON API `/api/v1` dan frontend React | API P0 untuk sesi, dashboard, pencarian, detail, dan perbandingan admin sudah ada; login/dashboard/status/pencarian/detail/perbandingan admin React sudah ada; ZIP rilis lokal PM-13 dapat dijalankan dengan Waitress tanpa Node.js |
-| Impor, audit, set uji, evaluasi, dan administrasi melalui web utama | Target; jangan ditandai selesai berdasarkan adanya skrip CLI |
+| Impor salinan melalui web utama | PM-15 tersedia untuk admin dengan batas direktori, pratinjau, cadangan, dan riwayat |
+| Audit, set uji, evaluasi, dan administrasi melalui web utama | Target; jangan ditandai selesai berdasarkan adanya skrip CLI |
 | Verifikasi penilai kedua, kesepakatan audit, UAT/SUS petugas | Menunggu pengumpulan/penilaian nyata; tidak boleh diberi hasil contoh |
 
 Set uji aktif memuat **112 varian kueri sintetis** dari **56 kueri dasar**:

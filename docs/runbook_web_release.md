@@ -50,6 +50,9 @@ Gunakan `--output D:\lokasi\pm-web.zip` bila perlu lokasi lain. Simpan hasil
    | `PM_DB_PATH` | Path absolut SQLite salinan penelitian, di luar folder rilis |
    | `PM_SECRET_KEY` | Nilai acak panjang yang tetap antar-restart; wajib untuk sesi stabil |
    | `PM_COOKIE_SECURE` | `1` hanya bila browser mengakses melalui HTTPS; `0` untuk HTTP lokal |
+   | `PM_IMPORT_DIR` | Direktori absolut berisi dump `.sql` yang diizinkan; wajib untuk fitur impor web |
+   | `PM_IMPORT_BACKUP_DIR` | Direktori absolut cadangan SQLite, di luar folder rilis; default `backups` di samping SQLite |
+   | `PM_IMPORT_VERIFY_REFERENCE_COUNTS` | `1` secara default; `0` hanya untuk snapshot lain yang telah diperiksa |
 
    Contoh untuk terminal uji lokal:
 
@@ -76,6 +79,10 @@ Gunakan `--output D:\lokasi\pm-web.zip` bila perlu lokasi lain. Simpan hasil
   lalu ulangi login–cari–detail–banding. Koneksi lokal ke Waitress tetap diperlukan.
   Catat perangkat, browser, tanggal, dan hasil uji; jangan menyalin data arsip
   asli ke catatan terbuka.
+- Sebagai admin, buka `/app/imports`; pastikan hanya berkas dalam `PM_IMPORT_DIR`
+  yang terlihat. Periksa hash dan jumlah pada pratinjau. Uji impor pada salinan
+  SQLite terpisah terlebih dahulu; pastikan cadangan, riwayat, dan log tindakan
+  tercatat. Jangan menunjuk `PM_DB_PATH` ke basis data SIMANIS asli.
 
 ## 4. Cadangan dan pemulihan
 

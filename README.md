@@ -41,8 +41,8 @@ dan pemulihan ada di [runbook](docs/runbook_web_release.md).
 ## Menjalankan aplikasi web
 
 Aplikasi utama kini menyediakan login, dashboard korpus, pencarian LIKE dan empat metode fuzzy,
-perbandingan hasil untuk admin, serta detail arsip. Halaman impor, audit, set uji,
-evaluasi, dan administrasi pengguna pada `rancangan_aplikasi.md` masih harus dibangun
+perbandingan hasil untuk admin, detail arsip, dan impor salinan dump melalui web.
+Halaman audit, set uji, evaluasi, dan administrasi pengguna pada `rancangan_aplikasi.md` masih harus dibangun
 sebelum UAT/SUS untuk keseluruhan aplikasi.
 
 Route API berada di `webapp/api/`, mesin pencarian di `services/web_search.py`,
@@ -74,6 +74,19 @@ server dimulai ulang.
 Untuk instalasi melalui HTTPS, atur `PM_COOKIE_SECURE=1` dan gunakan
 `PM_SECRET_KEY` acak yang tetap antar-restart. Saat uji HTTP lokal, jangan aktifkan
 cookie Secure karena browser tidak akan mengirimnya lewat HTTP.
+
+### Impor salinan dump oleh admin
+
+Tempatkan berkas `.sql` yang diizinkan pada direktori khusus di komputer uji,
+di luar folder rilis. Atur `PM_IMPORT_DIR` ke path absolut direktori itu dan,
+bila perlu, `PM_IMPORT_BACKUP_DIR` ke direktori cadangan terpisah. Jika variabel
+cadangan tidak diatur, cadangan dibuat di folder `backups` di samping SQLite.
+Buka `/app/imports` sebagai admin, pilih berkas, periksa pratinjau dan hash,
+lalu jalankan impor. Aplikasi tidak menerima unggahan atau path bebas dari browser.
+Verifikasi angka acuan dump aktif secara default; pengelola dapat mengatur
+`PM_IMPORT_VERIFY_REFERENCE_COUNTS=0` hanya saat menggunakan salinan lain yang
+sudah diperiksa. Impor ulang mengganti data arsip lokal, tetapi mempertahankan
+akun, log aktivitas, dan riwayat batch. Cadangan SQLite dibuat lebih dulu.
 
 ### Jika server dinas memakai XAMPP lama
 

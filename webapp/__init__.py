@@ -29,6 +29,9 @@ def create_app(test_config=None):
             "PM_SERVE_REACT", "1" if (PROJECT_ROOT / "frontend" / "dist" / "index.html").is_file() else "0"
         ) == "1",
         FRONTEND_DIST=PROJECT_ROOT / "frontend" / "dist",
+        IMPORT_SOURCE_DIR=Path(os.environ["PM_IMPORT_DIR"]) if os.environ.get("PM_IMPORT_DIR") else None,
+        IMPORT_BACKUP_DIR=Path(os.environ["PM_IMPORT_BACKUP_DIR"]) if os.environ.get("PM_IMPORT_BACKUP_DIR") else None,
+        IMPORT_VERIFY_REFERENCE_COUNTS=os.environ.get("PM_IMPORT_VERIFY_REFERENCE_COUNTS", "1") == "1",
     )
     if test_config:
         app.config.update(test_config)

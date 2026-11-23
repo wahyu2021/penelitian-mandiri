@@ -6,6 +6,7 @@ import { LoginPage } from '@/features/auth/LoginPage'
 import { DashboardPage } from '@/features/dashboard/DashboardPage'
 import { ArchiveDetailPage } from '@/features/archives/ArchiveDetailPage'
 import { ComparePage } from '@/features/compare/ComparePage'
+import { ImportPage } from '@/features/imports/ImportPage'
 import { SearchPage } from '@/features/search/SearchPage'
 import { StatusPage } from '@/features/status/StatusPage'
 import { NotFoundPage } from '@/features/status/NotFoundPage'
@@ -23,6 +24,7 @@ export default function App() {
             <Route path="search" element={<SearchPage />} />
             <Route path="archives/:id" element={<ArchiveDetailPage />} />
             <Route path="compare" element={<ComparePage />} />
+            <Route path="imports" element={<ImportPage />} />
             <Route path="status" element={<StatusPage />} />
           </Route>
         </Route>

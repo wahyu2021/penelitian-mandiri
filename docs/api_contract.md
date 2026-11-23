@@ -161,6 +161,9 @@ database memberi 500 JSON tanpa rincian SQL.
 | `GET /api/v1/search/filters` | admin, petugas | pilihan OPD dan metode sesuai peran; tersedia | PM-10 |
 | `GET /api/v1/archives/{id}` | admin, petugas | detail, metadata, status dugaan, lokasi; tersedia | PM-05 |
 | `GET /api/v1/search/compare` | admin | hasil per metode untuk kueri sama; tersedia | PM-06 |
+| `GET /api/v1/imports` | admin | berkas yang diizinkan, mode verifikasi, 20 riwayat batch terakhir; tersedia | PM-15 |
+| `GET /api/v1/imports/preview?source=...` | admin | hash, ukuran, dan jumlah arsip/OPD/klasifikasi; tersedia | PM-15 |
+| `POST /api/v1/imports` | admin | impor dengan `source`, `source_sha256`, dan header CSRF; cadangan serta ringkasan hasil; tersedia | PM-15 |
 
 Penamaan field rinci di atas diuji sebelum frontend fitur terkait dibangun.
 Endpoint lain yang belum ada tidak boleh dijadikan contoh respons berhasil

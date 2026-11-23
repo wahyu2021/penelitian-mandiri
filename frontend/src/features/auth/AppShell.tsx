@@ -88,16 +88,28 @@ export function AppShell() {
             Pencarian
           </NavLink>
           {user?.role === 'admin' && (
-            <NavLink
-              to="/app/compare"
-              className={({ isActive }) =>
-                isActive
-                  ? 'font-semibold text-primary underline underline-offset-8'
-                  : 'text-muted-foreground hover:text-foreground'
-              }
-            >
-              Perbandingan
-            </NavLink>
+            <>
+              <NavLink
+                to="/app/compare"
+                className={({ isActive }) =>
+                  isActive
+                    ? 'font-semibold text-primary underline underline-offset-8'
+                    : 'text-muted-foreground hover:text-foreground'
+                }
+              >
+                Perbandingan
+              </NavLink>
+              <NavLink
+                to="/app/imports"
+                className={({ isActive }) =>
+                  isActive
+                    ? 'font-semibold text-primary underline underline-offset-8'
+                    : 'text-muted-foreground hover:text-foreground'
+                }
+              >
+                Impor
+              </NavLink>
+            </>
           )}
         </nav>
         {mutation.isError && (
