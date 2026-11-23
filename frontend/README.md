@@ -20,6 +20,8 @@ Pengelolaan Data, dan Sistem. Identitas dan tombol Keluar berada di bagian
 Akun. Pilihan menu mengikuti peran pengguna. Admin dapat membuka
 `/app/testsets` dari kelompok Evaluasi untuk mendaftarkan, meninjau,
 mengunci, dan mengunduh versi set uji.
+Penugasan dan migrasi CSV berada di `/app/relevance-admin`. Penilai membuka
+`/app/relevance` untuk melihat tugas dan jawaban sendiri.
 
 ## Jalankan di laptop pengembang
 

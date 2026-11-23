@@ -113,6 +113,32 @@ terbuka. Tinjau asal kueri, split, dan SHA-256, lalu kunci versi untuk mengunduh
 JSON dengan format skrip penelitian. Untuk revisi setelah penguncian, daftarkan
 JSON dengan nama versi baru. Berkas JSON sumber hanya dibaca saat dipilih.
 
+### Penilaian relevansi dua akun
+
+1. Jalankan `flask --app app db upgrade`, lalu siapkan dua akun berbeda.
+   Akun penilai kedua harus punya peran `petugas`.
+2. Kunci set uji dari **Evaluasi → Set uji**. Buka **Evaluasi → Kelola
+   penilaian**, pilih versi dan dua akun, lalu unggah
+   `output/relevance_verification_sample.csv` sebagai sampel.
+3. Bila ada jawaban lama, impor `output/relevance_pool.csv` untuk penilai
+   pertama dan CSV verifikasi yang sudah diisi untuk penilai kedua. Impor
+   hanya mengambil pasangan dalam sampel serta mempertahankan jawaban yang
+   sudah tercatat, termasuk isian sebagian dan koreksi.
+4. Masing-masing penilai masuk lewat akunnya dan membuka **Penilaian
+   relevansi**. Pilih keputusan, tambahkan ragu atau catatan bila perlu,
+   lalu klik **Simpan jawaban**. Setelah semua pasangan dinilai dan diperiksa,
+   klik **Serahkan jawaban** untuk mengunci hasil akun tersebut.
+5. Admin mengunduh kedua CSV setelah penyerahan lengkap. Simpan sebagai
+   salinan baru. CSV penilai pertama hanya berisi pasangan dalam sampel.
+   Berkas ini tidak menggantikan pool utama untuk membangun ulang set uji.
+
+Sampel penelitian saat ini berisi 120 baris varian dan 119 pasangan unik
+kueri dasar–arsip. Web menampilkan setiap pasangan unik sekali dan
+memetakan jawaban kembali ke 120 baris saat ekspor agar identitas pasangan
+tetap cocok dengan labeler dan skrip lama. Jika skrip lama dipakai pada dua
+CSV ekspor, penyebutnya adalah jumlah baris CSV, termasuk pasangan yang
+muncul melalui dua varian. Rangkuman PM-19 akan menggunakan pasangan unik.
+
 ### Jika server dinas memakai XAMPP lama
 
 XAMPP/PHP tidak menjalankan aplikasi Flask secara langsung. Untuk uji penelitian,

@@ -97,6 +97,11 @@ Gunakan `--output D:\lokasi\pm-web.zip` bila perlu lokasi lain. Simpan hasil
   Daftarkan JSON, periksa daftar kueri, asal, split dan SHA-256, lalu kunci
   dan unduh salinan. Versi web tersimpan pada SQLite yang sama dan ikut
   tercakup saat database dicadangkan.
+- Untuk penilaian relevansi, unggah CSV verifikasi dari menu **Kelola
+  penilaian** setelah versi set uji dikunci. CSV disediakan terpisah dari ZIP.
+  Gunakan dua akun berbeda dan periksa penugasan sebelum petugas masuk.
+  Setelah jawaban lengkap, unduh kedua CSV sebagai salinan baru. Cadangkan
+  SQLite karena jawaban dan riwayat koreksi tersimpan di sana.
 
 ## 4. Cadangan dan pemulihan
 

@@ -3,12 +3,14 @@ import {
   Archive,
   BookOpen,
   ClipboardCheck,
+  ClipboardList,
   Columns2,
   DatabaseBackup,
   LayoutDashboard,
   ListChecks,
   LogOut,
   Search,
+  UserRoundCheck,
   UserRound,
 } from 'lucide-react'
 import { NavLink } from 'react-router'
@@ -28,6 +30,8 @@ const groups = [
     items: [
       { path: 'compare', label: 'Perbandingan', icon: Columns2, adminOnly: true },
       { path: 'testsets', label: 'Set uji', icon: ListChecks, adminOnly: true },
+      { path: 'relevance', label: 'Penilaian relevansi', icon: ClipboardList },
+      { path: 'relevance-admin', label: 'Kelola penilaian', icon: UserRoundCheck, adminOnly: true },
       { path: 'extraction-audit', label: 'Audit ekstraksi', icon: ClipboardCheck },
     ],
   },

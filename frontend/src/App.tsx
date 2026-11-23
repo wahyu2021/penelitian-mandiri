@@ -10,6 +10,8 @@ import { ImportPage } from '@/features/imports/ImportPage'
 import { ExtractionAuditPage } from '@/features/audit/ExtractionAuditPage'
 import { SpmTypesPage } from '@/features/audit/SpmTypesPage'
 import { TestsetsPage } from '@/features/testsets/TestsetsPage'
+import { RelevancePage } from '@/features/relevance/RelevancePage'
+import { RelevanceAdminPage } from '@/features/relevance/RelevanceAdminPage'
 import { SearchPage } from '@/features/search/SearchPage'
 import { StatusPage } from '@/features/status/StatusPage'
 import { NotFoundPage } from '@/features/status/NotFoundPage'
@@ -31,6 +33,8 @@ export default function App() {
             <Route path="extraction-audit" element={<ExtractionAuditPage />} />
             <Route path="spm-types" element={<SpmTypesPage />} />
             <Route path="testsets" element={<TestsetsPage />} />
+            <Route path="relevance" element={<RelevancePage />} />
+            <Route path="relevance-admin" element={<RelevanceAdminPage />} />
             <Route path="status" element={<StatusPage />} />
           </Route>
         </Route>

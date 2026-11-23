@@ -175,6 +175,22 @@ database memberi 500 JSON tanpa rincian SQL.
 | `POST /api/v1/testsets`, `PUT /api/v1/testsets/{version}` | admin | objek JSON set uji (maksimal 4 MiB), header CSRF, serta `If-Match` untuk penggantian | PM-17 |
 | `POST /api/v1/testsets/{version}/lock` | admin | header CSRF dan `If-Match` berisi SHA-256 dalam tanda kutip ganda | PM-17 |
 | `GET /api/v1/testsets/{version}/export` | admin | lampiran JSON versi terkunci dengan `content_sha256` yang dapat diverifikasi CLI | PM-17 |
+| `GET /api/v1/relevance-admin` | admin | akun aktif, pilihan versi terkunci, dan progres penugasan | PM-18 |
+| `POST /api/v1/relevance-admin/{version}?first={id}&second={id}` | admin | dua akun berbeda dan badan CSV sampel UTF-8, maksimal 8 MiB | PM-18 |
+| `POST /api/v1/relevance-admin/{version}/{slot}/migration` | admin | badan CSV jawaban lama dan jumlah pasangan yang diimpor/dipertahankan | PM-18 |
+| `GET /api/v1/relevance-admin/{version}/{slot}/export` | admin | CSV slot 1 atau 2 setelah kedua penyerahan | PM-18 |
+| `GET /api/v1/relevance-reviews` | akun masuk | versi tugas milik akun | PM-18 |
+| `GET /api/v1/relevance-reviews/{version}?index=0` | penilai yang ditugaskan | satu pasangan serta jawaban dan progres akun sendiri, indeks opsional | PM-18 |
+| `PUT /api/v1/relevance-reviews/{version}/{pair}` | penilai yang ditugaskan | simpan `is_relevant` (0, 1, atau null), `ragu`, `notes` dan `revision` | PM-18 |
+| `POST /api/v1/relevance-reviews/{version}/submit` | penilai yang ditugaskan | kunci jawaban sendiri setelah semua pasangan dinilai | PM-18 |
+
+Operasi tulis PM-18 mewajibkan `X-CSRF-Token`. Payload contoh untuk pasangan
+baru adalah `{"is_relevant":null,"ragu":true,"notes":"","revision":0}`.
+Catatan atau ragu tanpa keputusan tidak menambah progres. Revisi lama
+menghasilkan 409 dan isian terbaru tetap tersimpan. Tampilan penilai hanya
+memuat kueri dasar, jenis kueri, teks mentah, dan jawaban akun aktif.
+Varian dari kebutuhan informasi yang sama disatukan pada pasangan kueri
+dasar–arsip dan dipetakan kembali ke identitas CSV saat ekspor.
 
 Versi baru terbuka saat didaftarkan. Field `locked_at` dan `locked_by` bernilai
 `null` sampai admin mengunci versi. Simpan dan kunci dicatat di log aktivitas.

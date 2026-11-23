@@ -208,6 +208,75 @@ SCHEMA_STATEMENTS = [
         CHECK ((locked_by IS NULL) = (locked_at IS NULL))
     );
     """,
+    """
+    CREATE TABLE IF NOT EXISTS relevance_review (
+        version TEXT PRIMARY KEY REFERENCES testset_version(version),
+        created_by INTEGER NOT NULL REFERENCES user(id),
+        created_at TEXT NOT NULL
+    );
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS relevance_reviewer (
+        version TEXT NOT NULL REFERENCES relevance_review(version),
+        slot INTEGER NOT NULL CHECK (slot IN (1, 2)),
+        user_id INTEGER NOT NULL REFERENCES user(id),
+        submitted_at TEXT,
+        PRIMARY KEY (version, slot),
+        UNIQUE (version, user_id)
+    );
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS relevance_pair (
+        id INTEGER PRIMARY KEY,
+        version TEXT NOT NULL REFERENCES relevance_review(version),
+        base_query_id TEXT NOT NULL,
+        base_query_text TEXT NOT NULL,
+        query_type TEXT NOT NULL,
+        archive_id INTEGER NOT NULL,
+        summary_raw TEXT NOT NULL,
+        summary_clean TEXT,
+        UNIQUE (version, base_query_id, archive_id),
+        UNIQUE (version, id)
+    );
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS relevance_sample_row (
+        version TEXT NOT NULL,
+        query_id TEXT NOT NULL,
+        archive_id INTEGER NOT NULL,
+        pair_id INTEGER NOT NULL,
+        sample_order INTEGER NOT NULL,
+        PRIMARY KEY (version, query_id, archive_id),
+        FOREIGN KEY (version, pair_id) REFERENCES relevance_pair(version, id)
+    );
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS relevance_judgment (
+        version TEXT NOT NULL,
+        pair_id INTEGER NOT NULL,
+        slot INTEGER NOT NULL,
+        is_relevant INTEGER CHECK (is_relevant IN (0, 1)),
+        ragu INTEGER NOT NULL CHECK (ragu IN (0, 1)),
+        notes TEXT NOT NULL,
+        revision INTEGER NOT NULL CHECK (revision > 0),
+        updated_at TEXT NOT NULL,
+        PRIMARY KEY (pair_id, slot),
+        FOREIGN KEY (version, slot) REFERENCES relevance_reviewer(version, slot),
+        FOREIGN KEY (version, pair_id) REFERENCES relevance_pair(version, id)
+    );
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS relevance_judgment_change (
+        id INTEGER PRIMARY KEY,
+        pair_id INTEGER NOT NULL REFERENCES relevance_pair(id),
+        slot INTEGER NOT NULL CHECK (slot IN (1, 2)),
+        actor_id INTEGER NOT NULL REFERENCES user(id),
+        source TEXT NOT NULL CHECK (source IN ('web', 'legacy')),
+        previous_json TEXT NOT NULL,
+        current_json TEXT NOT NULL,
+        changed_at TEXT NOT NULL
+    );
+    """,
 ]
 
 
