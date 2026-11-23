@@ -356,7 +356,7 @@ tampilan atau klaim dokumen saja.
 - **Uji:** run kosong/draft/final, izin admin, angka cocok dengan ekspor CLI,
   uji anti-kebocoran dan tabel alternatif grafik; lint/tipe/build.
 - **Commit:** `feat(evaluation): tampilkan run dan metrik terlacak [PM-20]`.
-- **Jejak:** Status: ditunda | Uji: — | Commit: — | Catatan: ditunda sampai jalur operasional selesai; akan ditinjau apakah perlu UI web atau cukup melalui skrip CLI/notebook.
+- **Jejak:** Status: selesai (23 November 2026) | Uji: contoh hitung tangan agregasi per metode/split, deteksi kebocoran `base_query_id` tuning vs test, pemilihan bobot grid search, status `empty`/`draft`/`pending`/`final`, penolakan kolom sensitif, 401/403/400, ekspor JSON/CSV per split; `python -m pytest -q` 266 lulus, 5 dilewati; `npm run lint`, `npm run typecheck`, `npm test` (46 uji frontend pada 14 berkas lulus), `npm run format:check`, dan `npm run build` lulus | Commit: `32946e8` | Catatan: grafik perbandingan metode memakai `recharts` di `/app/research/evaluation` (lazy-loaded) disertai tabel alternatif aksesibel lengkap; artefak run tetap dibaca dari `PM_EVALUATION_BUNDLE_DIR` (`output/colab_bundle`) dan ditandai `draft` bila `tree_clean = false` atau `pending` bila kesepakatan PM-19 pada artefak belum lengkap.
 
 ## Uji Lapangan, Lanjutan Opsional (P2), dan Laporan
 
