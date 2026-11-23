@@ -344,7 +344,7 @@ tampilan atau klaim dokumen saja.
 - **Uji:** contoh hitung tangan, semua setuju, tak seimbang, kosong,
   sebagian terisi, serta kesesuaian CLI/UI; lint/tipe/build.
 - **Commit:** `feat(research): laporkan kesepakatan penilai [PM-19]`.
-- **Jejak:** Status: ditunda | Uji: — | Commit: — | Catatan: ditunda sampai jalur operasional (`PM-26`, `PM-27`, `PM-21`) selesai; akan ditinjau apakah cukup lewat skrip CLI (`scripts/evaluate_relevance_agreement.py`).
+- **Jejak:** Status: selesai (23 November 2026) | Uji: contoh hitung tangan biner & multikelas, semua setuju (`complete_kappa_undefined`), tidak seimbang, kosong, parsial, penundaan sebelum submit, kesesuaian CLI/UI, 401/403/400, ekspor JSON; `python -m pytest -q` 259 lulus, 5 dilewati; `npm run lint`, `npm run typecheck`, `npm test` (42 uji frontend pada 12 berkas lulus), `npm run format:check`, dan `npm run build` lulus | Commit: `e7959ca` | Catatan: fungsi murni di `core/evaluation/agreement.py` dipakai bersama oleh `scripts/evaluate_relevance_agreement.py` dan halaman admin `/app/research/agreement`; halaman dan API kesepakatan hanya terbuka untuk admin.
 
 ### PM-20 — Evaluasi dan bukti run di web
 
