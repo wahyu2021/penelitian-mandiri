@@ -43,7 +43,7 @@ export function UsersPage() {
   }
 
   return (
-    <main className="space-y-6 py-8 sm:py-10">
+    <main className="space-y-6 py-5 sm:py-6">
       <PageHeader
         eyebrow="Administrasi sistem"
         title="Akun & log aktivitas"

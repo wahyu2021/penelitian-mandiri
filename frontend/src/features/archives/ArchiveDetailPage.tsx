@@ -51,7 +51,7 @@ export function ArchiveDetailPage() {
   useUnauthorizedRedirect([query.error])
 
   return (
-    <main className="space-y-6 py-8 sm:py-10">
+    <main className="space-y-6 py-5 sm:py-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="text-sm font-medium text-muted-foreground">Detail arsip</p>

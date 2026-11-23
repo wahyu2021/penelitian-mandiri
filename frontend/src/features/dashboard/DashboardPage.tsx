@@ -23,7 +23,7 @@ export function DashboardPage() {
       : 'Angka langsung dari basis data lokal.'
 
   return (
-    <main className="space-y-6 py-8 sm:py-10">
+    <main className="space-y-6 py-5 sm:py-6">
       <PageHeader
         eyebrow="Ikhtisar korpus"
         title="Dashboard arsip"

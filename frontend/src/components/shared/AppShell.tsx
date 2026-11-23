@@ -93,7 +93,7 @@ export function AppShell({ research = false }: { research?: boolean }) {
           </Sheet>
         </header>
 
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-[1600px] px-4 sm:px-5 lg:px-6">
           <Outlet />
         </div>
       </div>
