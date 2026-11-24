@@ -471,7 +471,7 @@ tampilan atau klaim dokumen saja.
   tautan, reset & cabut tautan oleh admin, izin & CSRF, serta paritas ekspor
   dan kesepakatan PM-19; lint/tipe/build.
 - **Commit:** `feat(research): tambah tautan satu perangkat untuk relevansi dan audit [PM-29]`.
-- **Jejak:** Status: belum dimulai (rancangan disepakati 24 November 2026) | Uji: — | Commit: — | Catatan: dikerjakan setelah PM-28 agar infrastruktur device-claim token dipakai bersama.
+- **Jejak:** Status: selesai (24 November 2026) | Uji: `.\.venv\Scripts\python.exe -m pytest -q` (`283 passed, 5 skipped`), `npm run lint` (`oxlint src`: 0 warnings, 0 errors pada 135 berkas), `npm run typecheck`, `npm test` (57 uji pada 18 berkas lulus), `npm run format:check`, dan `npm run build` | Commit: `2c6c448` | Catatan: tabel `public_task_link` ditambahkan secara non-destruktif; jalankan `flask --app wsgi db upgrade` di server produksi dan bangun ulang paket rilis jika men-deploy pembaruan PM-28/PM-29.
 
 ## Pemetaan cakupan PRD
 
