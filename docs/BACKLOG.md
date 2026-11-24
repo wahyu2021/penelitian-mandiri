@@ -410,6 +410,69 @@ tampilan atau klaim dokumen saja.
   dimasukkan ke commit PM.
 - **Jejak:** Status: sedang berjalan — bukti proyek tersinkron (24 November 2026) | Uji: angka dan hash ditelusuri langsung ke `output/colab_bundle/` (`run_meta.json`, `per_query_results.csv`, `tuning_results.csv`, `audit_summary.json`), rilis `output/releases/pm-web-20261124-080825.zip` (SHA-256 `e20df9a2a4bb8956fcb9b4cb12bfdff09ae96b3cd14041e678c8d22417a7ca6b`), `pytest -q` 278 lulus / 5 dilewati, dan 50 uji frontend lulus | Commit: — | Catatan: daftar teknologi, rute, metrik `draft`, dan status keterbatasan dicatat pada `docs/bukti_implementasi.md` serta `README.md`; pembaruan naskah Bab I–V menunggu kelengkapan data aktual `PM-19` (penilai kedua) dan `PM-22` (UAT/SUS) serta permintaan pengguna.
 
+## Pengumpulan Data Paperless Berbasis Tautan (Token 1-Perangkat)
+
+### PM-28 — Formulir kuesioner publik & tautan kunci 1 perangkat (SUS & kuesioner kustom)
+
+- **Dependensi:** PM-22, PM-08. **PRD:** pengumpulan data UAT/SUS tanpa login.
+- **Rancangan keamanan & mekanisme akses:**
+  - Setiap tautan memakai token acak panjang (`secrets.token_urlsafe(24)`) yang
+    terikat ke **1 peserta anonim** (mis. `P01`–`P05`) tanpa meminta nama,
+    NIP, maupun akun login.
+  - Saat tautan pertama kali dibuka oleh peserta, server mengklaimnya ke
+    perangkat tersebut dengan menanam cookie `HttpOnly` berisi rahasia klaim
+    yang hash-nya (`SHA-256`) disimpan di SQLite (*device-claim binding*),
+    sehingga tetap stabil saat IP seluler berpindah jaringan namun menolak
+    perangkat/browser lain (`403 — Tautan sudah diklaim perangkat lain`).
+  - Admin dapat melihat status tiap tautan (*Belum dibuka / Terkunci di
+    perangkat / Sudah dikirim / Dicabut*), menjalankan **Reset kunci
+    perangkat** jika peserta terhapus cookie-nya, atau **Cabut tautan** kapan
+    saja. Tautan otomatis selesai setelah 1 kali kirim.
+- **Selesai saat:**
+  - Admin di `/app/research/forms` dapat membuat formulir dari **Template SUS
+    10 Butir + Catatan UAT** atau membuat **kuesioner kustom** (pertanyaan skala
+    1–5, pilihan ganda, atau teks), lalu men-*generate* tautan publik berulang
+    (satu tautan per responden).
+  - Peserta membuka `/f/:token` pada tampilan publik bersih *mobile-first*
+    tanpa sidebar maupun login, mengisi jawaban, dan mengirim sekali.
+  - Rekap jawaban tampil langsung di halaman admin, skor SUS dihitung otomatis
+    memakai `core/evaluation/sus.py`, serta tersedia ekspor CSV/JSON anonim.
+- **Uji:** klaim perangkat pertama, penolakan perangkat kedua (`403`), reset
+  kunci perangkat oleh admin, pencabutan tautan, validasi kuesioner & kirim
+  sekali (tolak kirim ulang), perhitungan ulang SUS, izin admin (`401`/`403`)
+  vs akses publik token, serta tampilan responsif ponsel/desktop;
+  lint/tipe/build.
+- **Commit:** `feat(forms): tambah kuesioner publik dan tautan kunci perangkat [PM-28]`.
+- **Jejak:** Status: belum dimulai (rancangan disepakati 24 November 2026) | Uji: — | Commit: — | Catatan: dirancang agar admin cukup menghasilkan N tautan (1 tautan = 1 responden = 1 perangkat) untuk dibagikan lewat WhatsApp.
+
+### PM-29 — Tautan 1-perangkat untuk penilaian relevansi & audit ekstraksi
+
+- **Dependensi:** PM-28, PM-18, PM-16. **PRD:** FR-06 (akses penilai eksternal tanpa akun login).
+- **Rancangan keamanan & mekanisme akses:**
+  - Memperluas mekanisme token acak + kunci 1 perangkat (*device-claim cookie
+    `HttpOnly`*) dari PM-28 agar admin dapat menerbitkan tautan langsung bagi
+    penilai untuk tugas **Penilaian relevansi** atau **Audit ekstraksi 5 field**
+    yang menampilkan data arsip/ringkasan asli.
+  - Setiap tautan terikat ketat ke **1 slot penilai relevansi** (khususnya
+    Penilai 2) atau **1 akun/kode penilai audit ekstraksi**; tetap menjaga
+    kebutaan data (penilai tidak melihat skor metode, tipe noise, maupun
+    jawaban penilai lain).
+  - Mendukung autosave/simpan parsial dan koreksi selama dalam sesi klaim
+    perangkat yang sama, mencatat seluruh perubahan ke riwayat audit atas nama
+    penilai/token terkait, dan **otomatis kedaluwarsa/hangus** setelah penilai
+    menekan tombol penyerahan final.
+- **Selesai saat:** admin dapat menerbitkan, memantau, mereset klaim
+  perangkat, atau mencabut tautan penilai relevansi & audit ekstraksi dari
+  `/app/research`; penilai mengisi penuh melalui `/f/:token` pada ponsel maupun
+  laptop tanpa login; ekspor CSV/perhitungan kesepakatan (`PM-19`) membaca
+  jawaban tersebut secara identik dengan pengisian via akun login.
+- **Uji:** klaim perangkat pertama, blokir perangkat lain (`403`), isolasi/kebutaan
+  data pada API & DOM, simpan parsial + koreksi + penyerahan final mengunci
+  tautan, reset & cabut tautan oleh admin, izin & CSRF, serta paritas ekspor
+  dan kesepakatan PM-19; lint/tipe/build.
+- **Commit:** `feat(research): tambah tautan satu perangkat untuk relevansi dan audit [PM-29]`.
+- **Jejak:** Status: belum dimulai (rancangan disepakati 24 November 2026) | Uji: — | Commit: — | Catatan: dikerjakan setelah PM-28 agar infrastruktur device-claim token dipakai bersama.
+
 ## Pemetaan cakupan PRD
 
 | Kebutuhan | Tiket |
@@ -424,6 +487,7 @@ tampilan atau klaim dokumen saja.
 | Pemisahan ruang operasional & penelitian | PM-26 |
 | Portabilitas, aksesibilitas, responsif | PM-07–PM-14, diperiksa lagi di tiap fitur UI |
 | UAT/SUS dan laporan | PM-22, PM-25 |
+| Pengumpulan data paperless (tautan 1-perangkat) | PM-28, PM-29 |
 
 **Urutan aktif fokus pengguna operasional:** `PM-26 → PM-27 → PM-21 → PM-22`.
 Tiket ruang penelitian (`PM-19`, `PM-20`) dan P2 (`PM-23`, `PM-24`) dipisahkan
