@@ -31,6 +31,11 @@ const QualityPage = lazy(() =>
     default: module.QualityPage,
   })),
 )
+const DuplicatesPage = lazy(() =>
+  import('@/features/duplicates/DuplicatesPage').then((module) => ({
+    default: module.DuplicatesPage,
+  })),
+)
 
 function ResearchRedirect({ to }: { to: string }) {
   const { search } = useLocation()
@@ -82,6 +87,22 @@ export default function App() {
                   }
                 >
                   <QualityPage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="duplicates"
+              element={
+                <Suspense
+                  fallback={
+                    <LoadingState
+                      label="Memuat kandidat duplikat"
+                      rows={2}
+                      rowClassName="h-44 w-full"
+                    />
+                  }
+                >
+                  <DuplicatesPage />
                 </Suspense>
               }
             />

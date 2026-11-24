@@ -277,6 +277,30 @@ SCHEMA_STATEMENTS = [
         changed_at TEXT NOT NULL
     );
     """,
+    """
+    CREATE TABLE IF NOT EXISTS duplicate_review (
+        archive_a_id INTEGER NOT NULL REFERENCES archive(id),
+        archive_b_id INTEGER NOT NULL REFERENCES archive(id),
+        decision TEXT NOT NULL CHECK (decision IN ('duplikat', 'bukan_duplikat', 'perlu_cek')),
+        notes TEXT NOT NULL DEFAULT '',
+        reviewed_by INTEGER NOT NULL REFERENCES user(id),
+        reviewed_at TEXT NOT NULL,
+        PRIMARY KEY (archive_a_id, archive_b_id),
+        CHECK (archive_a_id < archive_b_id)
+    );
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS duplicate_review_history (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        archive_a_id INTEGER NOT NULL REFERENCES archive(id),
+        archive_b_id INTEGER NOT NULL REFERENCES archive(id),
+        old_decision TEXT,
+        new_decision TEXT NOT NULL CHECK (new_decision IN ('duplikat', 'bukan_duplikat', 'perlu_cek')),
+        notes TEXT NOT NULL DEFAULT '',
+        actor_id INTEGER NOT NULL REFERENCES user(id),
+        changed_at TEXT NOT NULL
+    );
+    """,
 ]
 
 

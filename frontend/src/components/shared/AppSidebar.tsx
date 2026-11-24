@@ -5,6 +5,7 @@ import {
   ClipboardCheck,
   ClipboardList,
   Columns2,
+  CopyCheck,
   DatabaseBackup,
   FlaskConical,
   LayoutDashboard,
@@ -76,6 +77,7 @@ const researchGroups: SidebarGroup[] = [
       { path: 'extraction-audit', label: 'Audit ekstraksi', icon: ClipboardCheck },
       { path: 'spm-types', label: 'Kamus SPM', icon: BookOpen, adminOnly: true },
       { path: 'quality', label: 'Kualitas metadata', icon: ShieldAlert, adminOnly: true },
+      { path: 'duplicates', label: 'Kandidat duplikat', icon: CopyCheck, adminOnly: true },
     ],
   },
 ]
