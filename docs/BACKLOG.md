@@ -443,7 +443,7 @@ tampilan atau klaim dokumen saja.
   vs akses publik token, serta tampilan responsif ponsel/desktop;
   lint/tipe/build.
 - **Commit:** `feat(forms): tambah kuesioner publik dan tautan kunci perangkat [PM-28]`.
-- **Jejak:** Status: belum dimulai (rancangan disepakati 24 November 2026) | Uji: — | Commit: — | Catatan: dirancang agar admin cukup menghasilkan N tautan (1 tautan = 1 responden = 1 perangkat) untuk dibagikan lewat WhatsApp.
+- **Jejak:** Status: selesai (24 November 2026) | Uji: `.\.venv\Scripts\python.exe -m pytest -q` (`280 passed, 5 skipped`), `npm run lint` (`oxlint src`: 0 warnings, 0 errors pada 129 berkas), `npm run typecheck`, `npm test` (53 uji pada 17 berkas lulus), `npm run format:check`, dan `npm run build` | Commit: `348d782` | Catatan: tabel baru (`survey_form`, `public_form_link`, `survey_response`) ditambahkan secara non-destruktif; jalankan `flask --app wsgi db upgrade` pada server produksi sebelum membuka fitur ini.
 
 ### PM-29 — Tautan 1-perangkat untuk penilaian relevansi & audit ekstraksi
 
