@@ -44,57 +44,64 @@ export function RelevanceAgreementCard({ item }: { item: RelevanceAgreement }) {
       <CardContent className="space-y-5 text-sm">
         <div className="grid gap-3 sm:grid-cols-2">
           {item.reviewers.map((person) => (
-            <div
-              key={person.slot}
-              className="flex flex-wrap items-center justify-between gap-2 rounded-md border px-3 py-2"
-            >
-              <div>
-                <p className="font-medium">
-                  Penilai {person.slot} · {person.username}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {formatNumber(person.rated)} dari {formatNumber(person.total)} pasangan dinilai
-                </p>
-              </div>
-              <Badge variant={person.submitted_at ? 'outline' : 'secondary'}>
-                {person.submitted_at ? 'Sudah diserahkan' : 'Belum diserahkan'}
-              </Badge>
-            </div>
+            <Card key={person.slot} size="sm">
+              <CardContent className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <p className="font-medium">
+                    Penilai {person.slot} · {person.username}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {formatNumber(person.rated)} dari {formatNumber(person.total)} pasangan dinilai
+                  </p>
+                </div>
+                <Badge variant={person.submitted_at ? 'outline' : 'secondary'}>
+                  {person.submitted_at ? 'Sudah diserahkan' : 'Belum diserahkan'}
+                </Badge>
+              </CardContent>
+            </Card>
           ))}
         </div>
 
-        <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-md border px-3 py-2">
-            <dt className="text-xs text-muted-foreground">Pasangan berpasangan</dt>
-            <dd className="mt-1 text-base font-semibold tabular-nums">
-              {formatNumber(item.n_paired)} / {formatNumber(item.n_total)}
-            </dd>
-          </div>
-          <div className="rounded-md border px-3 py-2">
-            <dt className="text-xs text-muted-foreground">Kesepakatan keseluruhan</dt>
-            <dd className="mt-1 text-base font-semibold tabular-nums">
-              {item.percentage_agreement === null
-                ? 'Tertunda'
-                : `${formatPercent(item.percentage_agreement)} (${formatNumber(item.n_agreed ?? 0)}/${formatNumber(item.n_paired)})`}
-            </dd>
-          </div>
-          <div className="rounded-md border px-3 py-2">
-            <dt className="text-xs text-muted-foreground">Kesepakatan kelas relevan</dt>
-            <dd className="mt-1 text-base font-semibold tabular-nums">
-              {item.status === 'pending'
-                ? 'Tertunda'
-                : item.relevant_class_agreement === null
-                  ? 'Tidak terdefinisi'
-                  : formatPercent(item.relevant_class_agreement)}
-            </dd>
-          </div>
-          <div className="rounded-md border px-3 py-2">
-            <dt className="text-xs text-muted-foreground">Cohen&apos;s kappa</dt>
-            <dd className="mt-1 text-base font-semibold tabular-nums">
-              {item.status === 'pending' ? 'Tertunda' : formatKappa(item.cohen_kappa)}
-            </dd>
-          </div>
-        </dl>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <Card size="sm">
+            <CardHeader className="pb-1">
+              <CardDescription className="text-xs">Pasangan berpasangan</CardDescription>
+              <CardTitle className="text-base tabular-nums">
+                {formatNumber(item.n_paired)} / {formatNumber(item.n_total)}
+              </CardTitle>
+            </CardHeader>
+          </Card>
+          <Card size="sm">
+            <CardHeader className="pb-1">
+              <CardDescription className="text-xs">Kesepakatan keseluruhan</CardDescription>
+              <CardTitle className="text-base tabular-nums">
+                {item.percentage_agreement === null
+                  ? 'Tertunda'
+                  : `${formatPercent(item.percentage_agreement)} (${formatNumber(item.n_agreed ?? 0)}/${formatNumber(item.n_paired)})`}
+              </CardTitle>
+            </CardHeader>
+          </Card>
+          <Card size="sm">
+            <CardHeader className="pb-1">
+              <CardDescription className="text-xs">Kesepakatan kelas relevan</CardDescription>
+              <CardTitle className="text-base tabular-nums">
+                {item.status === 'pending'
+                  ? 'Tertunda'
+                  : item.relevant_class_agreement === null
+                    ? 'Tidak terdefinisi'
+                    : formatPercent(item.relevant_class_agreement)}
+              </CardTitle>
+            </CardHeader>
+          </Card>
+          <Card size="sm">
+            <CardHeader className="pb-1">
+              <CardDescription className="text-xs">Cohen&apos;s kappa</CardDescription>
+              <CardTitle className="text-base tabular-nums">
+                {item.status === 'pending' ? 'Tertunda' : formatKappa(item.cohen_kappa)}
+              </CardTitle>
+            </CardHeader>
+          </Card>
+        </div>
 
         {matrix && (
           <div className="grid gap-4 lg:grid-cols-2">

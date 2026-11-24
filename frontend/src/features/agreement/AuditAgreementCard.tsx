@@ -119,28 +119,36 @@ export function AuditAgreementCard({
           )}
 
         {audit.overall && (
-          <dl className="grid gap-3 sm:grid-cols-3">
-            <div className="rounded-md border px-3 py-2">
-              <dt className="text-xs text-muted-foreground">Sel berpasangan</dt>
-              <dd className="mt-1 text-base font-semibold tabular-nums">
-                {formatNumber(audit.overall.n_paired)} / {formatNumber(audit.overall.n_total)}
-              </dd>
-            </div>
-            <div className="rounded-md border px-3 py-2">
-              <dt className="text-xs text-muted-foreground">Kesepakatan keseluruhan</dt>
-              <dd className="mt-1 text-base font-semibold tabular-nums">
-                {audit.overall.percentage_agreement === null
-                  ? 'Tertunda'
-                  : `${formatPercent(audit.overall.percentage_agreement)} (${formatNumber(audit.overall.n_agreed ?? 0)}/${formatNumber(audit.overall.n_paired)})`}
-              </dd>
-            </div>
-            <div className="rounded-md border px-3 py-2">
-              <dt className="text-xs text-muted-foreground">Cohen&apos;s kappa keseluruhan</dt>
-              <dd className="mt-1 text-base font-semibold tabular-nums">
-                {formatKappa(audit.overall.cohen_kappa, audit.overall.status)}
-              </dd>
-            </div>
-          </dl>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <Card size="sm">
+              <CardHeader className="pb-1">
+                <CardDescription className="text-xs">Sel berpasangan</CardDescription>
+                <CardTitle className="text-base tabular-nums">
+                  {formatNumber(audit.overall.n_paired)} / {formatNumber(audit.overall.n_total)}
+                </CardTitle>
+              </CardHeader>
+            </Card>
+            <Card size="sm">
+              <CardHeader className="pb-1">
+                <CardDescription className="text-xs">Kesepakatan keseluruhan</CardDescription>
+                <CardTitle className="text-base tabular-nums">
+                  {audit.overall.percentage_agreement === null
+                    ? 'Tertunda'
+                    : `${formatPercent(audit.overall.percentage_agreement)} (${formatNumber(audit.overall.n_agreed ?? 0)}/${formatNumber(audit.overall.n_paired)})`}
+                </CardTitle>
+              </CardHeader>
+            </Card>
+            <Card size="sm">
+              <CardHeader className="pb-1">
+                <CardDescription className="text-xs">
+                  Cohen&apos;s kappa keseluruhan
+                </CardDescription>
+                <CardTitle className="text-base tabular-nums">
+                  {formatKappa(audit.overall.cohen_kappa, audit.overall.status)}
+                </CardTitle>
+              </CardHeader>
+            </Card>
+          </div>
         )}
 
         {audit.fields.length > 0 && (

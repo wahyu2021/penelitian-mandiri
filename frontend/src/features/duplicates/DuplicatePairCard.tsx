@@ -3,7 +3,14 @@ import { useMutation } from '@tanstack/react-query'
 import { Link } from 'react-router'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import {
@@ -39,53 +46,57 @@ function formatLocation(loc: DuplicateArchiveSide['location']): string {
 
 function ArchiveSideColumn({ title, side }: { title: string; side: DuplicateArchiveSide }) {
   return (
-    <section className="space-y-3 rounded-md border bg-muted/20 p-3.5">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold">
-          {title} ·{' '}
-          <Link to={`/app/archives/${side.id}`} className="text-primary underline">
-            Arsip #{side.id}
-          </Link>
-        </h3>
-        <span className="text-xs text-muted-foreground">
-          {side.year ?? 'Tahun kosong'} {side.opd_name ? `· ${side.opd_name}` : ''}
-        </span>
-      </div>
+    <Card size="sm" className="justify-between bg-muted/20">
+      <CardHeader className="border-b">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <CardTitle>
+            {title} ·{' '}
+            <Link to={`/app/archives/${side.id}`} className="text-primary underline">
+              Arsip #{side.id}
+            </Link>
+          </CardTitle>
+          <CardDescription className="text-xs">
+            {side.year ?? 'Tahun kosong'} {side.opd_name ? `· ${side.opd_name}` : ''}
+          </CardDescription>
+        </div>
+      </CardHeader>
 
-      <dl className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
-        <div>
-          <dt className="text-muted-foreground">Nomor SPM</dt>
-          <dd className="font-mono font-medium">{side.spm_number ?? '—'}</dd>
-        </div>
-        <div>
-          <dt className="text-muted-foreground">Nomor SP2D</dt>
-          <dd className="font-mono font-medium">{side.sp2d_number ?? '—'}</dd>
-        </div>
-        <div>
-          <dt className="text-muted-foreground">Tanggal dokumen</dt>
-          <dd className="font-medium">{side.document_date ?? '—'}</dd>
-        </div>
-        <div>
-          <dt className="text-muted-foreground">Nominal</dt>
-          <dd className="font-medium tabular-nums">
-            {side.amount_rp !== null ? formatCurrencyIdr(side.amount_rp) : '—'}
-          </dd>
-        </div>
-        <div className="col-span-2">
-          <dt className="text-muted-foreground">Nama pihak</dt>
-          <dd className="font-medium">{side.party_name ?? '—'}</dd>
-        </div>
-        <div className="col-span-2">
-          <dt className="text-muted-foreground">Lokasi fisik</dt>
-          <dd>{formatLocation(side.location)}</dd>
-        </div>
-      </dl>
+      <CardContent>
+        <dl className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
+          <div>
+            <dt className="text-muted-foreground">Nomor SPM</dt>
+            <dd className="font-mono font-medium">{side.spm_number ?? '—'}</dd>
+          </div>
+          <div>
+            <dt className="text-muted-foreground">Nomor SP2D</dt>
+            <dd className="font-mono font-medium">{side.sp2d_number ?? '—'}</dd>
+          </div>
+          <div>
+            <dt className="text-muted-foreground">Tanggal dokumen</dt>
+            <dd className="font-medium">{side.document_date ?? '—'}</dd>
+          </div>
+          <div>
+            <dt className="text-muted-foreground">Nominal</dt>
+            <dd className="font-medium tabular-nums">
+              {side.amount_rp !== null ? formatCurrencyIdr(side.amount_rp) : '—'}
+            </dd>
+          </div>
+          <div className="col-span-2">
+            <dt className="text-muted-foreground">Nama pihak</dt>
+            <dd className="font-medium">{side.party_name ?? '—'}</dd>
+          </div>
+          <div className="col-span-2">
+            <dt className="text-muted-foreground">Lokasi fisik</dt>
+            <dd>{formatLocation(side.location)}</dd>
+          </div>
+        </dl>
+      </CardContent>
 
-      <div className="space-y-1 border-t pt-2">
+      <CardFooter className="flex-col items-start gap-1">
         <p className="text-xs font-medium text-muted-foreground">Ringkasan asli</p>
         <p className="text-xs leading-relaxed whitespace-pre-wrap">{side.summary_raw}</p>
-      </div>
-    </section>
+      </CardFooter>
+    </Card>
   )
 }
 
@@ -145,67 +156,71 @@ export function DuplicatePairCard({
           <ArchiveSideColumn title="Arsip B" side={candidate.archive_b} />
         </div>
 
-        <form
-          className="space-y-3 rounded-md border p-3.5"
-          onSubmit={(event) => {
-            event.preventDefault()
-            setSavedFlag(false)
-            mutation.mutate()
-          }}
-        >
-          <div
-            className="flex flex-wrap items-center gap-2"
-            role="group"
-            aria-label={`Keputusan pasangan ${pairKey}`}
-          >
-            {(['duplikat', 'bukan_duplikat', 'perlu_cek'] as const).map((option) => (
-              <Button
-                key={option}
-                type="button"
-                size="sm"
-                variant={decision === option ? 'default' : 'outline'}
-                onClick={() => {
-                  setDecision(option)
-                  setSavedFlag(false)
-                }}
-              >
-                {DECISION_LABELS[option]}
-              </Button>
-            ))}
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor={`dup-notes-${pairKey}`}>Catatan penilai (opsional)</Label>
-            <Textarea
-              id={`dup-notes-${pairKey}`}
-              rows={2}
-              value={notes}
-              onChange={(event) => {
-                setNotes(event.target.value)
+        <Card size="sm">
+          <CardContent>
+            <form
+              className="space-y-3"
+              onSubmit={(event) => {
+                event.preventDefault()
                 setSavedFlag(false)
+                mutation.mutate()
               }}
-              placeholder="Catat alasan apakah arsip ini duplikat atau berkas berbeda."
-            />
-          </div>
+            >
+              <div
+                className="flex flex-wrap items-center gap-2"
+                role="group"
+                aria-label={`Keputusan pasangan ${pairKey}`}
+              >
+                {(['duplikat', 'bukan_duplikat', 'perlu_cek'] as const).map((option) => (
+                  <Button
+                    key={option}
+                    type="button"
+                    size="sm"
+                    variant={decision === option ? 'default' : 'outline'}
+                    onClick={() => {
+                      setDecision(option)
+                      setSavedFlag(false)
+                    }}
+                  >
+                    {DECISION_LABELS[option]}
+                  </Button>
+                ))}
+              </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <Button type="submit" size="sm" disabled={mutation.isPending}>
-              {mutation.isPending ? 'Menyimpan…' : 'Simpan keputusan'}
-            </Button>
-            {savedFlag && !mutation.isPending && (
-              <span role="status" className="text-xs font-medium text-primary">
-                Keputusan tersimpan tanpa mengubah arsip sumber.
-              </span>
-            )}
-            {mutation.isError && (
-              <span role="alert" className="text-xs text-destructive">
-                {mutation.error instanceof ApiError
-                  ? mutation.error.message
-                  : 'Keputusan belum dapat disimpan.'}
-              </span>
-            )}
-          </div>
-        </form>
+              <div className="space-y-1.5">
+                <Label htmlFor={`dup-notes-${pairKey}`}>Catatan penilai (opsional)</Label>
+                <Textarea
+                  id={`dup-notes-${pairKey}`}
+                  rows={2}
+                  value={notes}
+                  onChange={(event) => {
+                    setNotes(event.target.value)
+                    setSavedFlag(false)
+                  }}
+                  placeholder="Catat alasan apakah arsip ini duplikat atau berkas berbeda."
+                />
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                <Button type="submit" size="sm" disabled={mutation.isPending}>
+                  {mutation.isPending ? 'Menyimpan…' : 'Simpan keputusan'}
+                </Button>
+                {savedFlag && !mutation.isPending && (
+                  <span role="status" className="text-xs font-medium text-primary">
+                    Keputusan tersimpan tanpa mengubah arsip sumber.
+                  </span>
+                )}
+                {mutation.isError && (
+                  <span role="alert" className="text-xs text-destructive">
+                    {mutation.error instanceof ApiError
+                      ? mutation.error.message
+                      : 'Keputusan belum dapat disimpan.'}
+                  </span>
+                )}
+              </div>
+            </form>
+          </CardContent>
+        </Card>
 
         {(candidate.reviewed_by || candidate.history.length > 0) && (
           <div className="space-y-1 text-xs text-muted-foreground">

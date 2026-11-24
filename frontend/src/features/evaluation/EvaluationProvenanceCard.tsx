@@ -29,24 +29,38 @@ export function EvaluationProvenanceCard({ run }: { run: EvaluationRun }) {
       </CardHeader>
       <CardContent className="space-y-4 text-sm">
         {prov && (
-          <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-md border px-3 py-2">
-              <dt className="text-xs text-muted-foreground">Commit Git</dt>
-              <dd className="mt-1 font-mono text-xs font-medium">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <Card size="sm">
+              <CardHeader className="pb-1">
+                <CardDescription className="text-xs">Commit Git</CardDescription>
+              </CardHeader>
+              <CardContent className="font-mono text-xs font-medium">
                 {shortHash(prov.commit_sha)} ({prov.tree_clean ? 'bersih' : 'tree kotor'})
-              </dd>
-            </div>
-            <div className="rounded-md border px-3 py-2">
-              <dt className="text-xs text-muted-foreground">Hash basis data</dt>
-              <dd className="mt-1 font-mono text-xs font-medium">{shortHash(prov.data_hash)}</dd>
-            </div>
-            <div className="rounded-md border px-3 py-2">
-              <dt className="text-xs text-muted-foreground">Hash set uji</dt>
-              <dd className="mt-1 font-mono text-xs font-medium">{shortHash(prov.testset_hash)}</dd>
-            </div>
-            <div className="rounded-md border px-3 py-2">
-              <dt className="text-xs text-muted-foreground">Manifest &amp; pemisahan split</dt>
-              <dd className="mt-1 flex flex-wrap gap-1.5">
+              </CardContent>
+            </Card>
+            <Card size="sm">
+              <CardHeader className="pb-1">
+                <CardDescription className="text-xs">Hash basis data</CardDescription>
+              </CardHeader>
+              <CardContent className="font-mono text-xs font-medium">
+                {shortHash(prov.data_hash)}
+              </CardContent>
+            </Card>
+            <Card size="sm">
+              <CardHeader className="pb-1">
+                <CardDescription className="text-xs">Hash set uji</CardDescription>
+              </CardHeader>
+              <CardContent className="font-mono text-xs font-medium">
+                {shortHash(prov.testset_hash)}
+              </CardContent>
+            </Card>
+            <Card size="sm">
+              <CardHeader className="pb-1">
+                <CardDescription className="text-xs">
+                  Manifest &amp; pemisahan split
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-wrap gap-1.5">
                 <Badge variant={run.manifest.valid ? 'outline' : 'secondary'}>
                   {run.manifest.valid ? 'Manifest SHA-256 valid' : 'Manifest tak valid'}
                 </Badge>
@@ -55,9 +69,9 @@ export function EvaluationProvenanceCard({ run }: { run: EvaluationRun }) {
                     ? 'Tuning/test terpisah'
                     : `${formatNumber(counts.split_leakage_count)} kebocoran`}
                 </Badge>
-              </dd>
-            </div>
-          </dl>
+              </CardContent>
+            </Card>
+          </div>
         )}
 
         <p className="text-xs text-muted-foreground">

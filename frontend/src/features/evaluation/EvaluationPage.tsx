@@ -8,6 +8,7 @@ import { LoadingState } from '@/components/shared/LoadingState'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useSession } from '@/features/auth/useSession'
 import { EvaluationKpiStrip } from '@/features/evaluation/EvaluationKpiStrip'
@@ -142,25 +143,24 @@ export function EvaluationPage() {
 
       {run && run.available && (
         <div className="space-y-6">
-          <div
-            aria-label="Status validasi artefak run"
-            className="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-card px-4 py-3 text-xs"
-          >
-            <div className="flex flex-wrap items-center gap-2">
-              <EvaluationStatusBadge status={run.status} />
-              <Badge variant={run.manifest.valid ? 'outline' : 'secondary'}>
-                {run.manifest.valid ? 'Manifest SHA-256 valid' : 'Manifest tak valid'}
-              </Badge>
-              <Badge variant={noLeakage ? 'outline' : 'destructive'}>
-                {noLeakage
-                  ? 'Tuning/test terpisah'
-                  : `${formatNumber(run.split_counts.split_leakage_count)} kebocoran`}
-              </Badge>
-            </div>
-            <p className="text-muted-foreground">
-              {run.status_reasons[0] ?? 'Artefak evaluasi dimuat.'}
-            </p>
-          </div>
+          <Card size="sm" aria-label="Status validasi artefak run">
+            <CardContent className="flex flex-wrap items-center justify-between gap-3 text-xs">
+              <div className="flex flex-wrap items-center gap-2">
+                <EvaluationStatusBadge status={run.status} />
+                <Badge variant={run.manifest.valid ? 'outline' : 'secondary'}>
+                  {run.manifest.valid ? 'Manifest SHA-256 valid' : 'Manifest tak valid'}
+                </Badge>
+                <Badge variant={noLeakage ? 'outline' : 'destructive'}>
+                  {noLeakage
+                    ? 'Tuning/test terpisah'
+                    : `${formatNumber(run.split_counts.split_leakage_count)} kebocoran`}
+                </Badge>
+              </div>
+              <p className="text-muted-foreground">
+                {run.status_reasons[0] ?? 'Artefak evaluasi dimuat.'}
+              </p>
+            </CardContent>
+          </Card>
 
           <EvaluationKpiStrip items={run.method_summary} />
 
