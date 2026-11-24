@@ -164,7 +164,7 @@ export function AppSidebar({
           <span className="grid size-8 shrink-0 place-items-center rounded-full bg-sidebar-accent">
             <UserRound aria-hidden="true" className="size-4" />
           </span>
-          <p className="min-w-0 text-sm break-words">
+          <p className="min-w-0 text-sm wrap-break-word">
             {user?.username} · {user?.role === 'admin' ? 'Admin' : 'Petugas'}
           </p>
         </div>
