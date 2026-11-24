@@ -342,6 +342,29 @@ SCHEMA_STATEMENTS = [
         submitted_at TEXT NOT NULL
     );
     """,
+    """
+    CREATE TABLE IF NOT EXISTS public_task_link (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        task_kind TEXT NOT NULL CHECK (task_kind IN ('relevance', 'extraction_audit')),
+        token_hash TEXT NOT NULL UNIQUE,
+        token_preview TEXT NOT NULL,
+        target_user_id INTEGER NOT NULL REFERENCES user(id),
+        target_version TEXT,
+        target_slot INTEGER CHECK (target_slot IN (1, 2) OR target_slot IS NULL),
+        label TEXT NOT NULL DEFAULT '',
+        lock_single_device INTEGER NOT NULL DEFAULT 1 CHECK (lock_single_device IN (0, 1)),
+        claimed_device_hash TEXT,
+        claimed_at TEXT,
+        submitted_at TEXT,
+        revoked_at TEXT,
+        created_by INTEGER NOT NULL REFERENCES user(id),
+        created_at TEXT NOT NULL,
+        CHECK (
+            (task_kind = 'relevance' AND target_version IS NOT NULL AND target_slot IN (1, 2))
+            OR (task_kind = 'extraction_audit' AND target_version IS NULL AND target_slot IS NULL)
+        )
+    );
+    """,
 ]
 
 

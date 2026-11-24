@@ -50,4 +50,5 @@ from webapp.api import evaluation as _evaluation  # noqa: E402,F401
 from webapp.api import quality as _quality  # noqa: E402,F401
 from webapp.api import duplicates as _duplicates  # noqa: E402,F401
 from webapp.api import public_forms as _public_forms  # noqa: E402,F401
+from webapp.api import public_tasks as _public_tasks  # noqa: E402,F401
 from webapp.api import admin_users as _admin_users  # noqa: E402,F401

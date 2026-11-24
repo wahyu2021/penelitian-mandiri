@@ -22,32 +22,31 @@ const fieldResult = z.object({
     })
     .nullable(),
 })
-const stateSchema = z.object({
-  data: z.object({
-    fingerprint: z.string(),
-    extractor_version: z.string(),
-    source_filename: z.string(),
-    index: z.number(),
-    total_samples: z.number(),
-    completed_samples: z.number(),
-    completed_cells: z.number(),
-    total_cells: z.number(),
-    final: z.boolean(),
-    sample: z.object({
-      sample_id: z.number(),
-      archive_id: z.number(),
-      archive_status: z.string(),
-      summary_raw: z.string(),
-      extracted_spm: z.string(),
-      extracted_sp2d: z.string(),
-      extracted_date: z.string(),
-      extracted_amount: z.string(),
-      extracted_party: z.string(),
-    }),
-    judgments: z.record(z.string(), judgment),
-    results: z.record(z.string(), fieldResult),
+export const auditStateDataSchema = z.object({
+  fingerprint: z.string(),
+  extractor_version: z.string(),
+  source_filename: z.string(),
+  index: z.number(),
+  total_samples: z.number(),
+  completed_samples: z.number(),
+  completed_cells: z.number(),
+  total_cells: z.number(),
+  final: z.boolean(),
+  sample: z.object({
+    sample_id: z.number(),
+    archive_id: z.number(),
+    archive_status: z.string(),
+    summary_raw: z.string(),
+    extracted_spm: z.string(),
+    extracted_sp2d: z.string(),
+    extracted_date: z.string(),
+    extracted_amount: z.string(),
+    extracted_party: z.string(),
   }),
+  judgments: z.record(z.string(), judgment),
+  results: z.record(z.string(), fieldResult),
 })
+const stateSchema = z.object({ data: auditStateDataSchema })
 const reviewerSchema = z.object({
   id: z.number(),
   username: z.string(),

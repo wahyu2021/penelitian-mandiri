@@ -18,14 +18,14 @@ const adminOverview = z.object({
     z.object({ version: z.string(), sample_rows: z.number(), reviewers: z.array(reviewer) }),
   ),
 })
-const answer = z.object({
+export const relevanceAnswerSchema = z.object({
   is_relevant: z.union([z.literal(0), z.literal(1)]).nullable(),
   ragu: z.boolean(),
   notes: z.string(),
   revision: z.number().int(),
 })
-const itemState = z.object({
-  item: answer.extend({
+export const relevanceItemStateSchema = z.object({
+  item: relevanceAnswerSchema.extend({
     id: z.number(),
     base_query_text: z.string(),
     query_type: z.string(),
@@ -36,6 +36,8 @@ const itemState = z.object({
   rated: z.number().int(),
   submitted_at: z.string().nullable(),
 })
+const answer = relevanceAnswerSchema
+const itemState = relevanceItemStateSchema
 const migration = z.object({
   inserted: z.number(),
   preserved: z.number(),

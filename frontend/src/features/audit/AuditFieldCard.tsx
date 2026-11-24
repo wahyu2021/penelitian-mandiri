@@ -40,6 +40,8 @@ export function AuditFieldCard({
   savedVerdict,
   savedNote,
   csrfToken,
+  readOnly = false,
+  saveFn,
   onSaved,
 }: {
   field: AuditField
@@ -49,13 +51,17 @@ export function AuditFieldCard({
   savedVerdict: Verdict | null
   savedNote: string
   csrfToken: string
+  readOnly?: boolean
+  saveFn?: (verdict: Verdict | null, note: string) => Promise<void>
   onSaved: () => Promise<unknown>
 }) {
   const [verdict, setVerdict] = useState<Verdict | ''>(savedVerdict ?? '')
   const [note, setNote] = useState(savedNote)
   const mutation = useMutation({
     mutationFn: () =>
-      saveAuditField(archiveId, field, verdict || null, note, fingerprint, csrfToken),
+      saveFn
+        ? saveFn(verdict || null, note)
+        : saveAuditField(archiveId, field, verdict || null, note, fingerprint, csrfToken),
     onSuccess: onSaved,
   })
   const dirty = verdict !== (savedVerdict ?? '') || note !== savedNote
@@ -75,6 +81,7 @@ export function AuditFieldCard({
         <div className="space-y-1.5">
           <Label htmlFor={`verdict-${field}`}>Penilaian {auditFieldLabels[field]}</Label>
           <Select
+            disabled={readOnly}
             value={verdict || UNRATED_VALUE}
             onValueChange={(next) => setVerdict(next === UNRATED_VALUE ? '' : (next as Verdict))}
           >
@@ -95,15 +102,22 @@ export function AuditFieldCard({
           <Label htmlFor={`note-${field}`}>Catatan (opsional)</Label>
           <Input
             id={`note-${field}`}
+            disabled={readOnly}
             value={note}
             maxLength={1000}
             onChange={(event) => setNote(event.target.value)}
             placeholder="Alasan penilaian bila perlu"
           />
         </div>
-        <Button size="sm" disabled={!dirty || mutation.isPending} onClick={() => mutation.mutate()}>
-          Simpan {auditFieldLabels[field]}
-        </Button>
+        {!readOnly && (
+          <Button
+            size="sm"
+            disabled={!dirty || mutation.isPending}
+            onClick={() => mutation.mutate()}
+          >
+            Simpan {auditFieldLabels[field]}
+          </Button>
+        )}
         {mutation.isError && (
           <Alert variant="destructive">
             <AlertDescription>

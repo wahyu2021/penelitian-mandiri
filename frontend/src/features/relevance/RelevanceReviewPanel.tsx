@@ -28,6 +28,9 @@ export function RelevanceReviewPanel({
   state,
   version,
   csrf,
+  publicMode = false,
+  saveAnswerFn,
+  submitReviewFn,
   onPosition,
   onRefresh,
   onSaved,
@@ -36,6 +39,12 @@ export function RelevanceReviewPanel({
   state: RelevanceState
   version: string
   csrf: string
+  publicMode?: boolean
+  saveAnswerFn?: (
+    pairId: number,
+    value: Answer,
+  ) => Promise<{ revision: number; rated: number; total: number }>
+  submitReviewFn?: () => Promise<{ submitted_at: string }>
   onPosition: (position: number | null) => void
   onRefresh: () => Promise<unknown>
   onSaved: (answer: Answer, progress: { rated: number; revision: number }) => void
@@ -54,14 +63,17 @@ export function RelevanceReviewPanel({
     revision: item.revision,
   }
   const save = useMutation({
-    mutationFn: () => saveReviewAnswer(version, item.id, answer, csrf),
+    mutationFn: () =>
+      saveAnswerFn
+        ? saveAnswerFn(item.id, answer)
+        : saveReviewAnswer(version, item.id, answer, csrf),
     onSuccess: (result) => onSaved(answer, result),
   })
   const submit = useMutation({
-    mutationFn: () => submitReview(version, csrf),
+    mutationFn: () => (submitReviewFn ? submitReviewFn() : submitReview(version, csrf)),
     onSuccess: (result) => onSubmitted(result.submitted_at),
   })
-  useReviewExpiry(save.error, submit.error)
+  useReviewExpiry(publicMode ? null : save.error, publicMode ? null : submit.error)
   useEffect(() => {
     if (!dirty) return
     const confirmLeave = (event: BeforeUnloadEvent) => {

@@ -1,10 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Download } from 'lucide-react'
 import { LoadingState } from '@/components/shared/LoadingState'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { TaskLinksManager } from '@/features/forms/TaskLinksManager'
 import { getAuditReviewers, setAuditReviewer } from '@/lib/api/extractionAudit'
+import { adminAuditExportUrl } from '@/lib/api/publicTasks'
 
 export function AuditReviewersCard({ csrfToken }: { csrfToken: string }) {
   const queryClient = useQueryClient()
@@ -35,26 +38,38 @@ export function AuditReviewersCard({ csrfToken }: { csrfToken: string }) {
           </Alert>
         )}
         {reviewers.data?.map((person) => (
-          <div
-            key={person.id}
-            className="flex flex-wrap items-center justify-between gap-3 border-t pt-3"
-          >
-            <div className="flex flex-wrap items-center gap-2">
-              <span>
-                {person.username} {!person.is_active && '(nonaktif)'}
-              </span>
-              <Badge variant={person.assigned_at ? 'outline' : 'secondary'}>
-                {person.assigned_at ? 'ditugaskan' : 'belum ditugaskan'}
-              </Badge>
+          <div key={person.id} className="space-y-3 border-t pt-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <span>
+                  {person.username} {!person.is_active && '(nonaktif)'}
+                </span>
+                <Badge variant={person.assigned_at ? 'outline' : 'secondary'}>
+                  {person.assigned_at ? 'ditugaskan' : 'belum ditugaskan'}
+                </Badge>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button size="sm" variant="outline" asChild>
+                  <a href={adminAuditExportUrl(person.id)}>
+                    <Download aria-hidden="true" /> Unduh CSV
+                  </a>
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={!person.is_active || mutation.isPending}
+                  onClick={() => mutation.mutate({ id: person.id, assigned: !person.assigned_at })}
+                >
+                  {person.assigned_at ? 'Cabut tugas' : 'Tugaskan'}
+                </Button>
+              </div>
             </div>
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={!person.is_active || mutation.isPending}
-              onClick={() => mutation.mutate({ id: person.id, assigned: !person.assigned_at })}
-            >
-              {person.assigned_at ? 'Cabut tugas' : 'Tugaskan'}
-            </Button>
+            <TaskLinksManager
+              taskKind="extraction_audit"
+              userId={person.id}
+              csrfToken={csrfToken}
+              disabled={!person.is_active}
+            />
           </div>
         ))}
         {mutation.isError && (

@@ -353,6 +353,44 @@ def device_cookie_name(link_id: int) -> str:
     return f"pm_form_device_{link_id}"
 
 
+def verify_or_claim_device(
+    conn: sqlite3.Connection,
+    *,
+    table: str,
+    link_id: int,
+    cookie_key: str,
+    existing_claim: Optional[str],
+    lock_single_device: bool,
+    device_cookies: Dict[str, str],
+) -> Optional[str]:
+    """Klaim perangkat pertama secara atomik atau verifikasi cookie perangkat yang sama."""
+    if table not in ("public_form_link", "public_task_link"):
+        raise ValueError("Tabel tautan tidak valid.")
+    if not lock_single_device:
+        return None
+    presented_secret = device_cookies.get(cookie_key)
+    if existing_claim is None:
+        new_device_secret = secrets.token_urlsafe(24)
+        now = _now()
+        with conn:
+            updated = conn.execute(
+                f"""
+                UPDATE {table}
+                SET claimed_device_hash = ?, claimed_at = ?
+                WHERE id = ? AND claimed_device_hash IS NULL AND revoked_at IS NULL
+                """,
+                (_sha256(new_device_secret), now, link_id),
+            )
+            if updated.rowcount != 1:
+                raise DeviceClaimError("Tautan baru saja dibuka oleh perangkat lain.")
+        return new_device_secret
+    if not presented_secret or not secrets.compare_digest(_sha256(presented_secret), str(existing_claim)):
+        raise DeviceClaimError(
+            "Tautan ini sudah dikunci pada perangkat pertama. Minta admin mereset kunci jika perlu."
+        )
+    return None
+
+
 def resolve_public_link(
     conn: sqlite3.Connection,
     *,
@@ -379,30 +417,15 @@ def resolve_public_link(
 
     link_id = int(row["link_id"])
     cookie_key = device_cookie_name(link_id)
-    new_device_secret: Optional[str] = None
-
-    if bool(row["lock_single_device"]):
-        existing_claim = row["claimed_device_hash"]
-        presented_secret = device_cookies.get(cookie_key)
-        if existing_claim is None:
-            new_device_secret = secrets.token_urlsafe(24)
-            now = _now()
-            with conn:
-                updated = conn.execute(
-                    """
-                    UPDATE public_form_link
-                    SET claimed_device_hash = ?, claimed_at = ?
-                    WHERE id = ? AND claimed_device_hash IS NULL AND revoked_at IS NULL
-                    """,
-                    (_sha256(new_device_secret), now, link_id),
-                )
-                if updated.rowcount != 1:
-                    raise DeviceClaimError("Tautan baru saja dibuka oleh perangkat lain.")
-        else:
-            if not presented_secret or not secrets.compare_digest(_sha256(presented_secret), str(existing_claim)):
-                raise DeviceClaimError(
-                    "Tautan ini sudah dikunci pada perangkat pertama. Minta admin mereset kunci jika perlu."
-                )
+    new_device_secret = verify_or_claim_device(
+        conn,
+        table="public_form_link",
+        link_id=link_id,
+        cookie_key=cookie_key,
+        existing_claim=row["claimed_device_hash"],
+        lock_single_device=bool(row["lock_single_device"]),
+        device_cookies=device_cookies,
+    )
 
     return {
         "link_id": link_id,

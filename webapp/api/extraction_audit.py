@@ -146,6 +146,26 @@ def _change_assignment(user_id: int, assigned: bool):
     return success({"user_id": user_id, "assigned": assigned})
 
 
+@api.get("/extraction-audit/reviewers/<int:user_id>/export")
+@require_api_role("admin")
+def export_reviewer_audit(user_id: int):
+    target = db().execute("SELECT id, username FROM user WHERE id = ?", (user_id,)).fetchone()
+    if not target:
+        abort(404, description="Akun penilai tidak ditemukan.")
+    try:
+        csv_text = export_completed_csv(db(), _sample(), user_id)
+    except ValueError as error:
+        abort(409, description=str(error))
+    except sqlite3.Error:
+        abort(500, description="Ekspor audit belum tersedia.")
+    response = Response(csv_text, mimetype="text/csv; charset=utf-8")
+    response.headers["Content-Disposition"] = (
+        f'attachment; filename="audit-ekstraksi-web-penilai-{user_id}.csv"'
+    )
+    response.headers["Cache-Control"] = "no-store"
+    return response
+
+
 @api.put("/extraction-audit/reviewers/<int:user_id>")
 @require_api_role("admin")
 def assign_reviewer(user_id):

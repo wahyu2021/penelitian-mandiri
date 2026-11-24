@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { RelevanceLegacyImportForm } from '@/features/relevance/RelevanceLegacyImportForm'
 import { RelevanceSetupCard } from '@/features/relevance/RelevanceSetupCard'
+import { TaskLinksManager } from '@/features/forms/TaskLinksManager'
 import { useSession } from '@/features/auth/useSession'
 import { reviewError, useReviewExpiry } from '@/features/relevance/useReviewSession'
 import { getRelevanceAdmin, relevanceExportUrl } from '@/lib/api/relevance'
@@ -72,6 +73,13 @@ export function RelevanceAdminPage() {
                       <p>
                         {person.rated}/{person.total} dinilai
                       </p>
+                      <TaskLinksManager
+                        taskKind="relevance"
+                        version={review.version}
+                        slot={person.slot}
+                        csrfToken={session.csrf_token}
+                        disabled={Boolean(person.submitted_at)}
+                      />
                       {!person.submitted_at && (
                         <RelevanceLegacyImportForm
                           version={review.version}

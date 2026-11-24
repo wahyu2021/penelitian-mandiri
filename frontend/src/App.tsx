@@ -41,9 +41,9 @@ const FormsAdminPage = lazy(() =>
     default: module.FormsAdminPage,
   })),
 )
-const PublicFormPage = lazy(() =>
-  import('@/features/forms/PublicFormPage').then((module) => ({
-    default: module.PublicFormPage,
+const PublicLinkRouter = lazy(() =>
+  import('@/features/forms/PublicLinkRouter').then((module) => ({
+    default: module.PublicLinkRouter,
   })),
 )
 
@@ -66,7 +66,7 @@ export default function App() {
                 <LoadingState label="Membuka formulir" rows={2} rowClassName="h-32 w-full" />
               }
             >
-              <PublicFormPage />
+              <PublicLinkRouter />
             </Suspense>
           }
         />
