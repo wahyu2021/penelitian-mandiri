@@ -393,7 +393,7 @@ tampilan atau klaim dokumen saja.
 - **Uji:** kandidat sama/berbeda, keputusan dan koreksi, izin, daftar kosong,
   tidak ada perubahan arsip sumber, ponsel/tablet, lint/tipe/build.
 - **Commit:** `feat(duplicates): tambah tinjauan kandidat [PM-24]`.
-- **Jejak:** Status: ditunda (P2 opsional) | Uji: — | Commit: — | Catatan: ditunda hingga fitur inti operasional dan evaluasi utama selesai.
+- **Jejak:** Status: selesai (24 November 2026) | Uji: deteksi kandidat sama/berbeda (`same_spm`, `same_summary`, `same_amount_opd_year`), daftar kosong, simpan dan koreksi keputusan dengan riwayat audit + `activity_log`, CSRF/401/403/422, serta verifikasi tabel `archive`/`archive_metadata` tetap utuh; `python -m pytest -q` 278 lulus, 5 dilewati; `npm run lint`, `npm run typecheck`, `npm test` (50 uji frontend pada 16 berkas lulus), `npm run format:check`, dan `npm run build` lulus | Commit: `594aa70` | Catatan: halaman admin `/app/research/duplicates` (lazy-loaded) bersifat non-destruktif dan tidak melakukan operasi hapus maupun gabung arsip otomatis.
 
 ### PM-25 — Selaraskan bukti implementasi untuk laporan
 
