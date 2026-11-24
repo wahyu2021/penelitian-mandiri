@@ -24,7 +24,11 @@ def register_spa(app):
         path = request.path
         if request.method not in ("GET", "HEAD"):
             return None
-        if path not in ("/", "/login", "/app") and not path.startswith("/app/"):
+        if (
+            path not in ("/", "/login", "/app")
+            and not path.startswith("/app/")
+            and not path.startswith("/f/")
+        ):
             return None
         response = send_file(index)
         response.headers["Cache-Control"] = "no-store"

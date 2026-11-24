@@ -7,6 +7,7 @@ import {
   Columns2,
   CopyCheck,
   DatabaseBackup,
+  FileSpreadsheet,
   FlaskConical,
   LayoutDashboard,
   ListChecks,
@@ -69,6 +70,7 @@ const researchGroups: SidebarGroup[] = [
       { path: 'testsets', label: 'Set uji', icon: ListChecks, adminOnly: true },
       { path: 'relevance-admin', label: 'Kelola penilaian', icon: UserRoundCheck, adminOnly: true },
       { path: 'relevance', label: 'Penilaian relevansi', icon: ClipboardList },
+      { path: 'forms', label: 'Formulir publik', icon: FileSpreadsheet, adminOnly: true },
     ],
   },
   {

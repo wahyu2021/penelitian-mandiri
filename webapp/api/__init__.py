@@ -11,6 +11,7 @@ ERROR_CODES = {
     404: "not_found",
     405: "method_not_allowed",
     409: "conflict",
+    410: "gone",
     413: "payload_too_large",
     422: "validation_error",
     500: "server_error",
@@ -48,4 +49,5 @@ from webapp.api import agreement as _agreement  # noqa: E402,F401
 from webapp.api import evaluation as _evaluation  # noqa: E402,F401
 from webapp.api import quality as _quality  # noqa: E402,F401
 from webapp.api import duplicates as _duplicates  # noqa: E402,F401
+from webapp.api import public_forms as _public_forms  # noqa: E402,F401
 from webapp.api import admin_users as _admin_users  # noqa: E402,F401

@@ -36,6 +36,16 @@ const DuplicatesPage = lazy(() =>
     default: module.DuplicatesPage,
   })),
 )
+const FormsAdminPage = lazy(() =>
+  import('@/features/forms/FormsAdminPage').then((module) => ({
+    default: module.FormsAdminPage,
+  })),
+)
+const PublicFormPage = lazy(() =>
+  import('@/features/forms/PublicFormPage').then((module) => ({
+    default: module.PublicFormPage,
+  })),
+)
 
 function ResearchRedirect({ to }: { to: string }) {
   const { search } = useLocation()
@@ -48,6 +58,18 @@ export default function App() {
       <Routes>
         <Route path="/" element={<RootRedirect />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="/f/:token"
+          element={
+            <Suspense
+              fallback={
+                <LoadingState label="Membuka formulir" rows={2} rowClassName="h-32 w-full" />
+              }
+            >
+              <PublicFormPage />
+            </Suspense>
+          }
+        />
         <Route element={<ProtectedRoute />}>
           <Route path="/app/research" element={<AppShell research />}>
             <Route index element={<ResearchOverviewPage />} />
@@ -103,6 +125,22 @@ export default function App() {
                   }
                 >
                   <DuplicatesPage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="forms"
+              element={
+                <Suspense
+                  fallback={
+                    <LoadingState
+                      label="Memuat formulir publik"
+                      rows={2}
+                      rowClassName="h-44 w-full"
+                    />
+                  }
+                >
+                  <FormsAdminPage />
                 </Suspense>
               }
             />

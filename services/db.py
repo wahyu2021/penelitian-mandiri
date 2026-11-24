@@ -301,6 +301,47 @@ SCHEMA_STATEMENTS = [
         changed_at TEXT NOT NULL
     );
     """,
+    """
+    CREATE TABLE IF NOT EXISTS survey_form (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        slug TEXT NOT NULL UNIQUE,
+        title TEXT NOT NULL,
+        description TEXT NOT NULL DEFAULT '',
+        form_kind TEXT NOT NULL CHECK (form_kind IN ('sus', 'custom')),
+        questions_json TEXT NOT NULL,
+        created_by INTEGER NOT NULL REFERENCES user(id),
+        created_at TEXT NOT NULL
+    );
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS public_form_link (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        form_id INTEGER NOT NULL REFERENCES survey_form(id),
+        token_hash TEXT NOT NULL UNIQUE,
+        token_preview TEXT NOT NULL,
+        participant_code TEXT NOT NULL,
+        participant_role TEXT NOT NULL CHECK (participant_role IN ('admin', 'petugas')),
+        lock_single_device INTEGER NOT NULL DEFAULT 1 CHECK (lock_single_device IN (0, 1)),
+        claimed_device_hash TEXT,
+        claimed_at TEXT,
+        submitted_at TEXT,
+        revoked_at TEXT,
+        created_by INTEGER NOT NULL REFERENCES user(id),
+        created_at TEXT NOT NULL
+    );
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS survey_response (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        form_id INTEGER NOT NULL REFERENCES survey_form(id),
+        link_id INTEGER NOT NULL UNIQUE REFERENCES public_form_link(id),
+        participant_code TEXT NOT NULL,
+        participant_role TEXT NOT NULL,
+        answers_json TEXT NOT NULL,
+        sus_score REAL,
+        submitted_at TEXT NOT NULL
+    );
+    """,
 ]
 
 
