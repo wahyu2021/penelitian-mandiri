@@ -408,7 +408,7 @@ tampilan atau klaim dokumen saja.
 - **Commit:** `docs(research): selaraskan bukti implementasi [PM-25]` untuk
   catatan proyek yang aman masuk Git; berkas Word di folder lain tidak
   dimasukkan ke commit PM.
-- **Jejak:** Status: belum dimulai | Uji: — | Commit: — | Catatan: —
+- **Jejak:** Status: sedang berjalan — bukti proyek tersinkron (24 November 2026) | Uji: angka dan hash ditelusuri langsung ke `output/colab_bundle/` (`run_meta.json`, `per_query_results.csv`, `tuning_results.csv`, `audit_summary.json`), rilis `output/releases/pm-web-20261124-080825.zip` (SHA-256 `e20df9a2a4bb8956fcb9b4cb12bfdff09ae96b3cd14041e678c8d22417a7ca6b`), `pytest -q` 278 lulus / 5 dilewati, dan 50 uji frontend lulus | Commit: — | Catatan: daftar teknologi, rute, metrik `draft`, dan status keterbatasan dicatat pada `docs/bukti_implementasi.md` serta `README.md`; pembaruan naskah Bab I–V menunggu kelengkapan data aktual `PM-19` (penilai kedua) dan `PM-22` (UAT/SUS) serta permintaan pengguna.
 
 ## Pemetaan cakupan PRD
 

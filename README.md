@@ -51,11 +51,15 @@ dan pemulihan ada di [runbook](docs/runbook_web_release.md).
 
 ## Menjalankan aplikasi web
 
-Aplikasi utama kini menyediakan login, dashboard korpus, pencarian LIKE dan empat metode fuzzy,
-perbandingan hasil untuk admin, detail arsip, impor salinan dump, audit ekstraksi,
-konfirmasi kamus SPM, dan pengelolaan versi set uji melalui web.
-Halaman hasil evaluasi dan administrasi pengguna pada `rancangan_aplikasi.md` masih harus dibangun
-sebelum UAT/SUS untuk keseluruhan aplikasi.
+Aplikasi utama kini menyediakan seluruh alur **Jalur Operasional** (`/app`: login,
+dashboard korpus, pencarian fuzzy bawaan server, detail & lokasi arsip, impor
+salinan dump, serta administrasi akun & log aktivitas) dan **Jalur Ruang Penelitian**
+(`/app/research`: ringkasan alur, perbandingan 5 metode, hasil evaluasi & bukti run,
+kesepakatan dua penilai, pengelolaan set uji, penilaian relevansi buta, audit
+ekstraksi, kamus SPM, tinjauan kualitas metadata, serta tinjauan kandidat duplikat).
+Instrumen uji lapangan UAT/SUS ada di [instrumen UAT/SUS](docs/instrumen_uat_sus.md),
+dan peta keterlacakan bukti kode serta metrik ada di
+[bukti implementasi](docs/bukti_implementasi.md).
 
 Route API berada di `webapp/api/`, mesin pencarian di `services/web_search.py`,
 dan `app.py`/`wsgi.py` menjadi titik masuk. UI Jinja lama dihapus setelah uji
